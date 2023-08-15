@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"attr":["inherit"],"fn":["import_crate"]};
