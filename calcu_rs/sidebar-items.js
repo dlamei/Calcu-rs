@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":["base"],"static":["False","True"],"struct":["And","Base","BooleanAtom","BooleanFalse","BooleanTrue"],"trait":["Application","Basic","Boolean","BooleanFunc"]};

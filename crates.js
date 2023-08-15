@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["internals","macros"];
+window.ALL_CRATES = ["calcu_rs","internals","macros"];
