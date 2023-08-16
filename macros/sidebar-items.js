@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"attr":["inherit"],"fn":["import_crate"]};
+window.SIDEBAR_ITEMS = {"attr":["inherit"],"enum":["IdentType"],"fn":["import_crate"],"macro":["define_categories"],"struct":["CategoryRelations","Relation"]};

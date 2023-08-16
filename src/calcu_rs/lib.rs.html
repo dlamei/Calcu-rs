@@ -251,6 +251,27 @@
 <a href="#251" id="251">251</a>
 <a href="#252" id="252">252</a>
 <a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! simple symbolic algebra system in rust
 
 </span><span class="attr">#![warn(missing_docs)]
@@ -295,7 +316,27 @@
     is_commutative: bool,
 }
 
-<span class="kw">impl </span>Base {
+<span class="macro">define_categories! </span>{
+    Boolean =&gt; is_boolean &amp; is_commutative,
+}
+
+<span class="comment">/*
+
+categroy! {
+    Boolean =&gt; is_boolean + is_commutative,
+    BooleanFunc =&gt; Application + Boolean + is_foo,
+}
+
+#[in_category(Boolean, BooleanFunc)]
+
+pub trait BooleanFunc: Application + Boolean {}
+
+then build base struct
+implement traits?
+
+*/
+
+</span><span class="kw">impl </span>Base {
     <span class="kw">const fn </span>default() -&gt; <span class="self">Self </span>{
         Base {
             is_number: <span class="bool-val">false</span>,
@@ -443,7 +484,8 @@
 <span class="kw">impl</span>&lt;T, U&gt; BooleanFunc <span class="kw">for </span>And&lt;T, U&gt; {}
 <span class="kw">impl</span>&lt;T, U&gt; Basic <span class="kw">for </span>And&lt;T, U&gt; {}
 
-<span class="kw">impl</span>&lt;T, U&gt; And&lt;T, U&gt;
+<span class="comment">// TODO: use category to generate new func
+</span><span class="kw">impl</span>&lt;T, U&gt; And&lt;T, U&gt;
 <span class="kw">where
     </span>T: Boolean,
     U: Boolean,
