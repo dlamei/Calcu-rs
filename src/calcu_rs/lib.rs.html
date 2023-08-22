@@ -265,6 +265,18 @@
 <a href="#265" id="265">265</a>
 <a href="#266" id="266">266</a>
 <a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! simple symbolic algebra system in rust
 
 </span><span class="kw">use </span>calcrs_internals::Inherited;
@@ -398,7 +410,7 @@
 </span><span class="attr">#[init_calcrs_macro_scope]
 </span><span class="kw">mod </span>__ {
 
-    <span class="kw">pub trait </span>Basic: Debug + Clone + Into&lt;CalcrsType&gt; + Inherited&lt;Base&gt; {
+    <span class="kw">pub trait </span>Basic: Debug + Clone + PartialEq + Into&lt;CalcrsType&gt; + Inherited&lt;Base&gt; {
         <span class="kw">fn </span>eval(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CalcrsType {
             <span class="self">self</span>.clone().into()
         }
@@ -407,7 +419,7 @@
     <span class="kw">pub trait </span>Application: Basic {}
     <span class="kw">pub trait </span>BooleanFunc: Boolean + Application {}
 
-    <span class="attr">#[inherit(Base)]
+    <span class="attr">#[calcrs_type]
     #[derive(Debug, Default, Clone, Copy, PartialEq)]
     </span><span class="kw">pub struct </span>BooleanAtom {}
     <span class="kw">impl </span>Basic <span class="kw">for </span>BooleanAtom {}
@@ -419,7 +431,7 @@
         }
     }
 
-    <span class="attr">#[inherit(Base)]
+    <span class="attr">#[calcrs_type]
     #[derive(Debug, Clone, Default, Copy, PartialEq)]
     </span><span class="kw">pub struct </span>BooleanTrue {}
     <span class="kw">impl </span>Basic <span class="kw">for </span>BooleanTrue {}
@@ -438,7 +450,7 @@
         }
     }
 
-    <span class="attr">#[inherit(Base)]
+    <span class="attr">#[calcrs_type]
     #[derive(Debug, Clone, Default, Copy, PartialEq)]
     </span><span class="kw">pub struct </span>BooleanFalse {}
     <span class="kw">impl </span>Basic <span class="kw">for </span>BooleanFalse {}
@@ -457,7 +469,7 @@
         }
     }
 
-    <span class="attr">#[inherit(Base)]
+    <span class="attr">#[calcrs_type]
     #[derive(Debug, Clone, PartialEq)]
     </span><span class="kw">pub struct </span>And {
         left: Box&lt;CalcrsType&gt;,
@@ -532,4 +544,16 @@
 
 <span class="attr">#[allow(non_upper_case_globals)]
 </span><span class="kw">pub static </span>True: BooleanTrue = BooleanTrue::new();
+
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+
+    <span class="kw">use crate</span>::<span class="kw-2">*</span>;
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>boolean() {
+        <span class="macro">assert_eq!</span>(And::new(True, False), True &amp; False);
+        <span class="macro">assert_eq!</span>(CalcrsType::from(False), (True &amp; False).eval());
+    }
+}
 </code></pre></div></section></main></body></html>
