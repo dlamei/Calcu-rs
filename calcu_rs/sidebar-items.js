@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["CalcrsType"],"macro":["base","map_calcrs_type"],"static":["False","True"],"struct":["And","Base","BooleanAtom","BooleanFalse","BooleanTrue"],"trait":["Application","Basic","Boolean","BooleanFunc"],"type":["Eval"]};
+window.SIDEBAR_ITEMS = {"enum":["CalcursType"],"macro":["base","map_calcurs_type"],"static":["False","True"],"struct":["And","Base","BooleanFalse","BooleanTrue"],"trait":["Application","Basic","Boolean","BooleanAtom","BooleanFunc"],"type":["Eval"]};

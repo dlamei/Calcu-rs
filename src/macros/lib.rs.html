@@ -129,6 +129,9 @@
 <a href="#129" id="129">129</a>
 <a href="#130" id="130">130</a>
 <a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>proc_macro2::{Ident, Span, TokenStream};
 <span class="kw">use </span>quote::{quote, ToTokens};
 <span class="kw">use </span>syn::{parse::Parser, parse_macro_input, Field, FieldsNamed, Item, ItemStruct, Meta};
@@ -191,7 +194,10 @@
 }
 
 <span class="attr">#[proc_macro_attribute]
-</span><span class="kw">pub fn </span>init_calcrs_macro_scope(<span class="kw">_</span>: proc::TokenStream, item: proc::TokenStream) -&gt; proc::TokenStream {
+</span><span class="kw">pub fn </span>init_calcurs_macro_scope(
+    <span class="kw">_</span>: proc::TokenStream,
+    item: proc::TokenStream,
+) -&gt; proc::TokenStream {
     <span class="kw">let </span>input: syn::ItemMod = <span class="macro">parse_macro_input!</span>(item <span class="kw">as </span>syn::ItemMod);
 
     <span class="kw">let </span><span class="kw-2">mut </span>stream = TokenStream::new();
@@ -202,10 +208,10 @@
 
     <span class="kw">let </span>items = input.content.unwrap().<span class="number">1</span>;
 
-    <span class="kw">let </span><span class="kw-2">mut </span>calcrs_types: Vec&lt;Ident&gt; = <span class="macro">vec!</span>[];
+    <span class="kw">let </span><span class="kw-2">mut </span>calcurs_types: Vec&lt;Ident&gt; = <span class="macro">vec!</span>[];
 
     items.into_iter().for_each(|<span class="kw-2">mut </span>item: Item| {
-        <span class="kw">let </span><span class="kw-2">mut </span>calcrs_type = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>calcurs_type = <span class="prelude-val">None</span>;
 
         <span class="kw">match </span>item {
             Item::Struct(ItemStruct {
@@ -221,15 +227,15 @@
 
                         <span class="kw">let </span>macro_name = <span class="kw-2">&amp;</span>p.segments.last().unwrap().ident;
 
-                        <span class="kw">if </span>macro_name == <span class="string">&quot;calcrs_type&quot; </span>{
-                            calcrs_type = <span class="prelude-val">Some</span>(index);
-                            calcrs_types.push(ident.clone());
+                        <span class="kw">if </span>macro_name == <span class="string">&quot;calcurs_type&quot; </span>{
+                            calcurs_type = <span class="prelude-val">Some</span>(index);
+                            calcurs_types.push(ident.clone());
                             <span class="kw">break</span>;
                         }
                     }
                 }
 
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(indx) = calcrs_type {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(indx) = calcurs_type {
                     attrs.remove(indx);
 
                     <span class="kw">let </span>inherit_attr = <span class="macro">quote!</span>(<span class="attr">#[inherit(Base)]</span>);
@@ -244,7 +250,7 @@
         item.to_tokens(<span class="kw-2">&amp;mut </span>stream);
     });
 
-    calcrs_types
+    calcurs_types
         .iter()
         .for_each(|typ| <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, typ.to_string()));
 
@@ -252,10 +258,10 @@
 }
 
 <span class="attr">#[proc_macro_attribute]
-</span><span class="kw">pub fn </span>calcrs_type(<span class="kw">_</span>: proc::TokenStream, <span class="kw">_</span>: proc::TokenStream) -&gt; proc::TokenStream {
+</span><span class="kw">pub fn </span>calcurs_type(<span class="kw">_</span>: proc::TokenStream, <span class="kw">_</span>: proc::TokenStream) -&gt; proc::TokenStream {
     <span class="kw">return </span>syn::Error::new(
         Span::call_site().into(),
-        <span class="string">&quot;called attribute calcrs_type outside a calcrs_scope&quot;</span>,
+        <span class="string">&quot;called attribute calcurs_type outside a calcurs_scope&quot;</span>,
     )
     .into_compile_error()
     .into();

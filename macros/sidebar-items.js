@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"attr":["calcrs_type","inherit","init_calcrs_macro_scope"],"fn":["import_crate"]};
+window.SIDEBAR_ITEMS = {"attr":["calcurs_type","inherit","init_calcurs_macro_scope"],"fn":["import_crate"]};

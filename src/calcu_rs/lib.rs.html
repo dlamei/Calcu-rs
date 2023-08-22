@@ -266,24 +266,13 @@
 <a href="#266" id="266">266</a>
 <a href="#267" id="267">267</a>
 <a href="#268" id="268">268</a>
-<a href="#269" id="269">269</a>
-<a href="#270" id="270">270</a>
-<a href="#271" id="271">271</a>
-<a href="#272" id="272">272</a>
-<a href="#273" id="273">273</a>
-<a href="#274" id="274">274</a>
-<a href="#275" id="275">275</a>
-<a href="#276" id="276">276</a>
-<a href="#277" id="277">277</a>
-<a href="#278" id="278">278</a>
-<a href="#279" id="279">279</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! simple symbolic algebra system in rust
 
-</span><span class="kw">use </span>calcrs_internals::Inherited;
+</span><span class="kw">use </span>calcurs_internals::Inherited;
 <span class="kw">use </span>core::fmt::Debug;
 <span class="kw">use </span>std::ops;
 
-<span class="kw">use </span>calcrs_macros::<span class="kw-2">*</span>;
+<span class="kw">use </span>calcurs_macros::<span class="kw-2">*</span>;
 
 <span class="attr">#[derive(Default, Clone, Copy, PartialEq)]
 </span><span class="kw">pub struct </span>Base {
@@ -372,18 +361,16 @@
     }
 
 <span class="attr">#[derive(Debug, Clone, PartialEq)]
-</span><span class="kw">pub enum </span>CalcrsType {
-    BooleanAtom(BooleanAtom),
+</span><span class="kw">pub enum </span>CalcursType {
     BooleanTrue(BooleanTrue),
     BooleanFalse(BooleanFalse),
     And(And),
 }
 
-<span class="macro">macro_rules! </span>map_calcrs_type {
+<span class="macro">macro_rules! </span>map_calcurs_type {
     (<span class="macro-nonterminal">$e</span>: expr, <span class="macro-nonterminal">$func</span>: expr) =&gt; {{
-        <span class="kw">use </span>CalcrsType::<span class="kw-2">*</span>;
+        <span class="kw">use </span>CalcursType::<span class="kw-2">*</span>;
         <span class="kw">match </span><span class="macro-nonterminal">$e </span>{
-            BooleanAtom(<span class="kw-2">ref </span>x) =&gt; <span class="macro-nonterminal">$func</span>(x),
             BooleanTrue(<span class="kw-2">ref </span>x) =&gt; <span class="macro-nonterminal">$func</span>(x),
             BooleanFalse(<span class="kw-2">ref </span>x) =&gt; <span class="macro-nonterminal">$func</span>(x),
             And(<span class="kw-2">ref </span>x) =&gt; <span class="macro-nonterminal">$func</span>(x),
@@ -391,12 +378,11 @@
     }};
 }
 
-<span class="kw">impl </span>Inherited&lt;Base&gt; <span class="kw">for </span>CalcrsType {
+<span class="kw">impl </span>Inherited&lt;Base&gt; <span class="kw">for </span>CalcursType {
     <span class="kw">fn </span>base(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Base {
-        <span class="kw">use </span>CalcrsType::<span class="kw-2">*</span>;
+        <span class="kw">use </span>CalcursType::<span class="kw-2">*</span>;
 
         <span class="kw">match </span><span class="self">self </span>{
-            BooleanAtom(x) =&gt; x.base(),
             BooleanTrue(x) =&gt; x.base(),
             BooleanFalse(x) =&gt; x.base(),
             And(x) =&gt; x.base(),
@@ -404,34 +390,25 @@
     }
 }
 
-<span class="kw">pub type </span>Eval = CalcrsType;
+<span class="kw">pub type </span>Eval = CalcursType;
 
 <span class="doccomment">/// this is only used, because innert attribute macros are unstable
-</span><span class="attr">#[init_calcrs_macro_scope]
+</span><span class="attr">#[init_calcurs_macro_scope]
 </span><span class="kw">mod </span>__ {
 
-    <span class="kw">pub trait </span>Basic: Debug + Clone + PartialEq + Into&lt;CalcrsType&gt; + Inherited&lt;Base&gt; {
-        <span class="kw">fn </span>eval(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CalcrsType {
+    <span class="kw">pub trait </span>Basic: Debug + Clone + PartialEq + Into&lt;CalcursType&gt; + Inherited&lt;Base&gt; {
+        <span class="kw">fn </span>eval(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CalcursType {
             <span class="self">self</span>.clone().into()
         }
     }
-    <span class="kw">pub trait </span>Boolean: Basic {}
+
+    <span class="comment">// #[calcurs_trait(is_boolean = true)]
+    </span><span class="kw">pub trait </span>Boolean: Basic {}
     <span class="kw">pub trait </span>Application: Basic {}
-    <span class="kw">pub trait </span>BooleanFunc: Boolean + Application {}
+    <span class="kw">pub trait </span>BooleanAtom: Boolean {}
+    <span class="kw">pub trait </span>BooleanFunc: BooleanAtom + Application {}
 
-    <span class="attr">#[calcrs_type]
-    #[derive(Debug, Default, Clone, Copy, PartialEq)]
-    </span><span class="kw">pub struct </span>BooleanAtom {}
-    <span class="kw">impl </span>Basic <span class="kw">for </span>BooleanAtom {}
-    <span class="kw">impl </span>Boolean <span class="kw">for </span>BooleanAtom {}
-
-    <span class="kw">impl </span>From&lt;BooleanAtom&gt; <span class="kw">for </span>CalcrsType {
-        <span class="kw">fn </span>from(value: BooleanAtom) -&gt; <span class="self">Self </span>{
-            CalcrsType::BooleanAtom(value)
-        }
-    }
-
-    <span class="attr">#[calcrs_type]
+    <span class="attr">#[calcurs_type]
     #[derive(Debug, Clone, Default, Copy, PartialEq)]
     </span><span class="kw">pub struct </span>BooleanTrue {}
     <span class="kw">impl </span>Basic <span class="kw">for </span>BooleanTrue {}
@@ -444,13 +421,13 @@
         }
     }
 
-    <span class="kw">impl </span>From&lt;BooleanTrue&gt; <span class="kw">for </span>CalcrsType {
+    <span class="kw">impl </span>From&lt;BooleanTrue&gt; <span class="kw">for </span>CalcursType {
         <span class="kw">fn </span>from(value: BooleanTrue) -&gt; <span class="self">Self </span>{
-            CalcrsType::BooleanTrue(value)
+            CalcursType::BooleanTrue(value)
         }
     }
 
-    <span class="attr">#[calcrs_type]
+    <span class="attr">#[calcurs_type]
     #[derive(Debug, Clone, Default, Copy, PartialEq)]
     </span><span class="kw">pub struct </span>BooleanFalse {}
     <span class="kw">impl </span>Basic <span class="kw">for </span>BooleanFalse {}
@@ -463,17 +440,17 @@
         }
     }
 
-    <span class="kw">impl </span>From&lt;BooleanFalse&gt; <span class="kw">for </span>CalcrsType {
+    <span class="kw">impl </span>From&lt;BooleanFalse&gt; <span class="kw">for </span>CalcursType {
         <span class="kw">fn </span>from(value: BooleanFalse) -&gt; <span class="self">Self </span>{
-            CalcrsType::BooleanFalse(value)
+            CalcursType::BooleanFalse(value)
         }
     }
 
-    <span class="attr">#[calcrs_type]
+    <span class="attr">#[calcurs_type]
     #[derive(Debug, Clone, PartialEq)]
     </span><span class="kw">pub struct </span>And {
-        left: Box&lt;CalcrsType&gt;,
-        right: Box&lt;CalcrsType&gt;,
+        left: Box&lt;CalcursType&gt;,
+        right: Box&lt;CalcursType&gt;,
     }
 
     <span class="kw">impl </span>And {
@@ -487,9 +464,9 @@
     }
 
     <span class="kw">impl </span>Basic <span class="kw">for </span>And {
-        <span class="kw">fn </span>eval(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CalcrsType {
-            <span class="kw">let </span>lhs = <span class="macro">map_calcrs_type!</span>(<span class="kw-2">*</span><span class="self">self</span>.left, Basic::eval);
-            <span class="kw">let </span>rhs = <span class="macro">map_calcrs_type!</span>(<span class="kw-2">*</span><span class="self">self</span>.right, Basic::eval);
+        <span class="kw">fn </span>eval(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CalcursType {
+            <span class="kw">let </span>lhs = <span class="macro">map_calcurs_type!</span>(<span class="kw-2">*</span><span class="self">self</span>.left, Basic::eval);
+            <span class="kw">let </span>rhs = <span class="macro">map_calcurs_type!</span>(<span class="kw-2">*</span><span class="self">self</span>.right, Basic::eval);
 
             <span class="kw">if </span>lhs.base().is_negative.is_none() || rhs.base().is_negative.is_none() {
                 <span class="kw">return </span><span class="self">self</span>.clone().into();
@@ -505,12 +482,13 @@
         }
     }
     <span class="kw">impl </span>Boolean <span class="kw">for </span>And {}
+    <span class="kw">impl </span>BooleanAtom <span class="kw">for </span>And {}
     <span class="kw">impl </span>Application <span class="kw">for </span>And {}
     <span class="kw">impl </span>BooleanFunc <span class="kw">for </span>And {}
 
-    <span class="kw">impl </span>From&lt;And&gt; <span class="kw">for </span>CalcrsType {
+    <span class="kw">impl </span>From&lt;And&gt; <span class="kw">for </span>CalcursType {
         <span class="kw">fn </span>from(value: And) -&gt; <span class="self">Self </span>{
-            CalcrsType::And(value)
+            CalcursType::And(value)
         }
     }
 }
@@ -553,7 +531,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>boolean() {
         <span class="macro">assert_eq!</span>(And::new(True, False), True &amp; False);
-        <span class="macro">assert_eq!</span>(CalcrsType::from(False), (True &amp; False).eval());
+        <span class="macro">assert_eq!</span>(CalcursType::from(False), (True &amp; False).eval());
     }
 }
 </code></pre></div></section></main></body></html>
