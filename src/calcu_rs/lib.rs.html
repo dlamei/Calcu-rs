@@ -274,39 +274,6 @@
 
 <span class="kw">use </span>calcurs_macros::<span class="kw-2">*</span>;
 
-<span class="attr">#[derive(Default, Clone, Copy, PartialEq)]
-</span><span class="kw">pub struct </span>Base {
-    is_number: bool,
-    is_atom: bool,
-    is_symbol: bool,
-    is_function: bool,
-    is_add: bool,
-    is_mul: bool,
-    is_pow: bool,
-    is_float: bool,
-    is_rational: bool,
-    is_integer: bool,
-    is_numbersymbol: bool,
-    is_order: bool,
-    is_derivative: bool,
-    is_piecewise: bool,
-    is_poly: bool,
-    is_algebraicnumber: bool,
-    is_relational: bool,
-    is_equality: bool,
-    is_boolean: bool,
-    is_not: bool,
-    is_matrix: bool,
-    is_vector: bool,
-    is_point: bool,
-    is_matadd: bool,
-    is_matmul: <span class="prelude-ty">Option</span>&lt;bool&gt;,
-    is_real: <span class="prelude-ty">Option</span>&lt;bool&gt;,
-    is_zero: <span class="prelude-ty">Option</span>&lt;bool&gt;,
-    is_negative: <span class="prelude-ty">Option</span>&lt;bool&gt;,
-    is_commutative: <span class="prelude-ty">Option</span>&lt;bool&gt;,
-}
-
 <span class="kw">impl </span>Base {
     <span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
         Base {
@@ -350,15 +317,15 @@
 }
 
 <span class="macro">macro_rules! </span>base {
-        ($(<span class="macro-nonterminal">$field</span>:ident = <span class="macro-nonterminal">$value</span>:expr),* $(,)<span class="question-mark">?</span>) =&gt; {
-            Base {
-                $(
-                    <span class="macro-nonterminal">$field</span>: <span class="macro-nonterminal">$value</span>,
-                )*
-            ..Base::new()
-            }
-        }
+    ($(<span class="macro-nonterminal">$field</span>:ident = <span class="macro-nonterminal">$value</span>:expr),* $(,)<span class="question-mark">?</span>) =&gt; {
+        Base {
+            $(
+                <span class="macro-nonterminal">$field</span>: <span class="macro-nonterminal">$value</span>,
+            )*
+        ..Base::new()
     }
+}
+}
 
 <span class="attr">#[derive(Debug, Clone, PartialEq)]
 </span><span class="kw">pub enum </span>CalcursType {
@@ -392,9 +359,42 @@
 
 <span class="kw">pub type </span>Eval = CalcursType;
 
-<span class="doccomment">/// this is only used, because innert attribute macros are unstable
-</span><span class="attr">#[init_calcurs_macro_scope]
+<span class="attr">#[init_calcurs_macro_scope]
 </span><span class="kw">mod </span>__ {
+
+    <span class="attr">#[calcurs_base]
+    #[derive(Default, Clone, Copy, PartialEq)]
+    </span><span class="kw">pub struct </span>Base {
+        is_number: bool,
+        is_atom: bool,
+        is_symbol: bool,
+        is_function: bool,
+        is_add: bool,
+        is_mul: bool,
+        is_pow: bool,
+        is_float: bool,
+        is_rational: bool,
+        is_integer: bool,
+        is_numbersymbol: bool,
+        is_order: bool,
+        is_derivative: bool,
+        is_piecewise: bool,
+        is_poly: bool,
+        is_algebraicnumber: bool,
+        is_relational: bool,
+        is_equality: bool,
+        is_boolean: bool,
+        is_not: bool,
+        is_matrix: bool,
+        is_vector: bool,
+        is_point: bool,
+        is_matadd: bool,
+        is_matmul: <span class="prelude-ty">Option</span>&lt;bool&gt;,
+        is_real: <span class="prelude-ty">Option</span>&lt;bool&gt;,
+        is_zero: <span class="prelude-ty">Option</span>&lt;bool&gt;,
+        is_negative: <span class="prelude-ty">Option</span>&lt;bool&gt;,
+        is_commutative: <span class="prelude-ty">Option</span>&lt;bool&gt;,
+    }
 
     <span class="kw">pub trait </span>Basic: Debug + Clone + PartialEq + Into&lt;CalcursType&gt; + Inherited&lt;Base&gt; {
         <span class="kw">fn </span>eval(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CalcursType {

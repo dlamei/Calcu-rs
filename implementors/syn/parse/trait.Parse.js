@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"macros":[["impl <a class=\"trait\" href=\"https://docs.rs/syn/2.0.29/syn/parse/trait.Parse.html\" title=\"trait syn::parse::Parse\">Parse</a> for <a class=\"struct\" href=\"macros/struct.MacroScope.html\" title=\"struct macros::MacroScope\">MacroScope</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
