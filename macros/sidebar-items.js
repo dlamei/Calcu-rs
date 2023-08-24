@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"attr":["calcurs_base","calcurs_type","inherit","init_calcurs_macro_scope"],"fn":["append_field","does_attrs_contain","get_items_by_mark","impl_calcurs_types","import_crate"],"struct":["MacroScope"]};
+window.SIDEBAR_ITEMS = {"attr":["calcurs_base","calcurs_type","dyn_trait","inherit","init_calcurs_macro_scope"],"fn":["append_field","does_attrs_contain","get_items_by_mark","impl_calcurs_types","import_crate"],"struct":["MacroScope"]};
