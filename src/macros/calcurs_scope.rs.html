@@ -289,6 +289,50 @@
 <a href="#289" id="289">289</a>
 <a href="#290" id="290">290</a>
 <a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{
     cell::RefCell,
     collections::{BTreeSet, HashMap},
@@ -299,7 +343,7 @@
 <span class="kw">use </span>quote::{quote, ToTokens};
 <span class="kw">use </span>syn::{
     parse::{Parse, Parser},
-    Attribute, Error, ExprLit, Field, Ident, Item, ItemStruct, ItemTrait,
+    Error, ExprLit, Field, Ident, Item, ItemStruct, ItemTrait,
 };
 
 <span class="kw">use crate</span>::{
@@ -311,7 +355,7 @@
 <span class="kw">struct </span>TraitProperties(HashMap&lt;Ident, ExprLit&gt;);
 
 <span class="kw">fn </span>init_property_relations(
-    calcurs_props: Vec&lt;(Attribute, ItemTrait)&gt;,
+    calcurs_props: Vec&lt;MarkedItem&lt;ItemTrait&gt;&gt;,
 ) -&gt; syn::Result&lt;(
     HashMap&lt;Ident, BTreeSet&lt;Ident&gt;&gt;,
     HashMap&lt;Ident, HashMap&lt;Ident, ExprLit&gt;&gt;,
@@ -319,7 +363,11 @@
     <span class="kw">let </span><span class="kw-2">mut </span>properties: HashMap&lt;Ident, HashMap&lt;Ident, ExprLit&gt;&gt; = HashMap::new();
     <span class="kw">let </span><span class="kw-2">mut </span>relations: HashMap&lt;Ident, BTreeSet&lt;Ident&gt;&gt; = HashMap::new();
 
-    <span class="kw">for </span>(attrib, trt) <span class="kw">in </span>calcurs_props {
+    <span class="kw">for </span>MarkedItem {
+        mark: attrib,
+        item: trt,
+    } <span class="kw">in </span>calcurs_props
+    {
         <span class="kw">let </span>vals: HashMap&lt;Ident, ExprLit&gt; = attrib
             .parse_args_with(FieldValues::parse_terminated)<span class="question-mark">?
             </span>.into_iter()
@@ -386,7 +434,7 @@
             <span class="kw">let </span>item = marked_item.item.borrow().clone();
             <span class="kw">let </span>trt = <span class="macro">cast_item!</span>(item <span class="kw">as </span>Item::Trait);
 
-            <span class="prelude-val">Ok</span>((marked_item.mark, trt))
+            <span class="prelude-val">Ok</span>(MarkedItem::new(marked_item.mark, trt))
         })
         .collect();
     <span class="kw">let </span>calcurs_props = calcurs_props<span class="question-mark">?</span>;
@@ -416,14 +464,52 @@
     <span class="prelude-val">Ok</span>(trait_props)
 }
 
-<span class="kw">fn </span>impl_base_constructor(
-    strct: (<span class="kw-2">&amp;</span>Attribute, <span class="kw-2">&amp;</span>ItemStruct),
+<span class="kw">fn </span>impl_diff_debug(base_type: <span class="kw-2">&amp;</span>ItemStruct, default: <span class="kw-2">&amp;</span>FuncMacroArg) -&gt; syn::Result&lt;TokenStream&gt; {
+    <span class="kw">let </span>fields = <span class="kw">match </span><span class="kw-2">&amp;</span>base_type.fields {
+        syn::Fields::Named(syn::FieldsNamed { named, .. }) =&gt; {
+            named.iter().map(|field| field.ident.clone().unwrap())
+        }
+        <span class="kw">_ </span>=&gt; {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(
+                base_type.ident.span(),
+                <span class="string">&quot;DiffDebug is not defined for structs without named fields&quot;</span>,
+            ))
+        }
+    };
+
+    <span class="kw">let </span>ident = <span class="kw-2">&amp;</span>base_type.ident;
+
+    <span class="prelude-val">Ok</span>(<span class="macro">quote! </span>{
+        <span class="kw">impl </span>#ident {
+            <span class="kw">fn </span>diff_debug(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+                <span class="kw">use </span>std::fmt::Write;
+
+                <span class="kw">let </span>default = #default();
+
+                <span class="kw">let </span><span class="kw-2">mut </span>diff = String::new();
+
+                #(
+                <span class="kw">if </span>(<span class="self">self</span>.#fields != default.#fields) {
+                    <span class="macro">write!</span>(diff, <span class="string">&quot;{} = {:?}, &quot;</span>, <span class="macro">stringify!</span>(#fields), <span class="self">self</span>.#fields)<span class="question-mark">?</span>;
+                }
+                )*
+
+                <span class="macro">write!</span>(f, <span class="string">&quot;Base {{{}}}&quot;</span>, diff)
+            }
+        }
+    })
+}
+
+<span class="kw">fn </span>impl_new_base(
+    item: MarkedItem&lt;ItemStruct&gt;,
     default: <span class="kw-2">&amp;</span>FuncMacroArg,
     base_type: <span class="kw-2">&amp;</span>Ident,
     calcurs_traits: <span class="kw-2">&amp;</span>HashMap&lt;Ident, TraitProperties&gt;,
 ) -&gt; syn::Result&lt;TokenStream&gt; {
-    <span class="kw">let </span>(attrib, strct) = strct;
-    <span class="kw">let </span>derived = attrib.parse_args_with(Ident::parse)<span class="question-mark">?</span>;
+    <span class="kw">let </span>strct = item.item;
+    <span class="kw">let </span>attrib = item.mark;
+    <span class="comment">// let (attrib, strct) = strct;
+    </span><span class="kw">let </span>derived = attrib.parse_args_with(Ident::parse)<span class="question-mark">?</span>;
 
     <span class="kw">let </span>generics = <span class="kw-2">&amp;</span>strct.generics;
     <span class="kw">let </span>name = <span class="kw-2">&amp;</span>strct.ident;
@@ -487,6 +573,8 @@
 
     <span class="kw">let </span><span class="kw-2">mut </span>stream = TokenStream::new();
 
+    stream.extend(impl_diff_debug(<span class="kw-2">&amp;</span>base.item, <span class="kw-2">&amp;</span>constructor)<span class="question-mark">?</span>);
+
     <span class="kw">for </span>item <span class="kw">in </span>types {
         <span class="kw">let </span>strct = <span class="kw-2">&amp;mut *</span>item.item.borrow_mut();
         <span class="kw">let </span>strct = <span class="macro">cast_item!</span>(strct <span class="kw">as </span>Item::Struct[<span class="kw-2">ref mut</span>]);
@@ -494,8 +582,8 @@
 
         <span class="kw-2">*</span>strct = append_field(strct.clone(), base_field.clone())<span class="question-mark">?</span>;
 
-        stream.extend(impl_base_constructor(
-            (attrib, strct),
+        stream.extend(impl_new_base(
+            MarkedItem::new(attrib.clone(), strct.clone()),
             <span class="kw-2">&amp;</span>constructor,
             base_type,
             <span class="kw-2">&amp;</span>traits,

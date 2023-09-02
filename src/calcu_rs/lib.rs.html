@@ -306,7 +306,7 @@
 
 <span class="kw">impl </span>Debug <span class="kw">for </span>Base {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{:?}&quot;</span>, <span class="string">&quot;base {{ TODO }}&quot;</span>)
+        <span class="self">self</span>.diff_debug(f)
     }
 }
 
@@ -381,9 +381,9 @@
         }
     }
 
-    <span class="kw">impl </span>Into&lt;CalcursType&gt; <span class="kw">for </span>Box&lt;<span class="kw">dyn </span>Basic&gt; {
-        <span class="kw">fn </span>into(<span class="self">self</span>) -&gt; CalcursType {
-            <span class="self">self</span>.as_calcrs_type()
+    <span class="kw">impl </span>From&lt;Box&lt;<span class="kw">dyn </span>Basic&gt;&gt; <span class="kw">for </span>CalcursType {
+        <span class="kw">fn </span>from(val: Box&lt;<span class="kw">dyn </span>Basic&gt;) -&gt; <span class="self">Self </span>{
+            val.as_calcrs_type()
         }
     }
 
