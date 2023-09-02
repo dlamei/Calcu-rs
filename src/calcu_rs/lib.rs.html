@@ -289,16 +289,10 @@
 <a href="#289" id="289">289</a>
 <a href="#290" id="290">290</a>
 <a href="#291" id="291">291</a>
-<a href="#292" id="292">292</a>
-<a href="#293" id="293">293</a>
-<a href="#294" id="294">294</a>
-<a href="#295" id="295">295</a>
-<a href="#296" id="296">296</a>
-<a href="#297" id="297">297</a>
-<a href="#298" id="298">298</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! simple symbolic algebra system in rust
 
 </span><span class="kw">use </span>calcurs_internals::Inherited;
+<span class="kw">use </span>const_default::ConstDefault;
 <span class="kw">use </span>core::fmt::Debug;
 <span class="kw">use </span>std::ops;
 
@@ -306,55 +300,25 @@
 
 <span class="kw">impl </span>Base {
     <span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
-        Base {
-            is_number: <span class="bool-val">false</span>,
-            is_atom: <span class="bool-val">false</span>,
-            is_symbol: <span class="bool-val">false</span>,
-            is_function: <span class="bool-val">false</span>,
-            is_add: <span class="bool-val">false</span>,
-            is_mul: <span class="bool-val">false</span>,
-            is_pow: <span class="bool-val">false</span>,
-            is_float: <span class="bool-val">false</span>,
-            is_rational: <span class="bool-val">false</span>,
-            is_integer: <span class="bool-val">false</span>,
-            is_numbersymbol: <span class="bool-val">false</span>,
-            is_order: <span class="bool-val">false</span>,
-            is_derivative: <span class="bool-val">false</span>,
-            is_piecewise: <span class="bool-val">false</span>,
-            is_poly: <span class="bool-val">false</span>,
-            is_algebraicnumber: <span class="bool-val">false</span>,
-            is_relational: <span class="bool-val">false</span>,
-            is_equality: <span class="bool-val">false</span>,
-            is_boolean: <span class="bool-val">false</span>,
-            is_not: <span class="bool-val">false</span>,
-            is_matrix: <span class="bool-val">false</span>,
-            is_vector: <span class="bool-val">false</span>,
-            is_point: <span class="bool-val">false</span>,
-            is_matadd: <span class="bool-val">false</span>,
-            is_matmul: <span class="prelude-val">None</span>,
-            is_real: <span class="prelude-val">None</span>,
-            is_zero: <span class="prelude-val">None</span>,
-            is_negative: <span class="prelude-val">None</span>,
-            is_commutative: <span class="prelude-val">None</span>,
-        }
+        &lt;<span class="self">Self </span><span class="kw">as </span>ConstDefault&gt;::DEFAULT
     }
 }
 
 <span class="kw">impl </span>Debug <span class="kw">for </span>Base {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;Base {{...}}&quot;</span>)
+        <span class="macro">write!</span>(f, <span class="string">&quot;{:?}&quot;</span>, <span class="string">&quot;base {{ TODO }}&quot;</span>)
     }
 }
 
 <span class="macro">macro_rules! </span>base {
-    ($(<span class="macro-nonterminal">$field</span>:ident = <span class="macro-nonterminal">$value</span>:expr),* $(,)<span class="question-mark">?</span>) =&gt; {
+    ($(<span class="macro-nonterminal">$field</span>:ident $(= <span class="macro-nonterminal">$value</span>:expr)<span class="question-mark">?</span>),* $(,)<span class="question-mark">?</span>) =&gt; {
         Base {
             $(
-                <span class="macro-nonterminal">$field</span>: <span class="macro-nonterminal">$value</span>,
+                <span class="macro-nonterminal">$field </span>$(: <span class="macro-nonterminal">$value</span>)<span class="question-mark">?</span>,
             )*
-        ..Base::new()
+        ..<span class="self">Self</span>::new_base()
+        }
     }
-}
 }
 
 <span class="attr">#[derive(Debug, Clone, PartialEq)]
@@ -370,38 +334,38 @@
 </span><span class="kw">mod </span>scope {
     <span class="kw">use </span>std::any::Any;
 
-    <span class="attr">#[calcurs_base]
-    #[derive(Default, Clone, Copy, PartialEq)]
+    <span class="attr">#[calcurs_base(<span class="kw">const </span>Base::new)]
+    #[derive(ConstDefault, Default, Clone, Copy, PartialEq)]
     </span><span class="kw">pub struct </span>Base {
-        is_number: bool,
-        is_atom: bool,
-        is_symbol: bool,
-        is_function: bool,
-        is_add: bool,
-        is_mul: bool,
-        is_pow: bool,
-        is_float: bool,
-        is_rational: bool,
-        is_integer: bool,
-        is_numbersymbol: bool,
-        is_order: bool,
-        is_derivative: bool,
-        is_piecewise: bool,
-        is_poly: bool,
-        is_algebraicnumber: bool,
-        is_relational: bool,
-        is_equality: bool,
-        is_boolean: bool,
-        is_not: bool,
-        is_matrix: bool,
-        is_vector: bool,
-        is_point: bool,
-        is_matadd: bool,
-        is_matmul: <span class="prelude-ty">Option</span>&lt;bool&gt;,
-        is_real: <span class="prelude-ty">Option</span>&lt;bool&gt;,
-        is_zero: <span class="prelude-ty">Option</span>&lt;bool&gt;,
-        is_negative: <span class="prelude-ty">Option</span>&lt;bool&gt;,
-        is_commutative: <span class="prelude-ty">Option</span>&lt;bool&gt;,
+        <span class="kw">pub </span>is_number: bool,
+        <span class="kw">pub </span>is_atom: bool,
+        <span class="kw">pub </span>is_symbol: bool,
+        <span class="kw">pub </span>is_function: bool,
+        <span class="kw">pub </span>is_add: bool,
+        <span class="kw">pub </span>is_mul: bool,
+        <span class="kw">pub </span>is_pow: bool,
+        <span class="kw">pub </span>is_float: bool,
+        <span class="kw">pub </span>is_rational: bool,
+        <span class="kw">pub </span>is_integer: bool,
+        <span class="kw">pub </span>is_numbersymbol: bool,
+        <span class="kw">pub </span>is_order: bool,
+        <span class="kw">pub </span>is_derivative: bool,
+        <span class="kw">pub </span>is_piecewise: bool,
+        <span class="kw">pub </span>is_poly: bool,
+        <span class="kw">pub </span>is_algebraicnumber: bool,
+        <span class="kw">pub </span>is_relational: bool,
+        <span class="kw">pub </span>is_equality: bool,
+        <span class="kw">pub </span>is_boolean: bool,
+        <span class="kw">pub </span>is_not: bool,
+        <span class="kw">pub </span>is_matrix: bool,
+        <span class="kw">pub </span>is_vector: bool,
+        <span class="kw">pub </span>is_point: bool,
+        <span class="kw">pub </span>is_matadd: bool,
+        <span class="kw">pub </span>is_matmul: <span class="prelude-ty">Option</span>&lt;bool&gt;,
+        <span class="kw">pub </span>is_real: <span class="prelude-ty">Option</span>&lt;bool&gt;,
+        <span class="kw">pub </span>is_zero: <span class="prelude-ty">Option</span>&lt;bool&gt;,
+        <span class="kw">pub </span>is_negative: <span class="prelude-ty">Option</span>&lt;bool&gt;,
+        <span class="kw">pub </span>is_commutative: <span class="prelude-ty">Option</span>&lt;bool&gt;,
     }
 
     <span class="kw">pub trait </span>IsCalcursType {
@@ -424,6 +388,7 @@
     }
 
     <span class="attr">#[dyn_trait]
+    #[calcurs_trait()]
     </span><span class="kw">pub trait </span>Basic: Debug + IsCalcursType + Inherited&lt;Base&gt; {
         <span class="kw">fn </span>eval_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Basic&gt; {
             DynBasic::dyn_clone(<span class="self">self</span>)
@@ -434,8 +399,8 @@
         }
     }
 
-    <span class="comment">// #[calcurs_trait(is_boolean = true)]
-    </span><span class="attr">#[dyn_trait]
+    <span class="attr">#[dyn_trait]
+    #[calcurs_trait(is_boolean = <span class="bool-val">true</span>)]
     </span><span class="kw">pub trait </span>Boolean: Basic {
         <span class="kw">fn </span>eval_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Boolean&gt; {
             DynBoolean::dyn_clone(<span class="self">self</span>)
@@ -443,15 +408,18 @@
     }
 
     <span class="attr">#[dyn_trait]
-    </span><span class="kw">pub trait </span>Application: Basic {}
-
-    <span class="attr">#[dyn_trait]
+    #[calcurs_trait(is_atom = <span class="bool-val">true</span>)]
     </span><span class="kw">pub trait </span>BooleanAtom: Boolean {}
 
     <span class="attr">#[dyn_trait]
-    </span><span class="kw">pub trait </span>BooleanFunc: BooleanAtom + Application {}
+    #[calcurs_trait(is_function = <span class="bool-val">true</span>)]
+    </span><span class="kw">pub trait </span>Application: Basic {}
 
-    <span class="attr">#[calcurs_type]
+    <span class="attr">#[dyn_trait]
+    #[calcurs_trait()]
+    </span><span class="kw">pub trait </span>BooleanFunc: Boolean + Application {}
+
+    <span class="attr">#[calcurs_type(BooleanAtom)]
     #[derive(Debug, Clone, Default, Copy, PartialEq)]
     </span><span class="kw">pub struct </span>BooleanTrue {}
     <span class="kw">impl </span>Basic <span class="kw">for </span>BooleanTrue {}
@@ -459,7 +427,7 @@
 
     <span class="kw">impl </span>BooleanTrue {
         <span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
-            <span class="kw">let </span>base = <span class="macro">base!</span>(is_boolean = <span class="bool-val">true</span>, is_atom = <span class="bool-val">true</span>, is_negative = <span class="prelude-val">Some</span>(<span class="bool-val">false</span>));
+            <span class="kw">let </span>base = <span class="macro">base!</span>(is_negative = <span class="prelude-val">Some</span>(<span class="bool-val">false</span>));
             BooleanTrue { base }
         }
     }
@@ -476,7 +444,7 @@
         </span>}
     }
 
-    <span class="attr">#[calcurs_type]
+    <span class="attr">#[calcurs_type(BooleanAtom)]
     #[derive(Debug, Clone, Default, Copy, PartialEq)]
     </span><span class="kw">pub struct </span>BooleanFalse {}
     <span class="kw">impl </span>Basic <span class="kw">for </span>BooleanFalse {}
@@ -484,7 +452,7 @@
 
     <span class="kw">impl </span>BooleanFalse {
         <span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
-            <span class="kw">let </span>base = <span class="macro">base!</span>(is_boolean = <span class="bool-val">true</span>, is_atom = <span class="bool-val">true</span>, is_negative = <span class="prelude-val">Some</span>(<span class="bool-val">true</span>));
+            <span class="kw">let </span>base = <span class="macro">base!</span>(is_negative = <span class="prelude-val">Some</span>(<span class="bool-val">true</span>));
             BooleanFalse { base }
         }
     }
@@ -501,7 +469,7 @@
         </span>}
     }
 
-    <span class="attr">#[calcurs_type]
+    <span class="attr">#[calcurs_type(BooleanFunc)]
     #[derive(Debug, Clone)]
     </span><span class="kw">pub struct </span>And {
         left: Box&lt;<span class="kw">dyn </span>Boolean&gt;,
@@ -516,8 +484,13 @@
 
     <span class="kw">impl </span>And {
         <span class="kw">pub fn </span>new(lhs: <span class="kw">impl </span>Boolean, rhs: <span class="kw">impl </span>Boolean) -&gt; <span class="self">Self </span>{
+            <span class="kw">let </span>is_negative = <span class="kw">match </span>(lhs.base().is_negative, rhs.base().is_negative) {
+                (<span class="prelude-val">Some</span>(l), <span class="prelude-val">Some</span>(r)) =&gt; <span class="prelude-val">Some</span>(l &amp;&amp; r),
+                (<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+            };
+
             And {
-                base: Default::default(),
+                base: <span class="macro">base!</span>(is_negative),
                 left: DynBoolean::dyn_clone(<span class="kw-2">&amp;</span>rhs),
                 right: DynBoolean::dyn_clone(<span class="kw-2">&amp;</span>lhs),
             }
@@ -592,6 +565,19 @@
     </span><span class="kw">fn </span>boolean() {
         <span class="macro">assert_eq!</span>(And::new(True, False), True &amp; False);
         <span class="macro">assert_eq!</span>(CalcursType::from(False), (True &amp; False).eval());
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>calcurs_traits() {
+        <span class="macro">assert!</span>(!True.base().is_negative.unwrap());
+        <span class="macro">assert!</span>(False.base().is_negative.unwrap());
+        <span class="macro">assert!</span>(True.base().is_atom);
+        <span class="macro">assert!</span>(False.base().is_atom);
+        <span class="macro">assert!</span>(And::new_base().is_function);
+        <span class="macro">assert!</span>(!And::new_base().is_number);
+        <span class="macro">assert!</span>(And::new_base().is_boolean);
+        <span class="macro">assert!</span>(!(True &amp; False).base().is_negative.unwrap());
+        <span class="macro">assert!</span>((False &amp; False).base().is_negative.unwrap());
     }
 }
 </code></pre></div></section></main></body></html>
