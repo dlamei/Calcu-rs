@@ -533,7 +533,7 @@
 
     <span class="kw">let </span>code = <span class="macro">quote! </span>{
         <span class="kw">impl </span>#generics #name #generics {
-            <span class="kw">pub </span>#cnst <span class="kw">fn </span>new_base() -&gt; #base_type {
+            #cnst <span class="kw">fn </span>new_base() -&gt; #base_type {
                 #base_type {
                     #(#fields: #lit,)*
                     .. #default()

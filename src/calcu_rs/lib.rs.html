@@ -569,15 +569,15 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>calcurs_traits() {
-        <span class="macro">assert!</span>(!True.base().is_negative.unwrap());
-        <span class="macro">assert!</span>(False.base().is_negative.unwrap());
-        <span class="macro">assert!</span>(True.base().is_atom);
-        <span class="macro">assert!</span>(False.base().is_atom);
+        <span class="macro">assert!</span>(!True.base.is_negative.unwrap());
+        <span class="macro">assert!</span>(False.base.is_negative.unwrap());
+        <span class="macro">assert!</span>(True.base.is_atom);
+        <span class="macro">assert!</span>(False.base.is_atom);
         <span class="macro">assert!</span>(And::new_base().is_function);
         <span class="macro">assert!</span>(!And::new_base().is_number);
         <span class="macro">assert!</span>(And::new_base().is_boolean);
-        <span class="macro">assert!</span>(!(True &amp; False).base().is_negative.unwrap());
-        <span class="macro">assert!</span>((False &amp; False).base().is_negative.unwrap());
+        <span class="macro">assert!</span>(!(True &amp; False).base.is_negative.unwrap());
+        <span class="macro">assert!</span>((False &amp; False).base.is_negative.unwrap());
     }
 }
 </code></pre></div></section></main></body></html>
