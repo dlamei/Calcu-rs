@@ -289,6 +289,8 @@
 <a href="#289" id="289">289</a>
 <a href="#290" id="290">290</a>
 <a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! simple symbolic algebra system in rust
 
 </span><span class="kw">use </span>calcurs_internals::Inherited;
@@ -390,20 +392,23 @@
     <span class="attr">#[dyn_trait]
     #[calcurs_trait()]
     </span><span class="kw">pub trait </span>Basic: Debug + IsCalcursType + Inherited&lt;Base&gt; {
-        <span class="kw">fn </span>eval_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Basic&gt; {
-            DynBasic::dyn_clone(<span class="self">self</span>)
+        <span class="kw">fn </span>eval_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Basic&gt;
+        <span class="kw">where
+            </span><span class="self">Self</span>: Sized,
+        {
+            <span class="self">self</span>.dyn_clone()
         }
 
         <span class="kw">fn </span>eval(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CalcursType {
-            <span class="self">self</span>.eval_impl().into()
+            <span class="self">self</span>.as_calcrs_type()
         }
     }
 
     <span class="attr">#[dyn_trait]
     #[calcurs_trait(is_boolean = <span class="bool-val">true</span>)]
     </span><span class="kw">pub trait </span>Boolean: Basic {
-        <span class="kw">fn </span>eval_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Boolean&gt; {
-            DynBoolean::dyn_clone(<span class="self">self</span>)
+        <span class="kw">fn </span>eval_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw">dyn </span>Boolean {
+            DynBoolean::as_obj(<span class="self">self</span>)
         }
     }
 
@@ -449,6 +454,7 @@
     </span><span class="kw">pub struct </span>BooleanFalse {}
     <span class="kw">impl </span>Basic <span class="kw">for </span>BooleanFalse {}
     <span class="kw">impl </span>Boolean <span class="kw">for </span>BooleanFalse {}
+    <span class="kw">impl </span>BooleanAtom <span class="kw">for </span>BooleanFalse {}
 
     <span class="kw">impl </span>BooleanFalse {
         <span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
@@ -475,6 +481,8 @@
         left: Box&lt;<span class="kw">dyn </span>Boolean&gt;,
         right: Box&lt;<span class="kw">dyn </span>Boolean&gt;,
     }
+    <span class="kw">impl </span>BooleanFunc <span class="kw">for </span>And {}
+    <span class="kw">impl </span>Application <span class="kw">for </span>And {}
 
     <span class="kw">impl </span>PartialEq <span class="kw">for </span>And {
         <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>And) -&gt; bool {
@@ -499,25 +507,24 @@
 
     <span class="kw">impl </span>Basic <span class="kw">for </span>And {
         <span class="kw">fn </span>eval(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CalcursType {
-            Basic::eval_impl(Boolean::eval_impl(<span class="self">self</span>).as_ref()).into()
+            Boolean::eval_impl(<span class="self">self</span>).as_calcrs_type()
         }
     }
 
     <span class="kw">impl </span>Boolean <span class="kw">for </span>And {
-        <span class="kw">fn </span>eval_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Boolean&gt; {
-            <span class="kw">let </span>lhs = Boolean::eval_impl(<span class="self">self</span>.left.as_ref());
-            <span class="kw">let </span>rhs = Boolean::eval_impl(<span class="self">self</span>.right.as_ref());
+        <span class="kw">fn </span>eval_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">dyn </span>Boolean {
+            <span class="kw">let </span>left = <span class="kw-2">&amp;</span><span class="self">self</span>.left;
+            <span class="kw">let </span>right = <span class="kw-2">&amp;</span><span class="self">self</span>.right;
 
-            <span class="kw">match </span>lhs == rhs {
-                <span class="bool-val">true </span>=&gt; DynBoolean::dyn_clone(<span class="kw-2">&amp;</span>True),
-                <span class="bool-val">false </span>=&gt; DynBoolean::dyn_clone(<span class="kw-2">&amp;</span>False),
+            <span class="kw">let </span>lhs = Boolean::eval_impl(left.as_ref());
+            <span class="kw">let </span>rhs = Boolean::eval_impl(right.as_ref());
+
+            <span class="kw">match </span>(lhs.base().is_negative, rhs.base().is_negative) {
+                (<span class="prelude-val">Some</span>(<span class="bool-val">false</span>), <span class="prelude-val">Some</span>(<span class="bool-val">false</span>)) | (<span class="prelude-val">Some</span>(<span class="bool-val">true</span>), <span class="prelude-val">Some</span>(<span class="bool-val">true</span>)) =&gt; <span class="kw-2">&amp;</span>TRUE,
+                <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>FALSE,
             }
         }
     }
-
-    <span class="kw">impl </span>BooleanAtom <span class="kw">for </span>And {}
-    <span class="kw">impl </span>Application <span class="kw">for </span>And {}
-    <span class="kw">impl </span>BooleanFunc <span class="kw">for </span>And {}
 
     <span class="kw">impl </span>From&lt;And&gt; <span class="kw">for </span>CalcursType {
         <span class="kw">fn </span>from(value: And) -&gt; <span class="self">Self </span>{
@@ -550,11 +557,8 @@
     }
 }
 
-<span class="attr">#[allow(non_upper_case_globals)]
-</span><span class="kw">pub static </span>False: BooleanFalse = BooleanFalse::new();
-
-<span class="attr">#[allow(non_upper_case_globals)]
-</span><span class="kw">pub static </span>True: BooleanTrue = BooleanTrue::new();
+<span class="kw">pub const </span>FALSE: BooleanFalse = BooleanFalse::new();
+<span class="kw">pub const </span>TRUE: BooleanTrue = BooleanTrue::new();
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>test {
@@ -563,21 +567,21 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>boolean() {
-        <span class="macro">assert_eq!</span>(And::new(True, False), True &amp; False);
-        <span class="macro">assert_eq!</span>(CalcursType::from(False), (True &amp; False).eval());
+        <span class="macro">assert_eq!</span>(And::new(TRUE, FALSE), TRUE &amp; FALSE);
+        <span class="macro">assert_eq!</span>(CalcursType::from(FALSE), (TRUE &amp; FALSE).eval());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>calcurs_traits() {
-        <span class="macro">assert!</span>(!True.base.is_negative.unwrap());
-        <span class="macro">assert!</span>(False.base.is_negative.unwrap());
-        <span class="macro">assert!</span>(True.base.is_atom);
-        <span class="macro">assert!</span>(False.base.is_atom);
+        <span class="macro">assert!</span>(!TRUE.base.is_negative.unwrap());
+        <span class="macro">assert!</span>(FALSE.base.is_negative.unwrap());
+        <span class="macro">assert!</span>(TRUE.base.is_atom);
+        <span class="macro">assert!</span>(FALSE.base.is_atom);
         <span class="macro">assert!</span>(And::new_base().is_function);
         <span class="macro">assert!</span>(!And::new_base().is_number);
         <span class="macro">assert!</span>(And::new_base().is_boolean);
-        <span class="macro">assert!</span>(!(True &amp; False).base.is_negative.unwrap());
-        <span class="macro">assert!</span>((False &amp; False).base.is_negative.unwrap());
+        <span class="macro">assert!</span>(!(TRUE &amp; FALSE).base.is_negative.unwrap());
+        <span class="macro">assert!</span>((FALSE &amp; FALSE).base.is_negative.unwrap());
     }
 }
 </code></pre></div></section></main></body></html>

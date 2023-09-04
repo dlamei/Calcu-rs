@@ -333,6 +333,48 @@
 <a href="#333" id="333">333</a>
 <a href="#334" id="334">334</a>
 <a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{
     cell::RefCell,
     collections::{BTreeSet, HashMap},
@@ -352,16 +394,17 @@
     utils::<span class="kw-2">*</span>,
 };
 
-<span class="kw">struct </span>TraitProperties(HashMap&lt;Ident, ExprLit&gt;);
+<span class="attr">#[derive(Debug, Clone, PartialEq)]
+</span><span class="kw">struct </span>TraitProperties(HashMap&lt;Ident, ExprLit&gt;);
 
 <span class="kw">fn </span>init_property_relations(
     calcurs_props: Vec&lt;MarkedItem&lt;ItemTrait&gt;&gt;,
 ) -&gt; syn::Result&lt;(
-    HashMap&lt;Ident, BTreeSet&lt;Ident&gt;&gt;,
+    TraitRelations,
     HashMap&lt;Ident, HashMap&lt;Ident, ExprLit&gt;&gt;,
 )&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>properties: HashMap&lt;Ident, HashMap&lt;Ident, ExprLit&gt;&gt; = HashMap::new();
-    <span class="kw">let </span><span class="kw-2">mut </span>relations: HashMap&lt;Ident, BTreeSet&lt;Ident&gt;&gt; = HashMap::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>relations: TraitRelations = HashMap::new();
 
     <span class="kw">for </span>MarkedItem {
         mark: attrib,
@@ -397,9 +440,9 @@
 }
 
 <span class="kw">fn </span>dependencies_from_relation(
-    relations: <span class="kw-2">&amp;</span>HashMap&lt;Ident, BTreeSet&lt;Ident&gt;&gt;,
-) -&gt; syn::Result&lt;HashMap&lt;Ident, BTreeSet&lt;Ident&gt;&gt;&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>dep_trees: HashMap&lt;Ident, BTreeSet&lt;Ident&gt;&gt; = HashMap::new();
+    relations: <span class="kw-2">&amp;</span>TraitRelations,
+) -&gt; syn::Result&lt;TraitRelations&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>dep_trees: TraitRelations = HashMap::new();
 
     <span class="comment">// build tree (overwriting values is ill supported, would need to support saving depth)
     </span><span class="kw">for </span>(item, parents) <span class="kw">in </span>relations {
@@ -425,10 +468,25 @@
     <span class="prelude-val">Ok</span>(dep_trees)
 }
 
+<span class="kw">type </span>TraitPropertieMap = HashMap&lt;Ident, TraitProperties&gt;;
+<span class="kw">type </span>TraitRelations = HashMap&lt;Ident, BTreeSet&lt;Ident&gt;&gt;;
+
+<span class="attr">#[derive(Debug, Clone, PartialEq)]
+</span><span class="kw">struct </span>TraitDepTree {
+    property_map: TraitPropertieMap,
+    relations: TraitRelations
+}
+
+<span class="kw">impl </span>TraitDepTree {
+    <span class="kw">fn </span>new(property_map: TraitPropertieMap, relations: TraitRelations) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{property_map, relations}
+    }
+}
+
 <span class="kw">fn </span>build_dependency_tree(
     calcurs_props: Vec&lt;SharedMarkedItem&lt;Item&gt;&gt;,
-) -&gt; syn::Result&lt;HashMap&lt;Ident, TraitProperties&gt;&gt; {
-    <span class="kw">let </span>calcurs_props: <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt; = calcurs_props
+) -&gt; syn::Result&lt;TraitDepTree&gt; {
+    <span class="kw">let </span>calcurs_traits: <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt; = calcurs_props
         .into_iter()
         .map(|marked_item| {
             <span class="kw">let </span>item = marked_item.item.borrow().clone();
@@ -437,13 +495,13 @@
             <span class="prelude-val">Ok</span>(MarkedItem::new(marked_item.mark, trt))
         })
         .collect();
-    <span class="kw">let </span>calcurs_props = calcurs_props<span class="question-mark">?</span>;
+    <span class="kw">let </span>traits = calcurs_traits<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>(relations, direct_props) = init_property_relations(calcurs_props)<span class="question-mark">?</span>;
+    <span class="kw">let </span>(relations, direct_props) = init_property_relations(traits)<span class="question-mark">?</span>;
 
     <span class="kw">let </span>dep_trees = dependencies_from_relation(<span class="kw-2">&amp;</span>relations)<span class="question-mark">?</span>;
 
-    <span class="kw">let </span><span class="kw-2">mut </span>trait_props: HashMap&lt;Ident, TraitProperties&gt; = HashMap::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>trait_props: TraitPropertieMap = HashMap::new();
 
     <span class="kw">for </span>(trt, deps) <span class="kw">in </span>dep_trees {
         <span class="kw">let </span><span class="kw-2">mut </span>assigns = <span class="kw">match </span>direct_props.get(<span class="kw-2">&amp;</span>trt) {
@@ -461,7 +519,7 @@
         trait_props.insert(trt, TraitProperties(assigns));
     }
 
-    <span class="prelude-val">Ok</span>(trait_props)
+    <span class="prelude-val">Ok</span>(TraitDepTree::new(trait_props, relations))
 }
 
 <span class="kw">fn </span>impl_diff_debug(base_type: <span class="kw-2">&amp;</span>ItemStruct, default: <span class="kw-2">&amp;</span>FuncMacroArg) -&gt; syn::Result&lt;TokenStream&gt; {
@@ -501,13 +559,13 @@
 }
 
 <span class="kw">fn </span>impl_new_base(
-    item: MarkedItem&lt;ItemStruct&gt;,
+    item: <span class="kw-2">&amp;</span>MarkedItem&lt;ItemStruct&gt;,
     default: <span class="kw-2">&amp;</span>FuncMacroArg,
     base_type: <span class="kw-2">&amp;</span>Ident,
-    calcurs_traits: <span class="kw-2">&amp;</span>HashMap&lt;Ident, TraitProperties&gt;,
+    calcurs_traits: <span class="kw-2">&amp;</span>TraitPropertieMap,
 ) -&gt; syn::Result&lt;TokenStream&gt; {
-    <span class="kw">let </span>strct = item.item;
-    <span class="kw">let </span>attrib = item.mark;
+    <span class="kw">let </span>strct = <span class="kw-2">&amp;</span>item.item;
+    <span class="kw">let </span>attrib = <span class="kw-2">&amp;</span>item.mark;
     <span class="comment">// let (attrib, strct) = strct;
     </span><span class="kw">let </span>derived = attrib.parse_args_with(Ident::parse)<span class="question-mark">?</span>;
 
@@ -545,10 +603,31 @@
     <span class="prelude-val">Ok</span>(code)
 }
 
+<span class="kw">fn </span>_impl_trait_dependencies(calcurs_struct: <span class="kw-2">&amp;</span>MarkedItem&lt;ItemStruct&gt;, relations: <span class="kw-2">&amp;</span>TraitRelations) -&gt; syn::Result&lt;TokenStream&gt; {
+    <span class="kw">let </span>item = <span class="kw-2">&amp;</span>calcurs_struct.item;
+    <span class="kw">let </span>strct_name = <span class="kw-2">&amp;</span>item.ident;
+    <span class="kw">let </span>generics = <span class="kw-2">&amp;</span>item.generics;
+
+    <span class="kw">let </span>trait_name = calcurs_struct.mark.parse_args_with(Ident::parse)<span class="question-mark">?</span>;
+
+    <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, trait_name);
+
+    <span class="kw">let </span>deps = <span class="kw">match </span>relations.get(<span class="kw-2">&amp;</span>trait_name) {
+        <span class="prelude-val">Some</span>(d) =&gt; d,
+        <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="macro">quote!</span>()),
+    }.iter();
+
+    <span class="prelude-val">Ok</span>(<span class="macro">quote!</span>{
+        <span class="kw">impl </span>#generics #trait_name <span class="kw">for </span>#strct_name #generics {} 
+
+        #(<span class="kw">impl </span>#generics #deps <span class="kw">for </span>#strct_name #generics {} )*
+    })
+}
+
 <span class="kw">fn </span>impl_calcurs_types(
     base: MarkedItem&lt;ItemStruct&gt;,
     types: <span class="kw-2">&amp;</span>[SharedMarkedItem&lt;Item&gt;],
-    traits: HashMap&lt;Ident, TraitProperties&gt;,
+    dep_tree: TraitDepTree,
 ) -&gt; syn::Result&lt;TokenStream&gt; {
     <span class="kw">let </span>base_type = <span class="kw-2">&amp;</span>base.item.ident;
     <span class="kw">let </span>base_attrib = base.mark;
@@ -575,19 +654,24 @@
 
     stream.extend(impl_diff_debug(<span class="kw-2">&amp;</span>base.item, <span class="kw-2">&amp;</span>constructor)<span class="question-mark">?</span>);
 
-    <span class="kw">for </span>item <span class="kw">in </span>types {
-        <span class="kw">let </span>strct = <span class="kw-2">&amp;mut *</span>item.item.borrow_mut();
+    <span class="kw">for </span>typ <span class="kw">in </span>types {
+        <span class="kw">let </span>strct = <span class="kw-2">&amp;mut *</span>typ.item.borrow_mut();
         <span class="kw">let </span>strct = <span class="macro">cast_item!</span>(strct <span class="kw">as </span>Item::Struct[<span class="kw-2">ref mut</span>]);
-        <span class="kw">let </span>attrib = <span class="kw-2">&amp;</span>item.mark;
+        <span class="kw">let </span>type_mark = <span class="kw-2">&amp;</span>typ.mark;
+        <span class="kw">let </span>calcurs_struct = MarkedItem::new(type_mark.clone(), strct.clone());
 
         <span class="kw-2">*</span>strct = append_field(strct.clone(), base_field.clone())<span class="question-mark">?</span>;
 
-        stream.extend(impl_new_base(
-            MarkedItem::new(attrib.clone(), strct.clone()),
+        <span class="comment">// let s = impl_trait_dependencies(&amp;calcurs_struct, &amp;dep_tree.relations);
+        // stream.extend(s);
+
+        </span>stream.extend(impl_new_base(
+            <span class="kw-2">&amp;</span>calcurs_struct,
             <span class="kw-2">&amp;</span>constructor,
             base_type,
-            <span class="kw-2">&amp;</span>traits,
+            <span class="kw-2">&amp;</span>dep_tree.property_map,
         )<span class="question-mark">?</span>);
+
 
         <span class="kw">let </span>generics = <span class="kw-2">&amp;</span>strct.generics;
         <span class="kw">let </span>name = <span class="kw-2">&amp;</span>strct.ident;
@@ -631,12 +715,12 @@
     <span class="kw">let </span>base = base_attrib.item.borrow().clone();
     <span class="kw">let </span>base = <span class="macro">cast_item!</span>(base <span class="kw">as </span>Item::Struct);
 
-    <span class="kw">let </span>calcurs_props = build_dependency_tree(calcurs_trait_props)<span class="question-mark">?</span>;
+    <span class="kw">let </span>trait_dep_tree = build_dependency_tree(calcurs_trait_props)<span class="question-mark">?</span>;
 
     stream.extend(impl_calcurs_types(
         MarkedItem::new(attrib, base),
         <span class="kw-2">&amp;</span>calcurs_types,
-        calcurs_props,
+        trait_dep_tree,
     )<span class="question-mark">?</span>);
 
     <span class="prelude-val">Ok</span>(stream)

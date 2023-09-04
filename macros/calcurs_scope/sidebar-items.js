@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["build_dependency_tree","dependencies_from_relation","impl_calcurs_types","impl_diff_debug","impl_new_base","init_property_relations","parse_calcurs_scope"],"struct":["CalcursMacroScope","TraitProperties"]};
+window.SIDEBAR_ITEMS = {"fn":["_impl_trait_dependencies","build_dependency_tree","dependencies_from_relation","impl_calcurs_types","impl_diff_debug","impl_new_base","init_property_relations","parse_calcurs_scope"],"struct":["CalcursMacroScope","TraitDepTree","TraitProperties"],"type":["TraitPropertieMap","TraitRelations"]};
