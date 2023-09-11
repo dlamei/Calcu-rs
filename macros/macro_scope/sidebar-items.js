@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["get_items_by_mark"],"struct":["MacroScope","MarkedItem"],"type":["SharedMarkedItem"]};
+window.SIDEBAR_ITEMS = {"fn":["get_items_by_mark_prefix"],"struct":["MacroScope","MarkedItem"],"type":["SharedMarkedItem"]};
