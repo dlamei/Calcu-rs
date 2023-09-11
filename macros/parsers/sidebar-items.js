@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["FieldAssign","FuncMacroArg"],"type":["FieldValues"]};
+window.SIDEBAR_ITEMS = {"struct":["FieldAssign","FuncMacroArg","TraitArg"],"type":["FieldValues"]};

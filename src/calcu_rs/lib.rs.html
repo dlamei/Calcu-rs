@@ -365,9 +365,24 @@
 <a href="#365" id="365">365</a>
 <a href="#366" id="366">366</a>
 <a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! simple symbolic algebra system in rust
 
-</span><span class="kw">use </span>core::fmt::Debug;
+</span><span class="kw">use </span>calcurs_macros::dyn_trait;
+<span class="kw">use </span>core::fmt::Debug;
 <span class="kw">use </span>paste::paste;
 <span class="kw">use </span>std::ops;
 
@@ -375,7 +390,7 @@
 </span><span class="kw">pub enum </span>CalcursType {
     BooleanTrue(BooleanTrue),
     BooleanFalse(BooleanFalse),
-    And(Box&lt;And&gt;),
+    And(And),
     Symbol(Symbol),
 }
 
@@ -385,10 +400,7 @@
         <span class="kw">match </span><span class="macro-nonterminal">$e </span>{
             BooleanTrue(<span class="macro-nonterminal">$v</span>) =&gt; <span class="macro-nonterminal">$func</span>,
             BooleanFalse(<span class="macro-nonterminal">$v</span>) =&gt; <span class="macro-nonterminal">$func</span>,
-            And(<span class="macro-nonterminal">$v</span>) =&gt; {
-                <span class="kw">let </span><span class="macro-nonterminal">$v </span>= <span class="macro-nonterminal">$v</span>.as_ref();
-                <span class="macro-nonterminal">$func
-            </span>}
+            And(<span class="macro-nonterminal">$v</span>) =&gt; <span class="macro-nonterminal">$func</span>,
             Symbol(<span class="macro-nonterminal">$v</span>) =&gt; <span class="macro-nonterminal">$func</span>,
         }
     }};
@@ -443,16 +455,28 @@
 <span class="macro">specialized_trait!</span>([Basic]: _is_function -&gt; bool { Application: <span class="bool-val">true </span>});
 <span class="macro">specialized_trait!</span>([Basic]: _is_scalar -&gt; bool { Expr: <span class="bool-val">true </span>});
 
-<span class="kw">pub trait </span>Basic: Debug + Into&lt;CalcursType&gt; + Clone + PartialEq {
+<span class="kw">pub trait </span>CalcursObject {
+    <span class="kw">fn </span>typ(<span class="self">self</span>) -&gt; CalcursType;
+}
+
+<span class="kw">impl</span>&lt;T: Basic + Into&lt;CalcursType&gt;&gt; CalcursObject <span class="kw">for </span>T {
     <span class="kw">fn </span>typ(<span class="self">self</span>) -&gt; CalcursType {
         <span class="self">self</span>.into()
+    }
+}
+
+<span class="attr">#[dyn_trait(Into&lt;CalcursType&gt;)]
+</span><span class="kw">pub trait </span>Basic: Debug {
+    <span class="kw">fn </span>as_typ(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CalcursType {
+        <span class="self">self</span>.typ_clone()
     }
 }
 
 <span class="kw">pub trait </span>Atom: Basic {}
 <span class="kw">pub trait </span>Expr: Basic {}
 
-<span class="kw">pub trait </span>Boolean: Basic {
+<span class="attr">#[dyn_trait(Into&lt;CalcursType&gt;)]
+</span><span class="kw">pub trait </span>Boolean: Basic {
     <span class="kw">fn </span>bool_val(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;bool&gt;;
 }
 <span class="kw">pub trait </span>Application: Basic {}
@@ -551,8 +575,8 @@
 
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>And {
-    lhs: CalcursType,
-    rhs: CalcursType,
+    lhs: Box&lt;<span class="kw">dyn </span>Boolean&gt;,
+    rhs: Box&lt;<span class="kw">dyn </span>Boolean&gt;,
     value: AndValue,
 }
 
@@ -575,17 +599,9 @@
     <span class="kw">pub fn </span>new&lt;S: Boolean, T: Boolean&gt;(lhs: S, rhs: T) -&gt; And {
         <span class="kw">let </span>value = AndValue(lhs.bool_val()).and(AndValue(rhs.bool_val()));
         And {
-            lhs: lhs.into(),
-            rhs: rhs.into(),
+            lhs: DynBoolean::box_clone(<span class="kw-2">&amp;</span>lhs),
+            rhs: DynBoolean::box_clone(<span class="kw-2">&amp;</span>rhs),
             value,
-        }
-    }
-
-    <span class="kw">pub const fn </span>const_new(lhs: CalcursType, rhs: CalcursType, value: <span class="prelude-ty">Option</span>&lt;bool&gt;) -&gt; And {
-        And {
-            lhs,
-            rhs,
-            value: AndValue(value),
         }
     }
 }
@@ -641,64 +657,76 @@
         <span class="macro">assert_eq!</span>(And::new(TRUE, FALSE), TRUE &amp; FALSE);
     }
 
-    <span class="kw">const </span>TRUE_TYP: CalcursType = CalcursType::BooleanTrue(TRUE);
-    <span class="kw">const </span>FALSE_TYP: CalcursType = CalcursType::BooleanFalse(FALSE);
-
     <span class="kw">const </span>X: Symbol = Symbol::new(<span class="string">&quot;x&quot;</span>);
-    <span class="kw">const </span>X_TYP: CalcursType = CalcursType::Symbol(Symbol::new(<span class="string">&quot;x&quot;</span>));
-
-    <span class="kw">const </span>TRUE_AND_TRUE: And = And::const_new(TRUE_TYP, TRUE_TYP, <span class="prelude-val">Some</span>(<span class="bool-val">true</span>));
-    <span class="kw">const </span>TRUE_AND_FALSE: And = And::const_new(TRUE_TYP, FALSE_TYP, <span class="prelude-val">Some</span>(<span class="bool-val">false</span>));
-    <span class="kw">const </span>TRUE_AND_X: And = And::const_new(TRUE_TYP, X_TYP, <span class="prelude-val">None</span>);
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>is_atom() {
+        <span class="kw">let </span>true_and_true = TRUE &amp; TRUE;
+        <span class="kw">let </span>true_and_false = TRUE &amp; FALSE;
+        <span class="kw">let </span>true_and_x = TRUE &amp; X;
+
         <span class="macro">assert!</span>(TRUE.typ().is_atom());
         <span class="macro">assert!</span>(FALSE.typ().is_atom());
         <span class="macro">assert!</span>(X.typ().is_atom());
-        <span class="macro">assert!</span>(!TRUE_AND_TRUE.typ().is_atom());
-        <span class="macro">assert!</span>(!TRUE_AND_FALSE.typ().is_atom());
-        <span class="macro">assert!</span>(!TRUE_AND_X.typ().is_atom());
+        <span class="macro">assert!</span>(!true_and_true.typ().is_atom());
+        <span class="macro">assert!</span>(!true_and_false.typ().is_atom());
+        <span class="macro">assert!</span>(!true_and_x.typ().is_atom());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>is_boolean() {
+        <span class="kw">let </span>true_and_true = TRUE &amp; TRUE;
+        <span class="kw">let </span>true_and_false = TRUE &amp; FALSE;
+        <span class="kw">let </span>true_and_x = TRUE &amp; X;
+
         <span class="macro">assert!</span>(TRUE.typ().is_boolean());
         <span class="macro">assert!</span>(FALSE.typ().is_boolean());
         <span class="macro">assert!</span>(X.typ().is_boolean());
-        <span class="macro">assert!</span>(TRUE_AND_TRUE.typ().is_boolean());
-        <span class="macro">assert!</span>(TRUE_AND_FALSE.typ().is_boolean());
-        <span class="macro">assert!</span>(TRUE_AND_X.typ().is_boolean());
+        <span class="macro">assert!</span>(true_and_true.typ().is_boolean());
+        <span class="macro">assert!</span>(true_and_false.typ().is_boolean());
+        <span class="macro">assert!</span>(true_and_x.typ().is_boolean());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>is_function() {
+        <span class="kw">let </span>true_and_true = TRUE &amp; TRUE;
+        <span class="kw">let </span>true_and_false = TRUE &amp; FALSE;
+        <span class="kw">let </span>true_and_x = TRUE &amp; X;
+
         <span class="macro">assert!</span>(!TRUE.typ().is_function());
         <span class="macro">assert!</span>(!FALSE.typ().is_function());
         <span class="macro">assert!</span>(!X.typ().is_function());
-        <span class="macro">assert!</span>(TRUE_AND_TRUE.typ().is_function());
-        <span class="macro">assert!</span>(TRUE_AND_FALSE.typ().is_function());
-        <span class="macro">assert!</span>(TRUE_AND_X.typ().is_function());
+        <span class="macro">assert!</span>(true_and_true.typ().is_function());
+        <span class="macro">assert!</span>(true_and_false.typ().is_function());
+        <span class="macro">assert!</span>(true_and_x.typ().is_function());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>is_scalar() {
+        <span class="kw">let </span>true_and_true = TRUE &amp; TRUE;
+        <span class="kw">let </span>true_and_false = TRUE &amp; FALSE;
+        <span class="kw">let </span>true_and_x = TRUE &amp; X;
+
         <span class="macro">assert!</span>(!TRUE.typ().is_scalar());
         <span class="macro">assert!</span>(!FALSE.typ().is_scalar());
         <span class="macro">assert!</span>(X.typ().is_scalar());
-        <span class="macro">assert!</span>(!TRUE_AND_TRUE.typ().is_scalar());
-        <span class="macro">assert!</span>(!TRUE_AND_FALSE.typ().is_scalar());
-        <span class="macro">assert!</span>(!TRUE_AND_X.typ().is_scalar());
+        <span class="macro">assert!</span>(!true_and_true.typ().is_scalar());
+        <span class="macro">assert!</span>(!true_and_false.typ().is_scalar());
+        <span class="macro">assert!</span>(!true_and_x.typ().is_scalar());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>bool_logic() {
+        <span class="kw">let </span>true_and_true = TRUE &amp; TRUE;
+        <span class="kw">let </span>true_and_false = TRUE &amp; FALSE;
+        <span class="kw">let </span>true_and_x = TRUE &amp; X;
+
         <span class="macro">assert!</span>(TRUE.bool_val().unwrap());
         <span class="macro">assert!</span>(!FALSE.bool_val().unwrap());
         <span class="macro">assert!</span>(X.bool_val().is_none());
-        <span class="macro">assert!</span>(TRUE_AND_TRUE.bool_val().unwrap());
-        <span class="macro">assert!</span>(!TRUE_AND_FALSE.bool_val().unwrap());
-        <span class="macro">assert!</span>(TRUE_AND_X.bool_val().is_none());
+        <span class="macro">assert!</span>(true_and_true.bool_val().unwrap());
+        <span class="macro">assert!</span>(!true_and_false.bool_val().unwrap());
+        <span class="macro">assert!</span>(true_and_x.bool_val().is_none());
     }
 }
 
