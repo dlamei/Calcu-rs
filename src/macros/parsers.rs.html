@@ -79,7 +79,7 @@
 </pre></div><pre class="rust"><code><span class="kw">use </span>proc_macro2::{Ident, TokenStream};
 <span class="kw">use </span>quote::{quote, ToTokens};
 <span class="kw">use </span>syn::parse::{Parse, ParseStream};
-<span class="kw">use </span>syn::{Path, Token};
+<span class="kw">use </span>syn::Token;
 
 <span class="kw">pub struct </span>FuncMacroArg {
     <span class="kw">pub </span>is_const: bool,
