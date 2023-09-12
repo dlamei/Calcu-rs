@@ -386,64 +386,62 @@
 <a href="#386" id="386">386</a>
 <a href="#387" id="387">387</a>
 <a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! simple symbolic algebra system in rust
 
 </span><span class="kw">use </span>calcurs_macros::dyn_trait;
 <span class="kw">use </span>core::fmt::Debug;
 <span class="kw">use </span>paste::paste;
-<span class="kw">use </span>std::ops;
+<span class="kw">use </span>std::{fmt::Display, ops};
 
-<span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub enum </span>CalcursType {
-    BooleanTrue(BooleanTrue),
-    BooleanFalse(BooleanFalse),
-    And(And),
-    Symbol(Symbol),
-}
-
-<span class="macro">macro_rules! </span>for_each_type {
-    (<span class="macro-nonterminal">$e</span>: ident: <span class="macro-nonterminal">$v</span>: ident =&gt; <span class="macro-nonterminal">$func</span>: tt) =&gt; {{
-        <span class="kw">use </span>CalcursType::<span class="kw-2">*</span>;
-        <span class="kw">match </span><span class="macro-nonterminal">$e </span>{
-            BooleanTrue(<span class="macro-nonterminal">$v</span>) =&gt; <span class="macro-nonterminal">$func</span>,
-            BooleanFalse(<span class="macro-nonterminal">$v</span>) =&gt; <span class="macro-nonterminal">$func</span>,
-            And(<span class="macro-nonterminal">$v</span>) =&gt; <span class="macro-nonterminal">$func</span>,
-            Symbol(<span class="macro-nonterminal">$v</span>) =&gt; <span class="macro-nonterminal">$func</span>,
-        }
-    }};
-}
-
-<span class="macro">macro_rules! </span>impl_getter {
-    (<span class="macro-nonterminal">$fn_name</span>: ident: <span class="macro-nonterminal">$impl_fn</span>: ident -&gt; <span class="macro-nonterminal">$ty</span>: ty) =&gt; {
-        <span class="kw">pub fn </span><span class="macro-nonterminal">$fn_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="macro-nonterminal">$ty </span>{
-            <span class="macro">for_each_type!</span>(<span class="self">self</span>: v =&gt; { <span class="macro">auto_ref!</span>(<span class="kw-2">*</span>v).<span class="macro-nonterminal">$impl_fn</span>() })
-        }
-    }
-}
-
-<span class="macro">macro_rules! </span>auto_ref {
-    (<span class="macro-nonterminal">$expr</span>: expr) =&gt; {
-        (<span class="kw-2">&amp;</span><span class="macro-nonterminal">$expr</span>)
-    };
-}
-
-<span class="kw">impl </span>CalcursType {
-    <span class="macro">impl_getter!</span>(get_atom: get_atom_impl -&gt; <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>Atom&gt;&gt;);
-    <span class="kw">pub fn </span>is_atom(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.get_atom().is_some()
-    }
-
-    <span class="macro">impl_getter!</span>(get_boolean: get_boolean_impl -&gt; <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>Boolean&gt;&gt;);
-    <span class="kw">pub fn </span>is_boolean(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.get_boolean().is_some()
-    }
-
-    <span class="macro">impl_getter!</span>(is_function: is_function_impl -&gt; bool);
-
-    <span class="macro">impl_getter!</span>(is_scalar: is_scalar_impl -&gt; bool);
-}
-
-<span class="macro">macro_rules! </span>specialized_trait {
+<span class="macro">macro_rules! </span>_specialized_trait {
     ([<span class="macro-nonterminal">$basic</span>: ident =&gt; <span class="macro-nonterminal">$special</span>: ident]: <span class="macro-nonterminal">$fn_name</span>: ident (<span class="kw-2">&amp;</span><span class="macro-nonterminal">$self</span>: ident) -&gt; <span class="macro-nonterminal">$ret_ty</span>: ty { <span class="macro-nonterminal">$spec_ret</span>: expr }) =&gt; {
         <span class="macro">paste! </span>{
             <span class="kw">pub trait </span>[&lt;__Default <span class="macro-nonterminal">$fn_name</span>:camel&gt;] {
@@ -468,28 +466,95 @@
     };
 }
 
-<span class="macro">specialized_trait!</span>([Basic =&gt; Atom]: get_atom_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>Atom&gt;&gt; { <span class="prelude-val">Some</span>(DynAtom::box_clone(<span class="self">self</span>)) });
+<span class="attr">#[derive(Clone)]
+</span><span class="kw">pub enum </span>CalcursType {
+    BooleanTrue(BooleanTrue),
+    BooleanFalse(BooleanFalse),
+    And(And),
+    Symbol(Symbol),
+}
 
-<span class="macro">specialized_trait!</span>([Basic =&gt; Boolean]: get_boolean_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>Boolean&gt;&gt; {  <span class="prelude-val">Some</span>(DynBoolean::box_clone(<span class="self">self</span>))  });
-
-<span class="macro">specialized_trait!</span>([Basic =&gt; Application]: is_function_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool { <span class="bool-val">true </span>});
-
-<span class="macro">specialized_trait!</span>([Basic =&gt; Expr]: is_scalar_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool { <span class="bool-val">true </span>});
-
-<span class="kw">impl </span>PartialEq <span class="kw">for </span>CalcursType {
-    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
-        <span class="kw">match </span>(<span class="self">self</span>.get_boolean(), other.get_boolean()) {
-            (<span class="prelude-val">Some</span>(b1), <span class="prelude-val">Some</span>(b2)) =&gt; <span class="kw">match </span>(b1.bool_val(), b2.bool_val()) {
-                (<span class="prelude-val">Some</span>(v1), <span class="prelude-val">Some</span>(v2)) =&gt; <span class="kw">return </span>v1 == v2,
-                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="bool-val">false</span>,
-            },
-            <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
+<span class="macro">macro_rules! </span>wrap {
+    (<span class="macro-nonterminal">$</span><span class="kw">type</span>: <span class="macro-nonterminal">ident</span>: <span class="macro-nonterminal">$val</span>: expr) =&gt; {
+        <span class="macro">paste! </span>{
+            CalcursType::<span class="macro-nonterminal">$</span><span class="kw">type</span>(<span class="macro-nonterminal">$val</span>)
         }
+    };
+}
+
+<span class="macro">macro_rules! </span>for_each_type {
+    (<span class="kw">match </span><span class="macro-nonterminal">$e</span>: ident |<span class="macro-nonterminal">$v</span>: ident| <span class="macro-nonterminal">$func</span>: tt) =&gt; {{
+        <span class="kw">use </span>CalcursType::<span class="kw-2">*</span>;
+        <span class="kw">match </span><span class="macro-nonterminal">$e </span>{
+            BooleanTrue(<span class="macro-nonterminal">$v</span>) =&gt; <span class="macro-nonterminal">$func</span>,
+            BooleanFalse(<span class="macro-nonterminal">$v</span>) =&gt; <span class="macro-nonterminal">$func</span>,
+            And(<span class="macro-nonterminal">$v</span>) =&gt; <span class="macro-nonterminal">$func</span>,
+            Symbol(<span class="macro-nonterminal">$v</span>) =&gt; <span class="macro-nonterminal">$func</span>,
+        }
+    }};
+}
+
+<span class="kw">impl </span>Debug <span class="kw">for </span>CalcursType {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="macro">for_each_type!</span>(<span class="kw">match </span><span class="self">self </span>|v| { <span class="macro">write!</span>(f, <span class="string">&quot;{:?}&quot;</span>, v)})
     }
 }
 
+<span class="kw">impl </span>Display <span class="kw">for </span>CalcursType {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="macro">for_each_type!</span>(<span class="kw">match </span><span class="self">self </span>|v| { <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, v)})
+    }
+}
+
+<span class="kw">impl </span>CalcursType {
+    <span class="kw">pub fn </span>get_boolean(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>Boolean&gt; {
+        <span class="kw">use </span>CalcursType::<span class="kw-2">*</span>;
+        <span class="kw">match </span><span class="self">self </span>{
+            BooleanTrue(v) =&gt; <span class="prelude-val">Some</span>(v),
+            BooleanFalse(v) =&gt; <span class="prelude-val">Some</span>(v),
+            And(v) =&gt; <span class="prelude-val">Some</span>(v),
+            Symbol(v) =&gt; <span class="prelude-val">Some</span>(v),
+        }
+    }
+
+    <span class="kw">pub fn </span>is_boolean(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.get_boolean().is_some()
+    }
+
+    <span class="kw">pub fn </span>subs&lt;SYM: Into&lt;Symbol&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, sym: SYM, value: CalcursType) -&gt; CalcursType {
+        <span class="macro">for_each_type!</span>(<span class="kw">match </span><span class="self">self </span>|v| { v.subs(sym.into(), value).unwrap_or(<span class="self">self</span>.clone()) })
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CalcursType&gt; <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">dyn </span>Boolean&gt; {
+    <span class="kw">fn </span>from(value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CalcursType) -&gt; <span class="self">Self </span>{
+        value.get_boolean()
+    }
+}
+
+<span class="kw">impl </span>PartialEq <span class="kw">for </span>CalcursType {
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+        <span class="kw">if let </span>(<span class="prelude-val">Some</span>(b1), <span class="prelude-val">Some</span>(b2)) = (<span class="self">self</span>.get_boolean(), other.get_boolean()) {
+            <span class="kw">if let </span>(<span class="prelude-val">Some</span>(v1), <span class="prelude-val">Some</span>(v2)) = (b1.bool_val(), b2.bool_val()) {
+                <span class="kw">return </span>v1 == v2;
+            }
+        }
+
+        <span class="bool-val">false
+    </span>}
+}
+
 <span class="attr">#[dyn_trait]
-</span><span class="kw">pub trait </span>Basic: Debug {}
+</span><span class="kw">pub trait </span>Substitude {
+    <span class="kw">fn </span>subs(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: Symbol, <span class="kw">_</span>: CalcursType) -&gt; <span class="prelude-ty">Option</span>&lt;CalcursType&gt; {
+        <span class="prelude-val">None
+    </span>}
+}
+
+<span class="attr">#[dyn_trait]
+</span><span class="kw">pub trait </span>Basic: Display + Debug + Substitude {
+    <span class="kw">fn </span>as_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CalcursType;
+}
 
 <span class="attr">#[dyn_trait]
 </span><span class="kw">pub trait </span>Atom: Basic {}
@@ -516,10 +581,14 @@
 
 <span class="attr">#[derive(Debug, Clone, Default, Copy, PartialEq)]
 </span><span class="kw">pub struct </span>Symbol {
-    name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+    ident: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
 }
 
-<span class="kw">impl </span>Basic <span class="kw">for </span>Symbol {}
+<span class="kw">impl </span>Basic <span class="kw">for </span>Symbol {
+    <span class="kw">fn </span>as_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CalcursType {
+        (<span class="kw-2">*</span><span class="self">self</span>).into()
+    }
+}
 <span class="kw">impl </span>Atom <span class="kw">for </span>Symbol {}
 <span class="kw">impl </span>Expr <span class="kw">for </span>Symbol {}
 <span class="kw">impl </span>AtomicExpr <span class="kw">for </span>Symbol {}
@@ -529,15 +598,40 @@
     </span>}
 }
 
+<span class="kw">impl </span>Display <span class="kw">for </span>Symbol {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.ident)
+    }
+}
+
+<span class="kw">impl </span>Substitude <span class="kw">for </span>Symbol {
+    <span class="kw">fn </span>subs(<span class="kw-2">&amp;</span><span class="self">self</span>, sym: Symbol, value: CalcursType) -&gt; <span class="prelude-ty">Option</span>&lt;CalcursType&gt; {
+        <span class="kw">match </span>sym == <span class="kw-2">*</span><span class="self">self </span>{
+            <span class="bool-val">true </span>=&gt; <span class="prelude-val">Some</span>(value),
+            <span class="bool-val">false </span>=&gt; <span class="prelude-val">None</span>,
+        }
+    }
+}
+
 <span class="kw">impl </span>Symbol {
-    <span class="kw">pub const fn </span>new(name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; CalcursType {
-        CalcursType::Symbol(<span class="self">Self </span>{ name })
+    <span class="kw">pub const fn </span>new(name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ ident: name }
+    }
+
+    <span class="kw">pub const fn </span>typ(name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; CalcursType {
+        <span class="macro">wrap!</span>(Symbol: <span class="self">Self</span>::new(name))
+    }
+}
+
+<span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; <span class="kw">for </span>Symbol {
+    <span class="kw">fn </span>from(value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="self">Self </span>{
+        Symbol::new(value)
     }
 }
 
 <span class="kw">impl </span>From&lt;Symbol&gt; <span class="kw">for </span>CalcursType {
     <span class="kw">fn </span>from(value: Symbol) -&gt; CalcursType {
-        CalcursType::Symbol(value)
+        <span class="macro">wrap!</span>(Symbol: value)
     }
 }
 
@@ -545,12 +639,21 @@
 </span><span class="kw">pub struct </span>BooleanTrue;
 
 <span class="kw">impl </span>BooleanTrue {
-    <span class="kw">pub const fn </span>new() -&gt; CalcursType {
-        CalcursType::BooleanTrue(<span class="self">Self </span>{})
+    <span class="kw">pub const fn </span>to_typ(<span class="self">self</span>) -&gt; CalcursType {
+        <span class="macro">wrap!</span>(BooleanTrue: <span class="self">self</span>)
+    }
+
+    <span class="kw">pub const fn </span>typ() -&gt; CalcursType {
+        <span class="self">Self </span>{}.to_typ()
     }
 }
 
-<span class="kw">impl </span>Basic <span class="kw">for </span>BooleanTrue {}
+<span class="kw">impl </span>Basic <span class="kw">for </span>BooleanTrue {
+    <span class="kw">fn </span>as_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CalcursType {
+        (<span class="kw-2">*</span><span class="self">self</span>).into()
+    }
+}
+
 <span class="kw">impl </span>Atom <span class="kw">for </span>BooleanTrue {}
 <span class="kw">impl </span>Boolean <span class="kw">for </span>BooleanTrue {
     <span class="kw">fn </span>bool_val(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;bool&gt; {
@@ -558,28 +661,35 @@
     }
 }
 
-<span class="kw">impl </span>From&lt;BooleanTrue&gt; <span class="kw">for </span>CalcursType {
-    <span class="kw">fn </span>from(value: BooleanTrue) -&gt; <span class="self">Self </span>{
-        CalcursType::BooleanTrue(value)
+<span class="kw">impl </span>Substitude <span class="kw">for </span>BooleanTrue {}
+
+<span class="kw">impl </span>Display <span class="kw">for </span>BooleanTrue {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;true&quot;</span>)
     }
 }
 
-<span class="kw">impl </span>From&lt;BooleanTrue&gt; <span class="kw">for </span>bool {
-    <span class="kw">fn </span>from(<span class="kw">_</span>: BooleanTrue) -&gt; bool {
-        <span class="bool-val">true
-    </span>}
+<span class="kw">impl </span>From&lt;BooleanTrue&gt; <span class="kw">for </span>CalcursType {
+    <span class="kw">fn </span>from(value: BooleanTrue) -&gt; <span class="self">Self </span>{
+        value.to_typ()
+    }
 }
 
 <span class="attr">#[derive(Debug, Clone, Default, Copy, PartialEq)]
 </span><span class="kw">pub struct </span>BooleanFalse;
 
 <span class="kw">impl </span>BooleanFalse {
-    <span class="kw">pub const fn </span>new() -&gt; CalcursType {
-        CalcursType::BooleanFalse(<span class="self">Self </span>{})
+    <span class="kw">pub const fn </span>typ() -&gt; CalcursType {
+        <span class="macro">wrap!</span>(BooleanFalse: <span class="self">Self </span>{})
     }
 }
 
-<span class="kw">impl </span>Basic <span class="kw">for </span>BooleanFalse {}
+<span class="kw">impl </span>Basic <span class="kw">for </span>BooleanFalse {
+    <span class="kw">fn </span>as_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CalcursType {
+        (<span class="kw-2">*</span><span class="self">self</span>).into()
+    }
+}
+
 <span class="kw">impl </span>Atom <span class="kw">for </span>BooleanFalse {}
 <span class="kw">impl </span>Boolean <span class="kw">for </span>BooleanFalse {
     <span class="kw">fn </span>bool_val(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;bool&gt; {
@@ -587,16 +697,18 @@
     }
 }
 
-<span class="kw">impl </span>From&lt;BooleanFalse&gt; <span class="kw">for </span>CalcursType {
-    <span class="kw">fn </span>from(value: BooleanFalse) -&gt; <span class="self">Self </span>{
-        CalcursType::BooleanFalse(value)
+<span class="kw">impl </span>Substitude <span class="kw">for </span>BooleanFalse {}
+
+<span class="kw">impl </span>Display <span class="kw">for </span>BooleanFalse {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;false&quot;</span>)
     }
 }
 
-<span class="kw">impl </span>From&lt;BooleanFalse&gt; <span class="kw">for </span>bool {
-    <span class="kw">fn </span>from(<span class="kw">_</span>: BooleanFalse) -&gt; bool {
-        <span class="bool-val">false
-    </span>}
+<span class="kw">impl </span>From&lt;BooleanFalse&gt; <span class="kw">for </span>CalcursType {
+    <span class="kw">fn </span>from(value: BooleanFalse) -&gt; <span class="self">Self </span>{
+        <span class="macro">wrap!</span>(BooleanFalse: value)
+    }
 }
 
 <span class="attr">#[derive(Debug, Clone, Copy, PartialEq)]
@@ -619,7 +731,24 @@
     value: AndValue,
 }
 
-<span class="kw">impl </span>Basic <span class="kw">for </span>And {}
+<span class="kw">impl </span>And {
+    <span class="kw">pub fn </span>new(lhs: Box&lt;<span class="kw">dyn </span>Boolean&gt;, rhs: Box&lt;<span class="kw">dyn </span>Boolean&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>v1 = AndValue(lhs.bool_val());
+        <span class="kw">let </span>v2 = AndValue(rhs.bool_val());
+        <span class="kw">let </span>value = v1.and(v2);
+        And { lhs, rhs, value }
+    }
+
+    <span class="kw">pub fn </span>typ(lhs: Box&lt;<span class="kw">dyn </span>Boolean&gt;, rhs: Box&lt;<span class="kw">dyn </span>Boolean&gt;) -&gt; CalcursType {
+        <span class="macro">wrap!</span>(And: <span class="self">Self</span>::new(lhs, rhs))
+    }
+}
+
+<span class="kw">impl </span>Basic <span class="kw">for </span>And {
+    <span class="kw">fn </span>as_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CalcursType {
+        (<span class="kw-2">*</span><span class="self">self</span>).clone().into()
+    }
+}
 <span class="kw">impl </span>Application <span class="kw">for </span>And {}
 <span class="kw">impl </span>BooleanFunc <span class="kw">for </span>And {}
 <span class="kw">impl </span>Boolean <span class="kw">for </span>And {
@@ -628,22 +757,48 @@
     </span>}
 }
 
+<span class="kw">impl </span>Substitude <span class="kw">for </span>And {
+    <span class="kw">fn </span>subs(<span class="kw-2">&amp;</span><span class="self">self</span>, sym: Symbol, value: CalcursType) -&gt; <span class="prelude-ty">Option</span>&lt;CalcursType&gt; {
+        <span class="kw">if </span>!value.is_boolean() {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
+        }
+
+        <span class="kw">let </span>lhs = <span class="self">self</span>.lhs.subs(sym, value.clone());
+        <span class="kw">let </span>rhs = <span class="self">self</span>.rhs.subs(sym, value.clone());
+
+        <span class="kw">match </span>(<span class="kw-2">&amp;</span>lhs, <span class="kw-2">&amp;</span>rhs) {
+            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
+            <span class="kw">_ </span>=&gt; (),
+        }
+
+        <span class="kw">let </span>binding = lhs.unwrap_or(<span class="self">self</span>.lhs.as_type());
+        <span class="kw">let </span>lhs = binding.get_boolean().expect(<span class="string">&quot;should be unreachable&quot;</span>);
+
+        <span class="kw">let </span>binding = rhs.unwrap_or(<span class="self">self</span>.rhs.as_type());
+        <span class="kw">let </span>rhs = binding.get_boolean().expect(<span class="string">&quot;should be unreachable&quot;</span>);
+
+        <span class="prelude-val">Some</span>(And::typ(
+            DynBoolean::box_clone(lhs),
+            DynBoolean::box_clone(rhs),
+        ))
+    }
+}
+
+<span class="kw">impl </span>Display <span class="kw">for </span>And {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;({} &amp; {})&quot;</span>, <span class="self">self</span>.lhs, <span class="self">self</span>.rhs)
+    }
+}
+
 <span class="kw">impl </span>PartialEq <span class="kw">for </span>And {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>And) -&gt; bool {
         <span class="self">self</span>.value == other.value
     }
 }
 
-<span class="kw">impl </span>And {
-    <span class="kw">pub fn </span>new(lhs: Box&lt;<span class="kw">dyn </span>Boolean&gt;, rhs: Box&lt;<span class="kw">dyn </span>Boolean&gt;) -&gt; CalcursType {
-        <span class="kw">let </span>value = AndValue(lhs.bool_val()).and(AndValue(rhs.bool_val()));
-        CalcursType::And(And { lhs, rhs, value })
-    }
-}
-
 <span class="kw">impl </span>From&lt;And&gt; <span class="kw">for </span>CalcursType {
     <span class="kw">fn </span>from(value: And) -&gt; <span class="self">Self </span>{
-        CalcursType::And(value.into())
+        <span class="macro">wrap!</span>(And: value)
     }
 }
 
@@ -652,126 +807,67 @@
 
     <span class="kw">fn </span>bitand(<span class="self">self</span>, rhs: CalcursType) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">match </span>(<span class="self">self</span>.get_boolean(), rhs.get_boolean()) {
-            (<span class="prelude-val">Some</span>(b1), <span class="prelude-val">Some</span>(b2)) =&gt; And::new(b1, b2),
+            (<span class="prelude-val">Some</span>(b1), <span class="prelude-val">Some</span>(b2)) =&gt; And::typ(DynBoolean::box_clone(b1), DynBoolean::box_clone(b2)),
             <span class="kw">_ </span>=&gt; <span class="macro">todo!</span>(),
         }
     }
 }
 
-<span class="kw">pub const </span>FALSE: CalcursType = BooleanFalse::new();
-<span class="kw">pub const </span>TRUE: CalcursType = BooleanTrue::new();
+<span class="kw">pub const </span>FALSE: CalcursType = BooleanFalse::typ();
+<span class="kw">pub const </span>TRUE: CalcursType = BooleanTrue::typ();
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>test {
 
     <span class="kw">use crate</span>::<span class="kw-2">*</span>;
 
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>boolean() {
-        <span class="comment">// assert_eq!(And::new(TRUE, FALSE), TRUE &amp; FALSE);
-    </span>}
+    <span class="macro">macro_rules! </span>parse {
+        (<span class="bool-val">true</span>) =&gt; {
+            TRUE
+        };
 
-    <span class="kw">const </span>X: CalcursType = Symbol::new(<span class="string">&quot;x&quot;</span>);
+        (<span class="bool-val">false</span>) =&gt; {
+            FALSE
+        };
 
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>is_atom() {
-        <span class="kw">let </span>true_and_true = TRUE &amp; TRUE;
-        <span class="kw">let </span>true_and_false = TRUE &amp; FALSE;
-        <span class="kw">let </span>true_and_x = TRUE &amp; X;
+        (<span class="macro-nonterminal">$e</span>: ident) =&gt; {
+            Symbol::typ(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$e</span>))
+        };
 
-        <span class="macro">assert!</span>(TRUE.is_atom());
-        <span class="macro">assert!</span>(FALSE.is_atom());
-        <span class="macro">assert!</span>(X.is_atom());
-        <span class="macro">assert!</span>(!true_and_true.is_atom());
-        <span class="macro">assert!</span>(!true_and_false.is_atom());
-        <span class="macro">assert!</span>(!true_and_x.is_atom());
+        (<span class="macro-nonterminal">$e1</span>: ident $(&amp; <span class="macro-nonterminal">$e2</span>: ident)+) =&gt; {
+            <span class="macro">parse!</span>(<span class="macro-nonterminal">$e1</span>) $(&amp; <span class="macro">parse!</span>(<span class="macro-nonterminal">$e2</span>))+
+        };
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>is_boolean() {
-        <span class="kw">let </span>true_and_true = TRUE &amp; TRUE;
-        <span class="kw">let </span>true_and_false = TRUE &amp; FALSE;
-        <span class="kw">let </span>true_and_x = TRUE &amp; X;
-
-        <span class="macro">assert!</span>(TRUE.is_boolean());
-        <span class="macro">assert!</span>(FALSE.is_boolean());
-        <span class="macro">assert!</span>(X.is_boolean());
-        <span class="macro">assert!</span>(true_and_true.is_boolean());
-        <span class="macro">assert!</span>(true_and_false.is_boolean());
-        <span class="macro">assert!</span>(true_and_x.is_boolean());
-    }
-
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>is_function() {
-        <span class="kw">let </span>true_and_true = TRUE &amp; TRUE;
-        <span class="kw">let </span>true_and_false = TRUE &amp; FALSE;
-        <span class="kw">let </span>true_and_x = TRUE &amp; X;
-
-        <span class="macro">assert!</span>(!TRUE.is_function());
-        <span class="macro">assert!</span>(!FALSE.is_function());
-        <span class="macro">assert!</span>(!X.is_function());
-        <span class="macro">assert!</span>(true_and_true.is_function());
-        <span class="macro">assert!</span>(true_and_false.is_function());
-        <span class="macro">assert!</span>(true_and_x.is_function());
-    }
-
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>is_scalar() {
-        <span class="kw">let </span>true_and_true = TRUE &amp; TRUE;
-        <span class="kw">let </span>true_and_false = TRUE &amp; FALSE;
-        <span class="kw">let </span>true_and_x = TRUE &amp; X;
-
-        <span class="macro">assert!</span>(!TRUE.is_scalar());
-        <span class="macro">assert!</span>(!FALSE.is_scalar());
-        <span class="macro">assert!</span>(X.is_scalar());
-        <span class="macro">assert!</span>(!true_and_true.is_scalar());
-        <span class="macro">assert!</span>(!true_and_false.is_scalar());
-        <span class="macro">assert!</span>(!true_and_x.is_scalar());
+        <span class="macro">assert!</span>(<span class="macro">parse!</span>(<span class="bool-val">true</span>).is_boolean());
+        <span class="macro">assert!</span>(<span class="macro">parse!</span>(<span class="bool-val">false</span>).is_boolean());
+        <span class="macro">assert!</span>(<span class="macro">parse!</span>(x).is_boolean());
+        <span class="macro">assert!</span>(<span class="macro">parse!</span>(x &amp; y).is_boolean());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>bool_logic() {
-        <span class="kw">let </span>true_and_true = TRUE &amp; TRUE;
-        <span class="kw">let </span>true_and_false = TRUE &amp; FALSE;
-        <span class="kw">let </span>false_and_false = FALSE &amp; FALSE;
-        <span class="kw">let </span>true_and_x = TRUE &amp; X;
+        <span class="macro">assert_eq!</span>(<span class="macro">parse!</span>(<span class="bool-val">true </span>&amp; <span class="bool-val">true</span>), TRUE);
+        <span class="macro">assert_eq!</span>(<span class="macro">parse!</span>(<span class="bool-val">true </span>&amp; <span class="bool-val">false</span>), FALSE);
+        <span class="macro">assert_eq!</span>(<span class="macro">parse!</span>(<span class="bool-val">false </span>&amp; <span class="bool-val">false</span>), <span class="macro">parse!</span>(<span class="bool-val">false </span>&amp; <span class="bool-val">true</span>));
+        <span class="macro">assert_ne!</span>(<span class="macro">parse!</span>(<span class="bool-val">true </span>&amp; x), TRUE);
+        <span class="macro">assert_ne!</span>(<span class="macro">parse!</span>(x &amp; <span class="bool-val">true</span>), FALSE);
+        <span class="macro">assert!</span>(<span class="macro">parse!</span>(x &amp; y &amp; z)
+            .get_boolean()
+            .unwrap()
+            .bool_val()
+            .is_none());
+    }
 
-        <span class="macro">assert_eq!</span>(true_and_true, TRUE);
-        <span class="macro">assert_eq!</span>(true_and_false, FALSE);
-        <span class="macro">assert_eq!</span>(false_and_false, FALSE);
-        <span class="macro">assert_ne!</span>(true_and_x, TRUE);
-        <span class="macro">assert_ne!</span>(true_and_x, FALSE);
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>substitude() {
+        <span class="kw">let </span>expr = <span class="macro">parse!</span>(x &amp; y);
+
+        <span class="macro">assert_eq!</span>(expr.subs(<span class="string">&quot;x&quot;</span>, TRUE).subs(<span class="string">&quot;y&quot;</span>, TRUE), TRUE);
+        <span class="macro">assert_eq!</span>(expr.subs(<span class="string">&quot;x&quot;</span>, FALSE).subs(<span class="string">&quot;y&quot;</span>, TRUE), FALSE);
+        <span class="macro">assert_eq!</span>(expr.subs(<span class="string">&quot;x&quot;</span>, TRUE).subs(<span class="string">&quot;y&quot;</span>, FALSE), FALSE);
     }
 }
-
-<span class="comment">// is_number: bool,
-// is_atom: bool,
-// is_symbol: bool,
-// is_function: bool,
-// is_add: bool,
-// is_mul: bool,
-// is_pow: bool,
-// is_float: bool,
-// is_rational: bool,
-// is_integer: bool,
-// is_numbersymbol: bool,
-// is_order: bool,
-// is_derivative: bool,
-// is_piecewise: bool,
-// is_poly: bool,
-// is_algebraicnumber: bool,
-// is_relational: bool,
-// is_equality: bool,
-// is_boolean: bool,
-// is_not: bool,
-// is_matrix: bool,
-// is_vector: bool,
-// is_point: bool,
-// is_matadd: bool,
-// is_scalar: bool,
-// is_matmul: Option&lt;bool&gt;,
-// is_real: Option&lt;bool&gt;,
-// is_zero: Option&lt;bool&gt;,
-// is_negative: Option&lt;bool&gt;,
-// is_commutative: Option&lt;bool&gt;,
-</span></code></pre></div></section></main></body></html>
+</code></pre></div></section></main></body></html>
