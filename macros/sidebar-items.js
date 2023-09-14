@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"attr":["calcurs_base","calcurs_trait","calcurs_type","diff_debug","dyn_trait","inherit","init_calcurs_macro_scope"],"fn":["impl_diff_debug_fn"],"mod":["calcurs_scope","macro_scope","parsers","utils"]};

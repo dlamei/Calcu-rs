@@ -1,3 +1,0 @@
-(function() {var implementors = {
-"macros":[["impl&lt;T&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/1.72.0/core/marker/trait.StructuralEq.html\" title=\"trait core::marker::StructuralEq\">StructuralEq</a> for <a class=\"struct\" href=\"macros/macro_scope/struct.MarkedItem.html\" title=\"struct macros::macro_scope::MarkedItem\">MarkedItem</a>&lt;T&gt;"]]
-};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

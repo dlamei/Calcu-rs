@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["build_dependency_tree","dependencies_from_relation","impl_calcurs_items","impl_diff_debug_fn","impl_new_base_fn","impl_trait_dependencies","init_property_relations","parse_calcurs_scope"],"macro":["cast_marked_items"],"struct":["CalcursMacroScope","TraitDepTree","TraitProperties"],"type":["StructParents","TraitPropertieMap","TraitRelations"]};

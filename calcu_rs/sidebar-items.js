@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["FALSE","TRUE"],"enum":["CalcursType"],"macro":["_specialized_trait","for_each_type","wrap"],"struct":["And","AndValue","BooleanFalse","BooleanTrue","Symbol"],"trait":["Application","Atom","AtomicExpr","Basic","Boolean","BooleanAtom","BooleanFunc","DynApplication","DynAtom","DynAtomicExpr","DynBasic","DynBoolean","DynBooleanAtom","DynBooleanFunc","DynExpr","DynSubstitude","Expr","Substitude"]};
+window.SIDEBAR_ITEMS = {"mod":["boolean","prelude","types"]};

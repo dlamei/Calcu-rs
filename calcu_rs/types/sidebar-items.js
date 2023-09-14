@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CalcursType","Typed"],"struct":["Symbol"],"trait":["Simplify","TypedSubstitude"]};

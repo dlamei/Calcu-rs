@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["append_struct_field","find_attribute","import_crate"],"macro":["cast_item"]};
