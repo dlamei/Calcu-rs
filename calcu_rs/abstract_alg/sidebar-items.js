@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":["tuple_op_list_impls"],"struct":["Group","Monoid"],"trait":["Algebra","Associative","Binary","Commutative","Distributive","Identity","Inverse","LInverse","Operation","OperatorList","RInverse","Set","Ternary","Unary"]};

@@ -288,11 +288,131 @@
 <a href="#288" id="288">288</a>
 <a href="#289" id="289">289</a>
 <a href="#290" id="290">290</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::ops;
-
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::core::{
+    Associativity, CalcursType, Commutativity, Distributivity, Identity, Operator, Simplify,
+    Symbol, Typed, TypedSubstitude,
+};
 <span class="kw">use </span>derive_more::{Display, From};
+<span class="kw">use </span>std::ops;
 
-<span class="kw">use </span><span class="kw">crate</span>::types::{CalcursType, Simplify, Symbol, Typed, TypedSubstitude};
+<span class="kw">mod </span>algorithms;
 
 <span class="kw">pub const </span>TRUE: BooleanType = BooleanType::True(BooleanTrue);
 <span class="kw">pub const </span>FALSE: BooleanType = BooleanType::False(BooleanFalse);
@@ -303,21 +423,9 @@
     False(BooleanFalse),
     Symbol(Symbol),
 
+    Not(Box&lt;Not&gt;),
     And(Box&lt;And&gt;),
     Or(Box&lt;Or&gt;),
-}
-
-<span class="kw">impl </span>BooleanType {
-    <span class="kw">pub fn </span>value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;bool&gt; {
-        <span class="kw">use </span>BooleanType <span class="kw">as </span>BT;
-        <span class="kw">match </span><span class="self">self </span>{
-            BT::True(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<span class="bool-val">true</span>),
-            BT::False(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<span class="bool-val">false</span>),
-            BT::Symbol(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
-            BT::And(v) =&gt; v.value(),
-            BT::Or(v) =&gt; v.value(),
-        }
-    }
 }
 
 <span class="kw">impl </span>TypedSubstitude <span class="kw">for </span>BooleanType {
@@ -331,6 +439,7 @@
                 <span class="bool-val">false </span>=&gt; <span class="self">self</span>.clone(),
             },
 
+            BT::Not(b) =&gt; b.val.subs(sym, val),
             BT::And(b) =&gt; b.subs(sym, val),
             BT::Or(b) =&gt; b.subs(sym, val),
         }
@@ -344,6 +453,7 @@
             BT::True(<span class="kw">_</span>) =&gt; <span class="self">self</span>.clone(),
             BT::False(<span class="kw">_</span>) =&gt; <span class="self">self</span>.clone(),
             BT::Symbol(<span class="kw">_</span>) =&gt; <span class="self">self</span>.clone(),
+            BT::Not(b) =&gt; b.val.simplify(),
             BT::And(b) =&gt; b.simplify(),
             BT::Or(b) =&gt; b.simplify(),
         }
@@ -370,23 +480,25 @@
     }
 }
 
+<span class="kw">pub trait </span>BooleanOp: Operator&lt;OperandType = BooleanType&gt; + Clone {
+    <span class="kw">fn </span>simplify(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BooleanType;
+    <span class="kw">fn </span>to_bool(<span class="self">self</span>) -&gt; BooleanType;
+    <span class="kw">fn </span>from_bool(val: <span class="kw-2">&amp;</span>BooleanType) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="self">Self</span>&gt;;
+}
+
 <span class="comment">// assume commutivity for now
 // every op should not mutate value
-</span><span class="kw">pub trait </span>BooleanBinOp: Clone {
-    <span class="kw">fn </span>new_impl(lhs: BooleanType, rhs: BooleanType) -&gt; <span class="self">Self</span>;
-    <span class="kw">fn </span>to_bool(<span class="self">self</span>) -&gt; BooleanType;
+</span><span class="kw">pub trait </span>BooleanBinOp: BooleanOp {
+    <span class="kw">fn </span>new(lhs: BooleanType, rhs: BooleanType) -&gt; <span class="self">Self</span>;
 
     <span class="kw">fn </span>lhs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>BooleanType;
     <span class="kw">fn </span>rhs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>BooleanType;
-    <span class="kw">fn </span>value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;bool&gt;;
 
     <span class="kw">fn </span>subs(<span class="kw-2">&amp;</span><span class="self">self</span>, sym: Symbol, val: BooleanType) -&gt; BooleanType {
         <span class="kw">let </span>lhs = <span class="self">self</span>.lhs().subs(sym, val.clone());
         <span class="kw">let </span>rhs = <span class="self">self</span>.rhs().subs(sym, val);
-        <span class="self">Self</span>::bool_typ(lhs, rhs)
+        <span class="self">Self</span>::bool(lhs, rhs)
     }
-
-    <span class="kw">fn </span>simplify(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BooleanType;
 
     <span class="kw">fn </span>as_calcurs_op(lhs: CalcursType, rhs: CalcursType) -&gt; <span class="prelude-ty">Option</span>&lt;CalcursType&gt; {
         <span class="kw">use </span>CalcursType <span class="kw">as </span>CT;
@@ -394,77 +506,120 @@
         <span class="prelude-val">Some</span>(
             <span class="kw">match </span>(lhs, rhs) {
                 <span class="comment">// op(bool, bool) =&gt; op(bool, bool)
-                </span>(CT::Typed(T::Boolean(b1)), CT::Typed(T::Boolean(b2))) =&gt; <span class="self">Self</span>::bool_typ(b1, b2),
+                </span>(CT::Typed(T::Boolean(b1)), CT::Typed(T::Boolean(b2))) =&gt; <span class="self">Self</span>::bool(b1, b2),
 
                 <span class="comment">// op(sym, sym) =&gt; op(bool(sym), bool(sym))
-                </span>(CT::Symbol(s1), CT::Symbol(s2)) =&gt; <span class="self">Self</span>::bool_typ(s1.into(), s2.into()),
+                </span>(CT::Symbol(s1), CT::Symbol(s2)) =&gt; <span class="self">Self</span>::bool(s1.into(), s2.into()),
 
                 <span class="comment">// op(bool, sym) =&gt; op(bool, bool(sym))
-                </span>(CT::Typed(T::Boolean(b)), CT::Symbol(s)) =&gt; <span class="self">Self</span>::bool_typ(b, s.into()),
+                </span>(CT::Typed(T::Boolean(b)), CT::Symbol(s)) =&gt; <span class="self">Self</span>::bool(b, s.into()),
 
                 <span class="comment">// op(sym, bool) =&gt; op(bool, bool(sym))
-                </span>(CT::Symbol(s), CT::Typed(T::Boolean(b))) =&gt; <span class="self">Self</span>::bool_typ(s.into(), b),
+                </span>(CT::Symbol(s), CT::Typed(T::Boolean(b))) =&gt; <span class="self">Self</span>::bool(s.into(), b),
             }
             .into(),
         )
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>bool_typ(lhs: BooleanType, rhs: BooleanType) -&gt; BooleanType {
-        <span class="self">Self</span>::new_impl(lhs, rhs).to_bool()
+    </span><span class="kw">fn </span>bool(lhs: BooleanType, rhs: BooleanType) -&gt; BooleanType {
+        <span class="self">Self</span>::new(lhs, rhs).to_bool()
     }
 
-    <span class="kw">fn </span>typ(lhs: BooleanType, rhs: BooleanType) -&gt; CalcursType {
-        <span class="kw">let </span>lhs = lhs.simplify();
-        <span class="kw">let </span>rhs = rhs.simplify();
-        <span class="self">Self</span>::bool_typ(lhs, rhs).into()
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>typ(lhs: BooleanType, rhs: BooleanType) -&gt; CalcursType {
+        <span class="self">Self</span>::bool(lhs, rhs).into()
     }
 }
 
-<span class="attr">#[derive(Debug, Display, Clone)]
+<span class="comment">// fn bool_assoc&lt;OP: BooleanBinOp&gt;(e: &amp;BooleanType) -&gt; Option&lt;BooleanType&gt; {
+//     if let Some(b1) = OP::from_bool(e) {
+//         let lhs = b1.lhs();
+//         let rhs = b1.rhs();
+//         match (OP::from_bool(lhs), OP::from_bool(rhs)) {
+//             (Some(b2), None) =&gt; {
+//                 let lhs = lhs.clone();
+//                 let inner_lhs = b2.lhs().clone();
+//                 let inner_rhs = b2.rhs().clone();
+//                 return Some(OP::bool(OP::bool(lhs, inner_lhs), inner_rhs));
+//             }
+//             _ =&gt; (),
+//         }
+//     }
+
+//     None
+// }
+
+// fn bool_assoc_w_comm&lt;OP: BooleanBinOp + Commutativity&gt;(e: &amp;BooleanType) -&gt; BooleanType {
+//     if let Some(res) = bool_assoc::&lt;OP&gt;(e) {
+//         return res;
+//     }
+
+//     // swap and try again
+//     let e = &lt;OP as Commutativity&gt;::apply(e);
+
+//     if let Some(res) = bool_assoc::&lt;OP&gt;(&amp;e) {
+//         return res;
+//     }
+
+//     e.clone()
+// }
+
+// fn bool_dist&lt;OP1: BooleanBinOp, OP2: BooleanBinOp&gt;(e: &amp;BooleanType) -&gt; Option&lt;BooleanType&gt; {
+//     if let Some(b1) = OP1::from_bool(e) {
+//         let lhs = b1.lhs();
+//         let rhs = b1.rhs();
+
+//         if let Some(b2) = OP2::from_bool(rhs) {
+//             let x = lhs.clone();
+//             let y = b2.lhs().clone();
+//             let z = b2.rhs().clone();
+//             // we now have x op1 (y op2 z)
+//             return Some(OP2::bool(OP1::bool(x.clone(), y), OP1::bool(x, z)));
+//         }
+//     }
+
+//     None
+// }
+
+// fn bool_dist_w_comm&lt;OP1: BooleanBinOp + Commutativity, OP2: BooleanBinOp + Commutativity&gt;(
+//     e: &amp;BooleanType,
+// ) -&gt; BooleanType {
+//     if let Some(res) = bool_dist::&lt;OP1, OP2&gt;(e) {
+//         return res;
+//     }
+
+//     // swap and try again
+//     let e = &lt;OP1 as Commutativity&gt;::apply(e);
+
+//     if let Some(res) = bool_dist::&lt;OP1, OP2&gt;(&amp;e) {
+//         return res;
+//     }
+
+//     e.clone()
+// }
+
+</span><span class="attr">#[derive(Debug, Display, Clone)]
 #[display(fmt = <span class="string">&quot;({lhs} ∧ {rhs})&quot;</span>)]
 </span><span class="kw">pub struct </span>And {
     lhs: BooleanType,
     rhs: BooleanType,
-    val: <span class="prelude-ty">Option</span>&lt;bool&gt;,
 }
 
-<span class="kw">impl </span>BooleanBinOp <span class="kw">for </span>And {
-    <span class="kw">fn </span>new_impl(lhs: BooleanType, rhs: BooleanType) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>val = <span class="kw">match </span>(<span class="kw-2">&amp;</span>lhs.value(), <span class="kw-2">&amp;</span>rhs.value()) {
-            (<span class="prelude-val">Some</span>(b1), <span class="prelude-val">Some</span>(b2)) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">*</span>b1 &amp;&amp; <span class="kw-2">*</span>b2),
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
-        };
+<span class="kw">impl </span>Operator <span class="kw">for </span>And {
+    <span class="kw">type </span>OperandType = BooleanType;
+}
 
-        And { lhs, rhs, val }
-    }
+<span class="kw">impl </span>Identity <span class="kw">for </span>And {
+    <span class="kw">const </span>IDENTITY: <span class="self">Self</span>::OperandType = TRUE;
+}
 
-    <span class="kw">fn </span>to_bool(<span class="self">self</span>) -&gt; BooleanType {
-        Box::new(<span class="self">self</span>).into()
-    }
+<span class="kw">impl </span>Commutativity <span class="kw">for </span>And {}
+<span class="kw">impl </span>Associativity <span class="kw">for </span>And {}
+<span class="kw">impl </span>Distributivity&lt;Or&gt; <span class="kw">for </span>And {}
 
-    <span class="attr">#[inline]
-    </span><span class="kw">fn </span>lhs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>BooleanType {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.lhs
-    }
-
-    <span class="attr">#[inline]
-    </span><span class="kw">fn </span>rhs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>BooleanType {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.rhs
-    }
-
-    <span class="attr">#[inline]
-    </span><span class="kw">fn </span>value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;bool&gt; {
-        <span class="self">self</span>.val
-    }
-
+<span class="kw">impl </span>BooleanOp <span class="kw">for </span>And {
     <span class="kw">fn </span>simplify(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BooleanType {
-        <span class="kw">match </span><span class="self">self</span>.val {
-            <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) =&gt; <span class="kw">return </span>TRUE,
-            <span class="prelude-val">Some</span>(<span class="bool-val">false</span>) =&gt; <span class="kw">return </span>FALSE,
-            <span class="prelude-val">None </span>=&gt; (),
-        }
-
         <span class="kw">use </span>BooleanType <span class="kw">as </span>BT;
         <span class="kw">let </span>lhs = <span class="self">self</span>.lhs();
         <span class="kw">let </span>rhs = <span class="self">self</span>.rhs();
@@ -478,9 +633,36 @@
             (<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
                 <span class="kw">let </span>lhs = lhs.simplify();
                 <span class="kw">let </span>rhs = rhs.simplify();
-                <span class="self">Self</span>::bool_typ(lhs, rhs)
+                <span class="self">Self</span>::bool(lhs, rhs)
             }
         }
+    }
+
+    <span class="kw">fn </span>to_bool(<span class="self">self</span>) -&gt; BooleanType {
+        Box::new(<span class="self">self</span>).into()
+    }
+
+    <span class="kw">fn </span>from_bool(val: <span class="kw-2">&amp;</span>BooleanType) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="self">Self</span>&gt; {
+        <span class="kw">match </span>val {
+            BooleanType::And(and) =&gt; <span class="prelude-val">Some</span>(and),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+        }
+    }
+}
+
+<span class="kw">impl </span>BooleanBinOp <span class="kw">for </span>And {
+    <span class="kw">fn </span>new(lhs: BooleanType, rhs: BooleanType) -&gt; <span class="self">Self </span>{
+        And { lhs, rhs }
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>lhs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>BooleanType {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.lhs
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>rhs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>BooleanType {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.rhs
     }
 }
 
@@ -489,43 +671,22 @@
 </span><span class="kw">pub struct </span>Or {
     lhs: BooleanType,
     rhs: BooleanType,
-    val: <span class="prelude-ty">Option</span>&lt;bool&gt;,
 }
 
-<span class="kw">impl </span>BooleanBinOp <span class="kw">for </span>Or {
-    <span class="kw">fn </span>new_impl(lhs: BooleanType, rhs: BooleanType) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>val = <span class="kw">match </span>(<span class="kw-2">&amp;</span>lhs.value(), <span class="kw-2">&amp;</span>rhs.value()) {
-            (<span class="prelude-val">Some</span>(b1), <span class="prelude-val">Some</span>(b2)) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">*</span>b1 || <span class="kw-2">*</span>b2),
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
-        };
+<span class="kw">impl </span>Commutativity <span class="kw">for </span>Or {}
+<span class="kw">impl </span>Associativity <span class="kw">for </span>Or {}
+<span class="kw">impl </span>Distributivity&lt;And&gt; <span class="kw">for </span>Or {}
 
-        <span class="self">Self </span>{ lhs, rhs, val }
-    }
+<span class="kw">impl </span>Operator <span class="kw">for </span>Or {
+    <span class="kw">type </span>OperandType = BooleanType;
+}
 
-    <span class="kw">fn </span>to_bool(<span class="self">self</span>) -&gt; BooleanType {
-        Box::new(<span class="self">self</span>).into()
-    }
+<span class="kw">impl </span>Identity <span class="kw">for </span>Or {
+    <span class="kw">const </span>IDENTITY: <span class="self">Self</span>::OperandType = FALSE;
+}
 
-    <span class="kw">fn </span>lhs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>BooleanType {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.lhs
-    }
-
-    <span class="kw">fn </span>rhs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>BooleanType {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.rhs
-    }
-
-    <span class="attr">#[inline]
-    </span><span class="kw">fn </span>value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;bool&gt; {
-        <span class="self">self</span>.val
-    }
-
+<span class="kw">impl </span>BooleanOp <span class="kw">for </span>Or {
     <span class="kw">fn </span>simplify(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BooleanType {
-        <span class="kw">match </span><span class="self">self</span>.val {
-            <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) =&gt; <span class="kw">return </span>TRUE,
-            <span class="prelude-val">Some</span>(<span class="bool-val">false</span>) =&gt; <span class="kw">return </span>FALSE,
-            <span class="prelude-val">None </span>=&gt; (),
-        }
-
         <span class="kw">use </span>BooleanType <span class="kw">as </span>BT;
         <span class="kw">let </span>lhs = <span class="self">self</span>.lhs();
         <span class="kw">let </span>rhs = <span class="self">self</span>.rhs();
@@ -539,27 +700,100 @@
             (<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
                 <span class="kw">let </span>lhs = lhs.simplify();
                 <span class="kw">let </span>rhs = rhs.simplify();
-                <span class="self">Self</span>::bool_typ(lhs, rhs)
+                <span class="self">Self</span>::bool(lhs, rhs)
             }
+        }
+    }
+
+    <span class="kw">fn </span>to_bool(<span class="self">self</span>) -&gt; BooleanType {
+        Box::new(<span class="self">self</span>).into()
+    }
+
+    <span class="kw">fn </span>from_bool(val: <span class="kw-2">&amp;</span>BooleanType) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="self">Self</span>&gt; {
+        <span class="kw">match </span>val {
+            BooleanType::Or(or) =&gt; <span class="prelude-val">Some</span>(or),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="comment">// calcurs bool logic
+<span class="kw">impl </span>BooleanBinOp <span class="kw">for </span>Or {
+    <span class="kw">fn </span>new(lhs: BooleanType, rhs: BooleanType) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ lhs, rhs }
+    }
 
-</span><span class="kw">impl </span>ops::BitAnd&lt;CalcursType&gt; <span class="kw">for </span>CalcursType {
-    <span class="kw">type </span>Output = <span class="prelude-ty">Option</span>&lt;CalcursType&gt;;
+    <span class="kw">fn </span>lhs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>BooleanType {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.lhs
+    }
 
-    <span class="kw">fn </span>bitand(<span class="self">self</span>, rhs: CalcursType) -&gt; <span class="self">Self</span>::Output {
-        And::as_calcurs_op(<span class="self">self</span>, rhs)
+    <span class="kw">fn </span>rhs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>BooleanType {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.rhs
     }
 }
 
-<span class="kw">impl </span>ops::BitOr&lt;CalcursType&gt; <span class="kw">for </span>CalcursType {
-    <span class="kw">type </span>Output = <span class="prelude-ty">Option</span>&lt;CalcursType&gt;;
+<span class="attr">#[derive(Debug, Display, Clone)]
+#[display(fmt = <span class="string">&quot;(¬{val})&quot;</span>)]
+</span><span class="kw">pub struct </span>Not {
+    val: BooleanType,
+}
 
-    <span class="kw">fn </span>bitor(<span class="self">self</span>, rhs: CalcursType) -&gt; <span class="self">Self</span>::Output {
-        Or::as_calcurs_op(<span class="self">self</span>, rhs)
+<span class="kw">impl </span>Operator <span class="kw">for </span>Not {
+    <span class="kw">type </span>OperandType = BooleanType;
+}
+
+<span class="kw">impl </span>BooleanOp <span class="kw">for </span>Not {
+    <span class="kw">fn </span>to_bool(<span class="self">self</span>) -&gt; BooleanType {
+        Box::new(<span class="self">self</span>).into()
+    }
+
+    <span class="kw">fn </span>simplify(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BooleanType {
+        <span class="kw">use </span>BooleanType <span class="kw">as </span>BT;
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.val {
+            BT::True(<span class="kw">_</span>) =&gt; FALSE,
+            BT::False(<span class="kw">_</span>) =&gt; TRUE,
+            BT::Not(v) =&gt; v.clone().into(),
+            BT::Symbol(<span class="kw">_</span>) | BT::And(<span class="kw">_</span>) | BT::Or(<span class="kw">_</span>) =&gt; <span class="self">self</span>.clone().to_bool(),
+        }
+    }
+
+    <span class="kw">fn </span>from_bool(val: <span class="kw-2">&amp;</span>BooleanType) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="self">Self</span>&gt; {
+        <span class="kw">match </span>val {
+            BooleanType::Not(not) =&gt; <span class="prelude-val">Some</span>(not),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+        }
+    }
+}
+
+<span class="kw">impl </span>Not {
+    <span class="kw">pub fn </span>typ(val: BooleanType) -&gt; CalcursType {
+        <span class="self">Self</span>::bool(val).into()
+    }
+
+    <span class="kw">pub fn </span>bool(val: BooleanType) -&gt; BooleanType {
+        Box::new(<span class="self">Self </span>{ val }).into()
+    }
+
+    <span class="kw">pub fn </span>as_calcurs_op(val: CalcursType) -&gt; <span class="prelude-ty">Option</span>&lt;CalcursType&gt; {
+        <span class="kw">use </span>CalcursType <span class="kw">as </span>CT;
+        <span class="kw">use </span>Typed <span class="kw">as </span>T;
+
+        <span class="prelude-val">Some</span>(
+            <span class="kw">match </span>val {
+                CT::Typed(T::Boolean(b)) =&gt; <span class="self">Self</span>::bool(b),
+                CT::Symbol(s) =&gt; <span class="self">Self</span>::bool(s.into()),
+            }
+            .into(),
+        )
+    }
+}
+
+<span class="comment">// bool logic
+
+</span><span class="kw">impl </span>ops::Not <span class="kw">for </span>BooleanType {
+    <span class="kw">type </span>Output = BooleanType;
+
+    <span class="kw">fn </span>not(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Output {
+        Not::bool(<span class="self">self</span>)
     }
 }
 
@@ -567,7 +801,7 @@
     <span class="kw">type </span>Output = BooleanType;
 
     <span class="kw">fn </span>bitand(<span class="self">self</span>, rhs: BooleanType) -&gt; <span class="self">Self</span>::Output {
-        And::bool_typ(<span class="self">self</span>, rhs)
+        And::bool(<span class="self">self</span>, rhs)
     }
 }
 
@@ -575,7 +809,7 @@
     <span class="kw">type </span>Output = BooleanType;
 
     <span class="kw">fn </span>bitor(<span class="self">self</span>, rhs: BooleanType) -&gt; <span class="self">Self</span>::Output {
-        Or::bool_typ(<span class="self">self</span>, rhs)
+        Or::bool(<span class="self">self</span>, rhs)
     }
 }
 </code></pre></div></section></main></body></html>

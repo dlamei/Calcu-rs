@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["boolean","prelude","types"]};
+window.SIDEBAR_ITEMS = {"mod":["abstract_alg","boolean","core","prelude"]};
