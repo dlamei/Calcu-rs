@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["abstract_alg","boolean","core","prelude"]};
+window.SIDEBAR_ITEMS = {"enum":["Basic","Boolean"],"fn":["can_cast","dyn_cast"],"mod":["visit"],"struct":["And","BooleanAtom","IsVisitor","Not","Or"]};

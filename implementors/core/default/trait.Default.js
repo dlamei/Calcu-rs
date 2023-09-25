@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"calcu_rs":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.72.0/core/default/trait.Default.html\" title=\"trait core::default::Default\">Default</a> for <a class=\"struct\" href=\"calcu_rs/struct.And.html\" title=\"struct calcu_rs::And\">And</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.72.0/core/default/trait.Default.html\" title=\"trait core::default::Default\">Default</a> for <a class=\"struct\" href=\"calcu_rs/struct.BooleanAtom.html\" title=\"struct calcu_rs::BooleanAtom\">BooleanAtom</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

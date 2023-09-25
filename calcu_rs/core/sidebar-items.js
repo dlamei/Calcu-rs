@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["CalcursType","Pattern","Typed"],"struct":["DistributivityRule","Symbol"],"trait":["Associativity","Commutativity","Distributivity","Identity","Law","Operator","Simplify","TypedSubstitude"],"type":["PatRef"]};

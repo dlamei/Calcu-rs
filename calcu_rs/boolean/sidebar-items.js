@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["FALSE","TRUE"],"enum":["BooleanType"],"mod":["algorithms"],"struct":["And","BooleanFalse","BooleanTrue","Not","Or"],"trait":["BooleanBinOp","BooleanOp"]};
