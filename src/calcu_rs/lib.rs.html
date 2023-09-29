@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9bb858ba049f1f21.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="calcu_rs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.72.0 (5680fa18f 2023-08-23)" data-channel="1.72.0" data-search-js="search-f6292fe389d70017.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ><script src="../../static.files/storage-59fd9b8ccb335783.js"></script><script defer src="../../static.files/source-script-106908c7a7964ba4.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../calcu_rs/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9bb858ba049f1f21.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="calcu_rs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.72.1 (d5c2e9c34 2023-09-13)" data-channel="1.72.1" data-search-js="search-f6292fe389d70017.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ><script src="../../static.files/storage-59fd9b8ccb335783.js"></script><script defer src="../../static.files/source-script-106908c7a7964ba4.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../calcu_rs/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -297,17 +297,88 @@
 <a href="#297" id="297">297</a>
 <a href="#298" id="298">298</a>
 <a href="#299" id="299">299</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::visit::ControlFlow;
-<span class="kw">use </span>derive_more::{Display, From};
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>derive_more::{Display, From};
 <span class="kw">use </span>std::any::TypeId;
-<span class="kw">use </span>std::collections::BTreeSet;
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::fmt::Formatter;
 <span class="kw">use </span>std::marker::PhantomData;
 <span class="kw">use </span>std::ops::Deref;
-<span class="kw">use </span>visit::Visitor;
+<span class="kw">use </span>std::rc::Rc;
+<span class="kw">use </span>visitor::{DownCastVisitor, IsVisitor};
 
-<span class="kw">pub fn </span>can_cast&lt;T: <span class="lifetime">&#39;static</span>, U: <span class="lifetime">&#39;static</span>&gt;() -&gt; bool {
+<span class="kw">mod </span>visitor;
+
+<span class="comment">/*
+    precedence order:
+
+    Not
+    And
+    Or
+*/
+
+</span><span class="kw">pub fn </span>can_cast&lt;T: <span class="lifetime">&#39;static</span>, U: <span class="lifetime">&#39;static</span>&gt;() -&gt; bool {
     TypeId::of::&lt;T&gt;() == TypeId::of::&lt;U&gt;()
 }
 
@@ -320,166 +391,124 @@
     }
 }
 
-<span class="kw">pub mod </span>visit {
-    <span class="kw">use crate</span>::{And, Basic, Boolean, BooleanAtom, Not, Or};
+<span class="kw">pub trait </span>CloneByVal: Clone {
+    <span class="kw">fn </span>clone_val(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>;
+}
 
-    <span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-    </span><span class="kw">pub enum </span>ControlFlow {
-        Return,
-        Continue,
-    }
+<span class="attr">#[derive(Debug, Clone, Display, PartialEq, Eq)]
+</span><span class="kw">pub struct </span>RCP&lt;T&gt; {
+    ptr: Rc&lt;T&gt;,
+}
 
-    <span class="kw">use </span>ControlFlow <span class="kw">as </span>CF;
-
-    <span class="kw">impl </span>ControlFlow {
-        <span class="kw">pub fn </span>ret(b: bool) -&gt; <span class="self">Self </span>{
-            <span class="kw">match </span>b {
-                <span class="bool-val">true </span>=&gt; CF::Return,
-                <span class="bool-val">false </span>=&gt; CF::Continue,
-            }
-        }
-
-        <span class="kw">pub fn </span>cont(b: bool) -&gt; <span class="self">Self </span>{
-            <span class="self">Self</span>::ret(!b)
-        }
-    }
-
-    <span class="macro">macro_rules! </span>early_return {
-        (<span class="macro-nonterminal">$e</span>: expr) =&gt; {{
-            <span class="kw">match </span><span class="macro-nonterminal">$e </span>{
-                CF::Return =&gt; <span class="kw">return </span>CF::Return,
-                CF::Continue =&gt; CF::Continue,
-            }
-        }};
-    }
-
-    <span class="comment">// first walk then visit
-
-    </span><span class="kw">pub fn </span>walk_basic(v: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Visitor, b: <span class="kw-2">&amp;</span>Basic) -&gt; ControlFlow {
-        <span class="macro">early_return!</span>(v.visit_basic(b));
-
-        <span class="kw">use </span>Basic <span class="kw">as </span>B;
-        <span class="kw">match </span>b {
-            B::Boolean(b) =&gt; walk_boolean(v, b),
-        }
-    }
-
-    <span class="kw">pub fn </span>walk_boolean(v: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Visitor, b: <span class="kw-2">&amp;</span>Boolean) -&gt; ControlFlow {
-        <span class="macro">early_return!</span>(v.visit_boolean(b));
-
-        <span class="kw">use </span>Boolean <span class="kw">as </span>B;
-        <span class="kw">match </span>b {
-            B::And(b) =&gt; walk_and(v, b),
-            B::Or(b) =&gt; walk_or(v, b),
-            B::Not(b) =&gt; walk_not(v, b),
-            B::BooleanAtom(b) =&gt; walk_boolean_atom(v, b),
-        }
-    }
-
-    <span class="kw">pub fn </span>walk_boolean_atom(v: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Visitor, b: <span class="kw-2">&amp;</span>BooleanAtom) -&gt; ControlFlow {
-        <span class="macro">early_return!</span>(v.visit_boolean_atom(b));
-        ControlFlow::Continue
-    }
-
-    <span class="kw">pub fn </span>walk_and(v: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Visitor, a: <span class="kw-2">&amp;</span>And) -&gt; ControlFlow {
-        <span class="macro">early_return!</span>(v.visit_and(a));
-        ControlFlow::Continue
-    }
-
-    <span class="kw">pub fn </span>walk_or(v: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Visitor, a: <span class="kw-2">&amp;</span>Or) -&gt; ControlFlow {
-        <span class="macro">early_return!</span>(v.visit_or(a));
-        ControlFlow::Continue
-    }
-
-    <span class="kw">pub fn </span>walk_not(v: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Visitor, a: <span class="kw-2">&amp;</span>Not) -&gt; ControlFlow {
-        <span class="macro">early_return!</span>(v.visit_not(a));
-        ControlFlow::Continue
-    }
-
-    <span class="kw">pub trait </span>Visitor: Sized {
-        <span class="kw">fn </span>visit_basic(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _b: <span class="kw-2">&amp;</span>Basic) -&gt; ControlFlow {
-            ControlFlow::Continue
-        }
-        <span class="kw">fn </span>visit_boolean_atom(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _b: <span class="kw-2">&amp;</span>BooleanAtom) -&gt; ControlFlow {
-            ControlFlow::Continue
-        }
-
-        <span class="kw">fn </span>visit_boolean(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _b: <span class="kw-2">&amp;</span>Boolean) -&gt; ControlFlow {
-            ControlFlow::Continue
-        }
-
-        <span class="kw">fn </span>visit_and(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _a: <span class="kw-2">&amp;</span>And) -&gt; ControlFlow {
-            ControlFlow::Continue
-        }
-
-        <span class="kw">fn </span>visit_or(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _o: <span class="kw-2">&amp;</span>Or) -&gt; ControlFlow {
-            ControlFlow::Continue
-        }
-
-        <span class="kw">fn </span>visit_not(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _n: <span class="kw-2">&amp;</span>Not) -&gt; ControlFlow {
-            ControlFlow::Continue
+<span class="kw">impl</span>&lt;T: CloneByVal&gt; CloneByVal <span class="kw">for </span>RCP&lt;T&gt; {
+    <span class="kw">fn </span>clone_val(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            ptr: Rc::new(<span class="self">self</span>.ptr.clone_val()),
         }
     }
 }
 
-<span class="attr">#[derive(Debug, Clone, Copy)]
-</span><span class="kw">pub struct </span>IsVisitor&lt;T&gt; {
-    val: bool,
-    tag: PhantomData&lt;T&gt;,
-}
-
-<span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static</span>&gt; IsVisitor&lt;T&gt; {
-    <span class="kw">fn </span>is(b: <span class="kw-2">&amp;</span>Basic) -&gt; bool {
-        <span class="kw">let </span><span class="kw-2">mut </span>vis = <span class="self">Self </span>{
-            val: <span class="bool-val">false</span>,
-            tag: PhantomData,
-        };
-
-        visit::walk_basic(<span class="kw-2">&amp;mut </span>vis, b);
-        vis.val
+<span class="kw">impl</span>&lt;T: CloneByVal&gt; CloneByVal <span class="kw">for </span>Vec&lt;T&gt; {
+    <span class="kw">fn </span>clone_val(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.iter().map(|x| x.clone_val()).collect()
     }
 }
 
-<span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static</span>&gt; Visitor <span class="kw">for </span>IsVisitor&lt;T&gt; {
-    <span class="kw">fn </span>visit_basic(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _b: <span class="kw-2">&amp;</span>Basic) -&gt; ControlFlow {
-        <span class="self">self</span>.val = can_cast::&lt;Basic, T&gt;();
-        ControlFlow::ret(<span class="self">self</span>.val)
-    }
-
-    <span class="kw">fn </span>visit_boolean_atom(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _b: <span class="kw-2">&amp;</span>BooleanAtom) -&gt; ControlFlow {
-        <span class="self">self</span>.val = can_cast::&lt;BooleanAtom, T&gt;();
-        ControlFlow::ret(<span class="self">self</span>.val)
-    }
-
-    <span class="kw">fn </span>visit_boolean(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _b: <span class="kw-2">&amp;</span>Boolean) -&gt; ControlFlow {
-        <span class="self">self</span>.val = can_cast::&lt;Boolean, T&gt;();
-        ControlFlow::ret(<span class="self">self</span>.val)
-    }
-
-    <span class="kw">fn </span>visit_and(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _a: <span class="kw-2">&amp;</span>And) -&gt; ControlFlow {
-        <span class="self">self</span>.val = can_cast::&lt;And, T&gt;();
-        ControlFlow::ret(<span class="self">self</span>.val)
-    }
-
-    <span class="kw">fn </span>visit_or(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _o: <span class="kw-2">&amp;</span>Or) -&gt; ControlFlow {
-        <span class="self">self</span>.val = can_cast::&lt;Or, T&gt;();
-        ControlFlow::ret(<span class="self">self</span>.val)
-    }
-
-    <span class="kw">fn </span>visit_not(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _n: <span class="kw-2">&amp;</span>Not) -&gt; ControlFlow {
-        <span class="self">self</span>.val = can_cast::&lt;Not, T&gt;();
-        ControlFlow::ret(<span class="self">self</span>.val)
+<span class="kw">impl</span>&lt;T&gt; AsRef&lt;T&gt; <span class="kw">for </span>RCP&lt;T&gt; {
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>T {
+        <span class="self">self</span>.ptr.as_ref()
     }
 }
 
-<span class="attr">#[derive(Debug, Clone, From)]
+<span class="kw">impl</span>&lt;T&gt; Deref <span class="kw">for </span>RCP&lt;T&gt; {
+    <span class="kw">type </span>Target = T;
+
+    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+        <span class="self">self</span>.ptr.as_ref()
+    }
+}
+
+<span class="kw">impl</span>&lt;T&gt; RCP&lt;T&gt; {
+    <span class="kw">pub fn </span>new(val: T) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ ptr: val.into() }
+    }
+}
+
+<span class="kw">pub enum </span>MaybeRef&lt;T: CloneByVal&gt; {
+    Owned(T),
+    Ref(RCP&lt;T&gt;),
+}
+
+<span class="kw">impl</span>&lt;T: CloneByVal&gt; MaybeRef&lt;T&gt; {
+    <span class="kw">pub fn </span>borrow(val: RCP&lt;T&gt;) -&gt; <span class="self">Self </span>{
+        MaybeRef::Ref(val)
+    }
+
+    <span class="kw">pub fn </span>take(val: T) -&gt; <span class="self">Self </span>{
+        MaybeRef::Owned(val)
+    }
+
+    <span class="kw">pub fn </span>to_owned(<span class="self">self</span>) -&gt; T {
+        <span class="kw">match </span><span class="self">self </span>{
+            MaybeRef::Owned(v) =&gt; v,
+            MaybeRef::Ref(v) =&gt; v.as_ref().clone_val(),
+        }
+    }
+
+    <span class="kw">pub fn </span>to_ref(<span class="self">self</span>) -&gt; RCP&lt;T&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            MaybeRef::Owned(v) =&gt; RCP::new(v),
+            MaybeRef::Ref(v) =&gt; v,
+        }
+    }
+}
+
+<span class="attr">#[derive(Debug, Clone, From, Display)]
 </span><span class="kw">pub enum </span>Basic {
     Boolean(Boolean),
+    Symbol(Symbol),
+}
+
+<span class="kw">impl </span>CloneByVal <span class="kw">for </span>Basic {
+    <span class="kw">fn </span>clone_val(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="kw">use </span>Basic <span class="kw">as </span>B;
+        <span class="kw">match </span><span class="self">self </span>{
+            B::Boolean(b) =&gt; b.clone_val().into(),
+            B::Symbol(s) =&gt; s.clone_val().into(),
+        }
+    }
 }
 
 <span class="kw">impl </span>Basic {
     <span class="kw">pub fn </span>is&lt;T: <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         IsVisitor::&lt;T&gt;::is(<span class="self">self</span>)
+    }
+
+    <span class="kw">pub fn </span>downcast&lt;T: <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
+        DownCastVisitor::downcast(<span class="self">self</span>)
+    }
+}
+
+<span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
+</span><span class="kw">pub struct </span>Symbol {
+    name: RCP&lt;String&gt;,
+}
+
+<span class="kw">impl </span>CloneByVal <span class="kw">for </span>Symbol {
+    <span class="kw">fn </span>clone_val(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.clone()
+    }
+}
+
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Symbol {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.name)
+    }
+}
+
+<span class="kw">impl </span>Symbol {
+    <span class="kw">pub fn </span>new(name: RCP&lt;String&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ name }
     }
 }
 
@@ -491,37 +520,33 @@
     BooleanAtom(BooleanAtom),
 }
 
+<span class="kw">impl </span>CloneByVal <span class="kw">for </span>Boolean {
+    <span class="kw">fn </span>clone_val(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="kw">use </span>Boolean <span class="kw">as </span>B;
+        <span class="kw">match </span><span class="self">self </span>{
+            B::And(b) =&gt; b.clone_val().into(),
+            B::Or(b) =&gt; b.clone_val().into(),
+            B::Not(b) =&gt; b.clone_val().into(),
+            B::BooleanAtom(b) =&gt; b.clone_val().into(),
+        }
+    }
+}
+
 <span class="kw">impl </span>From&lt;bool&gt; <span class="kw">for </span>Boolean {
     <span class="kw">fn </span>from(value: bool) -&gt; <span class="self">Self </span>{
         Boolean::BooleanAtom(value.into())
     }
 }
 
-<span class="attr">#[derive(Debug, Clone, Copy, Default, Display)]
-</span><span class="kw">pub struct </span>BooleanAtom {
-    val: bool,
-}
-
-<span class="kw">impl </span>From&lt;bool&gt; <span class="kw">for </span>BooleanAtom {
-    <span class="kw">fn </span>from(val: bool) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ val }
-    }
-}
-
-<span class="kw">impl </span>From&lt;BooleanAtom&gt; <span class="kw">for </span>Basic {
-    <span class="kw">fn </span>from(b: BooleanAtom) -&gt; <span class="self">Self </span>{
-        Basic::Boolean(b.into())
-    }
-}
-
 <span class="attr">#[derive(Debug, Clone, Default)]
-</span><span class="kw">pub struct </span>And {
-    args: Vec&lt;Boolean&gt;,
+</span><span class="kw">pub struct </span>AssociativeSet&lt;OP: BinaryOperator&gt; {
+    set: Vec&lt;Boolean&gt;,
+    tag: PhantomData&lt;OP&gt;,
 }
 
-<span class="kw">impl </span>fmt::Display <span class="kw">for </span>And {
+<span class="kw">impl</span>&lt;OP: BinaryOperator&gt; fmt::Display <span class="kw">for </span>AssociativeSet&lt;OP&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="kw">let </span>args = <span class="kw-2">&amp;</span><span class="self">self</span>.args;
+        <span class="kw">let </span>args = <span class="kw-2">&amp;</span><span class="self">self</span>.set;
 
         <span class="kw">if </span>args.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(());
@@ -536,11 +561,83 @@
         }
 
         <span class="kw">while let </span><span class="prelude-val">Some</span>(b) = iter.next() {
-            <span class="macro">write!</span>(f, <span class="string">&quot; ∧ {b}&quot;</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">&quot; {} {b}&quot;</span>, OP::REPR)<span class="question-mark">?</span>;
         }
 
         <span class="macro">write!</span>(f, <span class="string">&quot;)&quot;</span>)
     }
+}
+
+<span class="kw">impl</span>&lt;OP: BinaryOperator&gt; AssociativeSet&lt;OP&gt; {
+    <span class="kw">pub fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, b: Boolean) {
+        <span class="self">self</span>.set.push(b)
+    }
+}
+
+<span class="attr">#[derive(Debug, Clone, Copy, Default, Display)]
+</span><span class="kw">pub struct </span>BooleanAtom {
+    val: bool,
+}
+
+<span class="kw">impl </span>CloneByVal <span class="kw">for </span>BooleanAtom {
+    <span class="kw">fn </span>clone_val(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.clone()
+    }
+}
+
+<span class="kw">impl </span>From&lt;bool&gt; <span class="kw">for </span>BooleanAtom {
+    <span class="kw">fn </span>from(val: bool) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ val }
+    }
+}
+
+<span class="kw">impl </span>From&lt;BooleanAtom&gt; <span class="kw">for </span>Basic {
+    <span class="kw">fn </span>from(b: BooleanAtom) -&gt; <span class="self">Self </span>{
+        Basic::Boolean(b.into())
+    }
+}
+
+<span class="kw">pub trait </span>BinaryOperator {
+    <span class="kw">const </span>REPR: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+}
+
+<span class="doccomment">/// Canonical [And] is implemented with a [Boolean] coeff and a set of [CanonicalOr] of the form [{c1, v1}, {c2, v2}, ...] \
+/// Example: \
+/// coeff ∧ (c1 ∨ v1) ∧ (c2 ∨ v2) ∧ ... \
+/// where the c&#39;s are all booleans and the v&#39;s can be any symbolic expression
+</span><span class="attr">#[derive(Debug, Clone, Display)]
+#[display(fmt = <span class="string">&quot;AND&quot;</span>)]
+</span><span class="kw">pub struct </span>And {
+    <span class="doccomment">/// extract all booleans to coeff
+    </span>coeff: RCP&lt;Boolean&gt;,
+    <span class="doccomment">/// create sum of product form
+    </span>args: RCP&lt;Vec&lt;Or&gt;&gt;,
+}
+
+<span class="kw">impl </span>CloneByVal <span class="kw">for </span>And {
+    <span class="kw">fn </span>clone_val(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            coeff: <span class="self">self</span>.coeff.clone_val(),
+            args: <span class="self">self</span>.args.clone_val(),
+        }
+    }
+}
+
+<span class="kw">pub fn </span>and(lhs: RCP&lt;Basic&gt;, rhs: RCP&lt;Basic&gt;) -&gt; And {
+    <span class="kw">if </span>lhs.is::&lt;And&gt;() &amp;&amp; rhs.is::&lt;And&gt;() {
+        <span class="kw">let </span>lhs = lhs.downcast::&lt;And&gt;().unwrap();
+        <span class="kw">let </span>rhs = rhs.downcast::&lt;And&gt;().unwrap();
+    }
+
+    <span class="macro">todo!</span>()
+}
+
+<span class="comment">// pub struct And {
+//     args: Vec&lt;Basic&gt;,
+// }
+
+</span><span class="kw">impl </span>BinaryOperator <span class="kw">for </span>And {
+    <span class="kw">const </span>REPR: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;∧&quot;</span>;
 }
 
 <span class="kw">impl </span>From&lt;And&gt; <span class="kw">for </span>Basic {
@@ -549,8 +646,30 @@
     }
 }
 
-<span class="attr">#[derive(Debug, Clone, Display)]
-</span><span class="kw">pub struct </span>Or {}
+<span class="doccomment">/// Canonical [Or] is implemented with a [Boolean] coeff and a [Basic] value \
+/// Example: \
+/// coeff ∨ b
+</span><span class="attr">#[derive(Debug, Clone, Display)]
+#[display(fmt = <span class="string">&quot;OR&quot;</span>)]
+</span><span class="kw">pub struct </span>Or {
+    <span class="doccomment">/// extract all booleans to coeff
+    </span>coeff: RCP&lt;Boolean&gt;,
+    <span class="doccomment">/// rest
+    </span>value: RCP&lt;Basic&gt;,
+}
+
+<span class="kw">impl </span>CloneByVal <span class="kw">for </span>Or {
+    <span class="kw">fn </span>clone_val(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            coeff: <span class="self">self</span>.coeff.clone_val(),
+            value: <span class="self">self</span>.value.clone_val(),
+        }
+    }
+}
+
+<span class="kw">impl </span>BinaryOperator <span class="kw">for </span>Or {
+    <span class="kw">const </span>REPR: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;∨&quot;</span>;
+}
 
 <span class="kw">impl </span>From&lt;Or&gt; <span class="kw">for </span>Basic {
     <span class="kw">fn </span>from(b: Or) -&gt; <span class="self">Self </span>{
@@ -558,8 +677,24 @@
     }
 }
 
-<span class="attr">#[derive(Debug, Clone, Display)]
-</span><span class="kw">pub struct </span>Not {}
+<span class="attr">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>Not {
+    val: RCP&lt;Basic&gt;,
+}
+
+<span class="kw">impl </span>CloneByVal <span class="kw">for </span>Not {
+    <span class="kw">fn </span>clone_val(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            val: <span class="self">self</span>.val.clone_val(),
+        }
+    }
+}
+
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Not {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;¬{}&quot;</span>, <span class="self">self</span>.val)
+    }
+}
 
 <span class="kw">impl </span>From&lt;Not&gt; <span class="kw">for </span>Basic {
     <span class="kw">fn </span>from(b: Not) -&gt; <span class="self">Self </span>{
@@ -583,17 +718,6 @@
         <span class="macro">assert!</span>(!b.is::&lt;Not&gt;());
         <span class="macro">assert!</span>(!b.is::&lt;And&gt;());
         <span class="macro">assert!</span>(!b.is::&lt;Or&gt;());
-    }
-
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>test() {
-        <span class="kw">let </span><span class="kw-2">mut </span>a: And = And::default();
-        a.args.push(<span class="bool-val">false</span>.into());
-        a.args.push(<span class="bool-val">true</span>.into());
-        a.args.push(<span class="bool-val">false</span>.into());
-        a.args.push(<span class="bool-val">true</span>.into());
-
-        <span class="macro">println!</span>(<span class="string">&quot;{a}&quot;</span>);
     }
 }
 </code></pre></div></section></main></body></html>

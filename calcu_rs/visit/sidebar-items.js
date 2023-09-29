@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ControlFlow"],"fn":["walk_and","walk_basic","walk_boolean","walk_boolean_atom","walk_not","walk_or"],"macro":["early_return"],"trait":["Visitor"]};
