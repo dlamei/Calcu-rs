@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Basic","Boolean","MaybeRef"],"fn":["and","can_cast","dyn_cast"],"mod":["visitor"],"struct":["And","AssociativeSet","BooleanAtom","Not","Or","RCP","Symbol"],"trait":["BinaryOperator","CloneByVal"]};
+window.SIDEBAR_ITEMS = {"constant":["FALSE","TRUE"],"enum":["BasicKind","BooleanKind","TypeID"],"fn":["cast_ref","is_same"],"macro":["early_ret","get_ref_impl"],"struct":["And","Basic","Boolean","BooleanAtom","Not","Or","Symbol"],"trait":["CalcursType"]};

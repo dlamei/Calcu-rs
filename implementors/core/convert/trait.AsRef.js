@@ -1,3 +1,0 @@
-(function() {var implementors = {
-"calcu_rs":[["impl&lt;T&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/1.72.1/core/convert/trait.AsRef.html\" title=\"trait core::convert::AsRef\">AsRef</a>&lt;T&gt; for <a class=\"struct\" href=\"calcu_rs/struct.RCP.html\" title=\"struct calcu_rs::RCP\">RCP</a>&lt;T&gt;"]]
-};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
