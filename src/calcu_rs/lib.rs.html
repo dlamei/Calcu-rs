@@ -210,12 +210,22 @@
 <a href="#210" id="210">210</a>
 <a href="#211" id="211">211</a>
 <a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
 </pre></div><pre class="rust"><code>
-<span class="kw">pub const fn </span>is_same&lt;T: CalcursType, U: CalcursType&gt;() -&gt; bool {
+<span class="attr">#[inline(always)]
+</span><span class="kw">pub const fn </span>is_same&lt;T: CalcursType, U: CalcursType&gt;() -&gt; bool {
     T::ID <span class="kw">as </span>u32 == U::ID <span class="kw">as </span>u32
 }
 
-<span class="kw">pub const fn </span>cast_ref&lt;T: CalcursType, U: CalcursType&gt;(r#ref: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>U&gt; {
+<span class="attr">#[inline(always)]
+</span><span class="kw">pub const fn </span>cast_ref&lt;<span class="lifetime">&#39;a</span>, T: CalcursType, U: CalcursType&gt;(r#ref: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>U&gt; {
     <span class="kw">if </span>is_same::&lt;T, U&gt;() {
         <span class="kw">let </span>ptr = r#ref <span class="kw">as </span><span class="kw-2">*const </span>T <span class="kw">as </span><span class="kw-2">*const </span>U;
         <span class="kw">let </span>cast = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>ptr };
@@ -253,15 +263,18 @@
     }
 }
 
-<span class="macro">macro_rules! </span>get_ref_impl {
+<span class="comment">// should be completely optimized away =&gt; becomes same as just pattern matching
+</span><span class="macro">macro_rules! </span>get_ref_impl {
     () =&gt; {
-        <span class="kw">pub const fn </span>get_ref&lt;T: CalcursType&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>T&gt; {
+        <span class="attr">#[inline(always)]
+        </span><span class="kw">pub const fn </span>get_ref&lt;T: CalcursType&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>T&gt; {
             cast_ref::&lt;<span class="self">Self</span>, T&gt;(<span class="self">self</span>)
         }
     };
 
     ($(<span class="macro-nonterminal">$x</span>: ident)+) =&gt; {
-        <span class="kw">pub const fn </span>get_ref&lt;T: CalcursType&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>T&gt; {
+        <span class="attr">#[inline(always)]
+        </span><span class="kw">pub const fn </span>get_ref&lt;T: CalcursType&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>T&gt; {
             <span class="macro">early_ret!</span>(cast_ref::&lt;<span class="self">Self</span>, T&gt;(<span class="self">self</span>));
             $( <span class="macro">early_ret!</span>(<span class="self">self</span>.<span class="macro-nonterminal">$x</span>.get_ref::&lt;T&gt;()); )+
             <span class="prelude-val">None
@@ -295,7 +308,8 @@
 }
 
 <span class="kw">impl </span>BasicKind {
-    <span class="kw">pub const fn </span>get_ref&lt;T: CalcursType&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>T&gt; {
+    <span class="attr">#[inline(always)]
+    </span><span class="kw">pub const fn </span>get_ref&lt;T: CalcursType&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>T&gt; {
         <span class="kw">use </span>BasicKind <span class="kw">as </span>BK;
         <span class="kw">match </span><span class="self">self </span>{
             BK::Symbol(b) =&gt; b.get_ref::&lt;T&gt;(),
@@ -341,7 +355,8 @@
 }
 
 <span class="kw">impl </span>BooleanKind {
-    <span class="kw">pub const fn </span>get_ref&lt;T: CalcursType&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>T&gt; {
+    <span class="attr">#[inline(always)]
+    </span><span class="kw">pub const fn </span>get_ref&lt;T: CalcursType&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>T&gt; {
         <span class="kw">use </span>BooleanKind <span class="kw">as </span>BK;
         <span class="kw">match </span><span class="self">self </span>{
             BK::Atom(b) =&gt; b.get_ref::&lt;T&gt;(),
@@ -408,6 +423,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>ast_getter() {
+        <span class="kw">const _</span>: bool = TRUE.is::&lt;Basic&gt;();
         <span class="macro">assert!</span>(TRUE.is::&lt;Basic&gt;());
         <span class="macro">assert!</span>(TRUE.is::&lt;Boolean&gt;());
         <span class="macro">assert!</span>(TRUE.is::&lt;BooleanAtom&gt;());
