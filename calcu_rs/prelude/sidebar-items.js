@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["FALSE","TRUE"],"enum":["BooleanKind"],"struct":["And","Boolean","False","Not","Or","True"]};

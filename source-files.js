@@ -1,4 +1,4 @@
 var sourcesIndex = JSON.parse('{\
-"calcu_rs":["",[],["lib.rs"]]\
+"calcu_rs":["",[],["boolean.rs","lib.rs","numbers.rs"]]\
 }');
 createSourceSidebar();

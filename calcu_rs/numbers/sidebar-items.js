@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["NumberKind"],"struct":["Number"]};
