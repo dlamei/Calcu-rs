@@ -496,6 +496,7 @@
 <a href="#496" id="496">496</a>
 <a href="#497" id="497">497</a>
 <a href="#498" id="498">498</a>
+<a href="#499" id="499">499</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{collections::HashSet, fmt, ops};
 
 <span class="kw">use </span>derive_more::Display;
@@ -624,6 +625,7 @@
             BasicKind::Var(v) =&gt; BooleanKind::Var(v),
             BasicKind::Boolean(b) =&gt; b.kind,
             BasicKind::Dummy =&gt; BooleanKind::Unknown(PTR::new(b)),
+            <span class="kw">_ </span>=&gt; <span class="macro">todo!</span>(),
         }
     }
 
@@ -722,15 +724,15 @@
         }
 
         <span class="kw">if </span>set.is_empty() {
-            <span class="kw">return </span><span class="bool-val">true</span>.into();
+            <span class="bool-val">true</span>.into()
         } <span class="kw">else if </span>set.len() == <span class="number">1 </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>iter = set.into_iter();
-            <span class="kw">return </span>iter.next().unwrap().into();
+            iter.next().unwrap().into()
+        } <span class="kw">else </span>{
+            BooleanKind::And(<span class="self">Self </span>{
+                args: set.into_iter().collect(),
+            })
         }
-
-        BooleanKind::And(<span class="self">Self </span>{
-            args: set.into_iter().collect(),
-        })
     }
 
     <span class="kw">pub fn </span>subs(<span class="self">self</span>, dict: SubsDict) -&gt; BooleanKind {

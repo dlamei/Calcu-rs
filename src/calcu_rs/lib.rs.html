@@ -195,16 +195,22 @@
 <a href="#195" id="195">195</a>
 <a href="#196" id="196">196</a>
 <a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 <span class="kw">use </span>boolean::Boolean;
 <span class="kw">use </span>derive_more::Display;
+<span class="kw">use </span>numbers::Number;
 
 <span class="kw">mod </span>boolean;
 <span class="kw">mod </span>numbers;
 
 <span class="kw">pub mod </span>prelude {
     <span class="kw">pub use </span><span class="kw">crate</span>::boolean::<span class="kw-2">*</span>;
+    <span class="kw">pub use </span><span class="kw">crate</span>::numbers::<span class="kw-2">*</span>;
     <span class="kw">pub use crate</span>::<span class="kw-2">*</span>;
 }
 
@@ -321,10 +327,12 @@
 <span class="attr">#[derive(Debug, Clone, Hash, PartialEq, Eq, Display)]
 </span><span class="kw">pub enum </span>BasicKind {
     Var(Variable),
-    Boolean(Boolean),
-    <span class="comment">// Number(Number),
 
-    </span>Dummy,
+    Boolean(Boolean),
+
+    Number(Number),
+
+    Dummy,
 }
 
 <span class="kw">impl </span>BasicKind {
@@ -335,7 +343,7 @@
             BK::Var(b) =&gt; b.get_ref::&lt;T&gt;(),
             BK::Boolean(b) =&gt; b.get_ref::&lt;T&gt;(),
             BK::Dummy =&gt; <span class="prelude-val">None</span>,
-            <span class="comment">// BK::Number(_) =&gt; todo!(),
+            <span class="kw">_ </span>=&gt; <span class="macro">todo!</span>(), <span class="comment">// BK::Number(_) =&gt; todo!(),
         </span>}
     }
 
@@ -351,7 +359,7 @@
             }
             BasicKind::Boolean(b) =&gt; BasicKind::Boolean(b.kind.subs(dict).into()),
             BasicKind::Dummy =&gt; <span class="self">self</span>,
-            <span class="comment">// BasicKind::Number(_) =&gt; todo!(),
+            <span class="kw">_ </span>=&gt; <span class="macro">todo!</span>(), <span class="comment">// BK::Number(_) =&gt; todo!(),
         </span>}
     }
 
@@ -359,7 +367,7 @@
         <span class="kw">match </span><span class="self">self </span>{
             BasicKind::Boolean(b) =&gt; BasicKind::Boolean(b.kind.simplify().into()),
             BasicKind::Dummy | BasicKind::Var(<span class="kw">_</span>) =&gt; <span class="self">self</span>,
-            <span class="comment">// BasicKind::Number(_) =&gt; todo!(),
+            <span class="kw">_ </span>=&gt; <span class="macro">todo!</span>(), <span class="comment">// BK::Number(_) =&gt; todo!(),
         </span>}
     }
 }
