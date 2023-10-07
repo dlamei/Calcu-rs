@@ -199,6 +199,12 @@
 <a href="#199" id="199">199</a>
 <a href="#200" id="200">200</a>
 <a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 <span class="kw">use </span>boolean::Boolean;
@@ -327,9 +333,7 @@
 <span class="attr">#[derive(Debug, Clone, Hash, PartialEq, Eq, Display)]
 </span><span class="kw">pub enum </span>BasicKind {
     Var(Variable),
-
     Boolean(Boolean),
-
     Number(Number),
 
     Dummy,
@@ -372,6 +376,10 @@
     }
 }
 
+<span class="kw">pub trait </span>SimplifyAs&lt;T&gt; {
+    <span class="kw">fn </span>simplify(<span class="self">self</span>) -&gt; T;
+}
+
 <span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Hash, Display)]
 </span><span class="kw">pub struct </span>Variable {
     <span class="kw">pub </span>name: String,
@@ -387,6 +395,10 @@
     <span class="kw">pub fn </span>new&lt;I: Into&lt;String&gt;&gt;(name: I) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ name: name.into() }
     }
+
+    <span class="kw">pub fn </span>simplify(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self
+    </span>}
 }
 
 <span class="kw">impl </span>CalcursType <span class="kw">for </span>Variable {

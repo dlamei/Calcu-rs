@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["FALSE","TRUE"],"enum":["BooleanKind","Direction","NumberKind"],"struct":["And","Boolean","False","Infinity","NaN","Not","Number","Or","True"]};
+window.SIDEBAR_ITEMS = {"constant":["FALSE","TRUE"],"enum":["BooleanKind","Direction","NumberKind"],"struct":["And","Boolean","False","Infinity","Integer","NaN","Not","Number","Or","Rational","True"]};
