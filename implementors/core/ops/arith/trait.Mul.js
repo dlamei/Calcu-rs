@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"calcu_rs":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.72.1/core/ops/arith/trait.Mul.html\" title=\"trait core::ops::arith::Mul\">Mul</a>&lt;<a class=\"enum\" href=\"calcu_rs/numbers/enum.Direction.html\" title=\"enum calcu_rs::numbers::Direction\">Direction</a>&gt; for <a class=\"enum\" href=\"calcu_rs/numbers/enum.Direction.html\" title=\"enum calcu_rs::numbers::Direction\">Direction</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

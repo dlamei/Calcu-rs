@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Direction","NumberKind"],"macro":["procagate_number_kind"],"struct":["Infinity","Integer","NaN","Number","Rational"]};
+window.SIDEBAR_ITEMS = {"enum":["Direction","NumberKind"],"fn":["integer"],"struct":["Infinity","Integer","NaN","Number","Rational"]};
