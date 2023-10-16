@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["BasicKind"],"mod":["boolean","numbers","prelude"],"struct":["Basic","Variable"],"trait":["CalcursType","SimplifyAs"],"type":["ArgSet","PTR","SubsDict"]};
+window.SIDEBAR_ITEMS = {"mod":["base","binop","boolean","numbers","prelude","traits"]};

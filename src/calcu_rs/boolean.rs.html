@@ -438,12 +438,14 @@
 <a href="#438" id="438">438</a>
 <a href="#439" id="439">439</a>
 <a href="#440" id="440">440</a>
-<a href="#441" id="441">441</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{collections::HashSet, fmt, ops};
 
 <span class="kw">use </span>derive_more::Display;
 
-<span class="kw">use crate</span>::{ArgSet, Basic, BasicKind, CalcursType, SubsDict, Variable, PTR};
+<span class="kw">use crate</span>::{
+    base::{Base, BasicKind, SubsDict, Variable, PTR},
+    traits::CalcursType,
+};
 
 <span class="attr">#[derive(Debug, Clone, Hash, PartialEq, Eq, Display)]
 </span><span class="kw">pub struct </span>Boolean {
@@ -463,13 +465,13 @@
 }
 
 <span class="kw">impl </span>CalcursType <span class="kw">for </span>Boolean {
-    <span class="kw">fn </span>to_basic(<span class="self">self</span>) -&gt; Basic {
+    <span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
         BasicKind::Boolean(<span class="self">self</span>).into()
     }
 }
 
 <span class="kw">impl </span>Boolean {
-    <span class="kw">pub fn </span>to_basic(<span class="self">self</span>) -&gt; Basic {
+    <span class="kw">pub fn </span>to_basic(<span class="self">self</span>) -&gt; Base {
         BasicKind::Boolean(<span class="self">self</span>).into()
     }
 }
@@ -484,7 +486,7 @@
     Or(Or),
     Not(Not),
 
-    Unknown(PTR&lt;Basic&gt;),
+    Unknown(PTR&lt;Base&gt;),
 }
 
 <span class="kw">impl </span>BooleanKind {
@@ -514,7 +516,7 @@
 </span><span class="kw">pub struct </span>True;
 
 <span class="kw">impl </span>CalcursType <span class="kw">for </span>True {
-    <span class="kw">fn </span>to_basic(<span class="self">self</span>) -&gt; Basic {
+    <span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
         BooleanKind::True(<span class="self">self</span>).to_basic()
     }
 }
@@ -524,13 +526,13 @@
 </span><span class="kw">pub struct </span>False;
 
 <span class="kw">impl </span>CalcursType <span class="kw">for </span>False {
-    <span class="kw">fn </span>to_basic(<span class="self">self</span>) -&gt; Basic {
+    <span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
         BooleanKind::False(<span class="self">self</span>).to_basic()
     }
 }
 
 <span class="kw">impl </span>BooleanKind {
-    <span class="kw">pub fn </span>from_basic(b: Basic) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub fn </span>from_basic(b: Base) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span>b.kind {
             BasicKind::Var(v) =&gt; BooleanKind::Var(v),
             BasicKind::Boolean(b) =&gt; b.kind,
@@ -557,7 +559,7 @@
         }
     }
 
-    <span class="kw">pub fn </span>to_basic(<span class="self">self</span>) -&gt; Basic {
+    <span class="kw">pub fn </span>to_basic(<span class="self">self</span>) -&gt; Base {
         BasicKind::Boolean(<span class="self">self</span>.into()).into()
     }
 }
@@ -572,7 +574,7 @@
 ///
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>And {
-    args: ArgSet&lt;BooleanKind&gt;,
+    args: Vec&lt;BooleanKind&gt;,
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>And {
@@ -602,16 +604,14 @@
 
 <span class="kw">impl </span>And {
     <span class="kw">pub fn </span>and&lt;S: CalcursType, T: CalcursType&gt;(b1: S, b2: T) -&gt; Boolean {
-        <span class="kw">let </span><span class="kw-2">mut </span>or = <span class="self">Self </span>{
-            args: ArgSet::new(),
-        };
+        <span class="kw">let </span><span class="kw-2">mut </span>or = <span class="self">Self </span>{ args: Vec::new() };
 
-        or.insert_arg(b1.to_basic());
-        or.insert_arg(b2.to_basic());
+        or.insert_arg(b1.base());
+        or.insert_arg(b2.base());
         or.simplify().into()
     }
 
-    <span class="kw">fn </span>insert_arg(<span class="kw-2">&amp;mut </span><span class="self">self</span>, b: Basic) {
+    <span class="kw">fn </span>insert_arg(<span class="kw-2">&amp;mut </span><span class="self">self</span>, b: Base) {
         <span class="self">self</span>.args.push(BooleanKind::from_basic(b));
     }
 
@@ -654,7 +654,7 @@
 }
 
 <span class="kw">impl </span>CalcursType <span class="kw">for </span>And {
-    <span class="kw">fn </span>to_basic(<span class="self">self</span>) -&gt; Basic {
+    <span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
         <span class="self">self</span>.simplify().to_basic()
     }
 }
@@ -669,7 +669,7 @@
 ///
 </span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq)]
 </span><span class="kw">pub struct </span>Or {
-    args: ArgSet&lt;BooleanKind&gt;,
+    args: Vec&lt;BooleanKind&gt;,
 }
 
 <span class="kw">impl </span>std::hash::Hash <span class="kw">for </span>Or {
@@ -708,16 +708,14 @@
     }
 
     <span class="kw">pub fn </span>or&lt;S: CalcursType, T: CalcursType&gt;(b1: S, b2: T) -&gt; Boolean {
-        <span class="kw">let </span><span class="kw-2">mut </span>or = <span class="self">Self </span>{
-            args: ArgSet::new(),
-        };
+        <span class="kw">let </span><span class="kw-2">mut </span>or = <span class="self">Self </span>{ args: Vec::new() };
 
-        or.insert_arg(b1.to_basic());
-        or.insert_arg(b2.to_basic());
+        or.insert_arg(b1.base());
+        or.insert_arg(b2.base());
         or.simplify().into()
     }
 
-    <span class="kw">fn </span>insert_arg(<span class="kw-2">&amp;mut </span><span class="self">self</span>, b: Basic) {
+    <span class="kw">fn </span>insert_arg(<span class="kw-2">&amp;mut </span><span class="self">self</span>, b: Base) {
         <span class="self">self</span>.args.push(BooleanKind::from_basic(b));
     }
 
@@ -750,7 +748,7 @@
 }
 
 <span class="kw">impl </span>CalcursType <span class="kw">for </span>Or {
-    <span class="kw">fn </span>to_basic(<span class="self">self</span>) -&gt; Basic {
+    <span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
         BooleanKind::Or(<span class="self">self</span>).to_basic()
     }
 }
@@ -779,7 +777,7 @@
 
     <span class="kw">pub fn </span>not&lt;T: CalcursType&gt;(b: T) -&gt; Boolean {
         <span class="kw">let </span>not = <span class="self">Self </span>{
-            val: PTR::new(BooleanKind::from_basic(b.to_basic())),
+            val: PTR::new(BooleanKind::from_basic(b.base())),
         };
 
         not.simplify().into()
@@ -800,24 +798,24 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T: CalcursType&gt; ops::BitAnd&lt;T&gt; <span class="kw">for </span>Basic {
-    <span class="kw">type </span>Output = Basic;
+<span class="kw">impl</span>&lt;T: CalcursType&gt; ops::BitAnd&lt;T&gt; <span class="kw">for </span>Base {
+    <span class="kw">type </span>Output = Base;
 
     <span class="kw">fn </span>bitand(<span class="self">self</span>, rhs: T) -&gt; <span class="self">Self</span>::Output {
-        And::and(<span class="self">self</span>, rhs.to_basic()).to_basic()
+        And::and(<span class="self">self</span>, rhs.base()).to_basic()
     }
 }
 
-<span class="kw">impl</span>&lt;T: CalcursType&gt; ops::BitOr&lt;T&gt; <span class="kw">for </span>Basic {
-    <span class="kw">type </span>Output = Basic;
+<span class="kw">impl</span>&lt;T: CalcursType&gt; ops::BitOr&lt;T&gt; <span class="kw">for </span>Base {
+    <span class="kw">type </span>Output = Base;
 
     <span class="kw">fn </span>bitor(<span class="self">self</span>, rhs: T) -&gt; <span class="self">Self</span>::Output {
-        Or::or(<span class="self">self</span>, rhs.to_basic()).to_basic()
+        Or::or(<span class="self">self</span>, rhs.base()).to_basic()
     }
 }
 
-<span class="kw">impl </span>ops::Not <span class="kw">for </span>Basic {
-    <span class="kw">type </span>Output = Basic;
+<span class="kw">impl </span>ops::Not <span class="kw">for </span>Base {
+    <span class="kw">type </span>Output = Base;
 
     <span class="kw">fn </span>not(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Output {
         Not::not(<span class="self">self</span>).to_basic()
@@ -825,17 +823,17 @@
 }
 
 <span class="kw">impl </span>CalcursType <span class="kw">for </span>Not {
-    <span class="kw">fn </span>to_basic(<span class="self">self</span>) -&gt; Basic {
+    <span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
         BooleanKind::Not(<span class="self">self</span>).to_basic()
     }
 }
 
-<span class="kw">pub const </span>FALSE: Basic = Basic {
+<span class="kw">pub const </span>FALSE: Base = Base {
     kind: BasicKind::Boolean(Boolean {
         kind: BooleanKind::False(False),
     }),
 };
-<span class="kw">pub const </span>TRUE: Basic = Basic {
+<span class="kw">pub const </span>TRUE: Base = Base {
     kind: BasicKind::Boolean(Boolean {
         kind: BooleanKind::True(True),
     }),
@@ -867,9 +865,9 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>subs() {
-        <span class="kw">let </span>x = Variable::new(<span class="string">&quot;x&quot;</span>).to_basic();
-        <span class="kw">let </span>y = Variable::new(<span class="string">&quot;y&quot;</span>).to_basic();
-        <span class="kw">let </span>z = Variable::new(<span class="string">&quot;z&quot;</span>).to_basic();
+        <span class="kw">let </span>x = Variable::new(<span class="string">&quot;x&quot;</span>).base();
+        <span class="kw">let </span>y = Variable::new(<span class="string">&quot;y&quot;</span>).base();
+        <span class="kw">let </span>z = Variable::new(<span class="string">&quot;z&quot;</span>).base();
 
         <span class="kw">let </span>expr = (x.clone() &amp; y.clone()) | z.clone();
         <span class="kw">let </span>eval = expr.subs(<span class="string">&quot;x&quot;</span>, y.clone()).subs(<span class="string">&quot;y&quot;</span>, True).subs(<span class="string">&quot;z&quot;</span>, False);
