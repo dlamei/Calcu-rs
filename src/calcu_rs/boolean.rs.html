@@ -433,48 +433,22 @@
 <a href="#433" id="433">433</a>
 <a href="#434" id="434">434</a>
 <a href="#435" id="435">435</a>
-<a href="#436" id="436">436</a>
-<a href="#437" id="437">437</a>
-<a href="#438" id="438">438</a>
-<a href="#439" id="439">439</a>
-<a href="#440" id="440">440</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{collections::HashSet, fmt, ops};
 
 <span class="kw">use </span>derive_more::Display;
 
 <span class="kw">use crate</span>::{
-    base::{Base, BasicKind, SubsDict, Variable, PTR},
+    base::{Base, BaseKind, SubsDict, Variable, PTR},
     traits::CalcursType,
 };
 
-<span class="attr">#[derive(Debug, Clone, Hash, PartialEq, Eq, Display)]
-</span><span class="kw">pub struct </span>Boolean {
-    <span class="kw">pub </span>kind: BooleanKind,
-}
+<span class="kw">pub const </span>FALSE: Boolean = Boolean {
+    kind: BooleanKind::False(False),
+};
 
-<span class="kw">impl </span>From&lt;bool&gt; <span class="kw">for </span>Boolean {
-    <span class="kw">fn </span>from(value: bool) -&gt; <span class="self">Self </span>{
-        BooleanKind::from(value).into()
-    }
-}
-
-<span class="kw">impl </span>From&lt;BooleanKind&gt; <span class="kw">for </span>Boolean {
-    <span class="kw">fn </span>from(value: BooleanKind) -&gt; <span class="self">Self </span>{
-        Boolean { kind: value }
-    }
-}
-
-<span class="kw">impl </span>CalcursType <span class="kw">for </span>Boolean {
-    <span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
-        BasicKind::Boolean(<span class="self">self</span>).into()
-    }
-}
-
-<span class="kw">impl </span>Boolean {
-    <span class="kw">pub fn </span>to_basic(<span class="self">self</span>) -&gt; Base {
-        BasicKind::Boolean(<span class="self">self</span>).into()
-    }
-}
+<span class="kw">pub const </span>TRUE: Boolean = Boolean {
+    kind: BooleanKind::True(True),
+};
 
 <span class="attr">#[derive(Debug, Clone, Hash, PartialEq, Eq, Display)]
 </span><span class="kw">pub enum </span>BooleanKind {
@@ -489,6 +463,38 @@
     Unknown(PTR&lt;Base&gt;),
 }
 
+<span class="attr">#[derive(Debug, Clone, Hash, PartialEq, Eq, Display)]
+</span><span class="kw">pub struct </span>Boolean {
+    <span class="kw">pub </span>kind: BooleanKind,
+}
+
+<span class="kw">impl </span>From&lt;bool&gt; <span class="kw">for </span>Boolean {
+    <span class="kw">fn </span>from(value: bool) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>value {
+            <span class="bool-val">true </span>=&gt; TRUE,
+            <span class="bool-val">false </span>=&gt; FALSE,
+        }
+    }
+}
+
+<span class="kw">impl </span>From&lt;BooleanKind&gt; <span class="kw">for </span>Boolean {
+    <span class="kw">fn </span>from(value: BooleanKind) -&gt; <span class="self">Self </span>{
+        Boolean { kind: value }
+    }
+}
+
+<span class="kw">impl </span>CalcursType <span class="kw">for </span>Boolean {
+    <span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
+        BaseKind::Boolean(<span class="self">self</span>).into()
+    }
+}
+
+<span class="kw">impl </span>Boolean {
+    <span class="kw">pub fn </span>to_basic(<span class="self">self</span>) -&gt; Base {
+        BaseKind::Boolean(<span class="self">self</span>).into()
+    }
+}
+
 <span class="kw">impl </span>BooleanKind {
     <span class="kw">pub fn </span>simplify(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="kw">use </span>BooleanKind <span class="kw">as </span>BK;
@@ -500,14 +506,9 @@
             BK::True(<span class="kw">_</span>) | BK::False(<span class="kw">_</span>) | BK::Var(<span class="kw">_</span>) =&gt; <span class="self">self</span>,
         }
     }
-}
 
-<span class="kw">impl </span>From&lt;bool&gt; <span class="kw">for </span>BooleanKind {
-    <span class="kw">fn </span>from(value: bool) -&gt; <span class="self">Self </span>{
-        <span class="kw">match </span>value {
-            <span class="bool-val">true </span>=&gt; BooleanKind::True(True),
-            <span class="bool-val">false </span>=&gt; BooleanKind::False(False),
-        }
+    <span class="kw">pub fn </span>base(<span class="self">self</span>) -&gt; Base {
+        BaseKind::Boolean(<span class="self">self</span>.into()).into()
     }
 }
 
@@ -534,9 +535,9 @@
 <span class="kw">impl </span>BooleanKind {
     <span class="kw">pub fn </span>from_basic(b: Base) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span>b.kind {
-            BasicKind::Var(v) =&gt; BooleanKind::Var(v),
-            BasicKind::Boolean(b) =&gt; b.kind,
-            BasicKind::Dummy =&gt; BooleanKind::Unknown(PTR::new(b)),
+            BaseKind::Var(v) =&gt; BooleanKind::Var(v),
+            BaseKind::Boolean(b) =&gt; b.kind,
+            BaseKind::Dummy =&gt; BooleanKind::Unknown(PTR::new(b)),
             <span class="kw">_ </span>=&gt; <span class="macro">todo!</span>(),
         }
     }
@@ -560,7 +561,7 @@
     }
 
     <span class="kw">pub fn </span>to_basic(<span class="self">self</span>) -&gt; Base {
-        BasicKind::Boolean(<span class="self">self</span>.into()).into()
+        BaseKind::Boolean(<span class="self">self</span>.into()).into()
     }
 }
 
@@ -585,7 +586,7 @@
             <span class="macro">write!</span>(f, <span class="string">&quot;({}&quot;</span>, first)<span class="question-mark">?</span>;
         }
 
-        <span class="kw">while let </span><span class="prelude-val">Some</span>(e) = iter.next() {
+        <span class="kw">for </span>e <span class="kw">in </span>iter {
             <span class="macro">write!</span>(f, <span class="string">&quot; ∧ {}&quot;</span>, e)<span class="question-mark">?</span>;
         }
 
@@ -623,7 +624,7 @@
             <span class="kw">let </span>e = e.simplify();
 
             <span class="kw">if let </span>BooleanKind::False(<span class="kw">_</span>) = e {
-                <span class="kw">return </span><span class="bool-val">false</span>.into();
+                <span class="kw">return </span>FALSE.kind;
             } <span class="kw">else if let </span>BooleanKind::True(<span class="kw">_</span>) = e {
                 <span class="kw">continue</span>;
             }
@@ -632,10 +633,10 @@
         }
 
         <span class="kw">if </span>set.is_empty() {
-            <span class="bool-val">true</span>.into()
+            TRUE.kind
         } <span class="kw">else if </span>set.len() == <span class="number">1 </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>iter = set.into_iter();
-            iter.next().unwrap().into()
+            iter.next().unwrap()
         } <span class="kw">else </span>{
             BooleanKind::And(<span class="self">Self </span>{
                 args: set.into_iter().collect(),
@@ -689,7 +690,7 @@
             <span class="macro">write!</span>(f, <span class="string">&quot;({}&quot;</span>, first)<span class="question-mark">?</span>;
         }
 
-        <span class="kw">while let </span><span class="prelude-val">Some</span>(e) = iter.next() {
+        <span class="kw">for </span>e <span class="kw">in </span>iter {
             <span class="macro">write!</span>(f, <span class="string">&quot; ∨ {}&quot;</span>, e)<span class="question-mark">?</span>;
         }
 
@@ -726,7 +727,7 @@
         <span class="kw">for </span>e <span class="kw">in </span><span class="self">self</span>.args {
             <span class="kw">let </span>e = e.simplify();
             <span class="kw">if let </span>BooleanKind::True(<span class="kw">_</span>) = e {
-                <span class="kw">return </span><span class="bool-val">true</span>.into();
+                <span class="kw">return </span>TRUE.kind;
             } <span class="kw">else if let </span>BooleanKind::False(<span class="kw">_</span>) = e {
                 <span class="kw">continue</span>;
             }
@@ -735,10 +736,10 @@
         }
 
         <span class="kw">if </span>set.is_empty() {
-            <span class="kw">return </span><span class="bool-val">false</span>.into();
+            <span class="kw">return </span>FALSE.kind;
         } <span class="kw">else if </span>set.len() == <span class="number">1 </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>iter = set.into_iter();
-            <span class="kw">return </span>iter.next().unwrap().into();
+            <span class="kw">return </span>iter.next().unwrap();
         }
 
         BooleanKind::Or(<span class="self">Self </span>{
@@ -787,8 +788,8 @@
         <span class="kw">let </span>val = <span class="self">self</span>.val.simplify();
 
         <span class="kw">match </span>val {
-            BooleanKind::True(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>.into(),
-            BooleanKind::False(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>.into(),
+            BooleanKind::True(<span class="kw">_</span>) =&gt; FALSE.kind,
+            BooleanKind::False(<span class="kw">_</span>) =&gt; TRUE.kind,
             BooleanKind::Not(not) =&gt; <span class="kw-2">*</span>not.val,
             BooleanKind::Var(<span class="kw">_</span>)
             | BooleanKind::And(<span class="kw">_</span>)
@@ -828,17 +829,6 @@
     }
 }
 
-<span class="kw">pub const </span>FALSE: Base = Base {
-    kind: BasicKind::Boolean(Boolean {
-        kind: BooleanKind::False(False),
-    }),
-};
-<span class="kw">pub const </span>TRUE: Base = Base {
-    kind: BasicKind::Boolean(Boolean {
-        kind: BooleanKind::True(True),
-    }),
-};
-
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>boolean_types {
 
@@ -848,7 +838,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>and() {
         <span class="kw">let </span>and = And::and(And::and(TRUE, Variable::new(<span class="string">&quot;x&quot;</span>)), FALSE).to_basic();
-        <span class="macro">assert_eq!</span>(and, FALSE);
+        <span class="macro">assert_eq!</span>(and, FALSE.base());
 
         <span class="kw">let </span>and = And::and(And::and(TRUE, Variable::new(<span class="string">&quot;x&quot;</span>)), Variable::new(<span class="string">&quot;x&quot;</span>)).to_basic();
         <span class="macro">assert_eq!</span>(and, BooleanKind::Var(Variable::new(<span class="string">&quot;x&quot;</span>)).to_basic())
@@ -857,7 +847,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>or() {
         <span class="kw">let </span>or = Or::or(Or::or(FALSE, Variable::new(<span class="string">&quot;x&quot;</span>)), TRUE).to_basic();
-        <span class="macro">assert_eq!</span>(or, TRUE);
+        <span class="macro">assert_eq!</span>(or, TRUE.base());
 
         <span class="kw">let </span>or = Or::or(Or::or(False, Variable::new(<span class="string">&quot;x&quot;</span>)), Variable::new(<span class="string">&quot;x&quot;</span>)).to_basic();
         <span class="macro">assert_eq!</span>(or, BooleanKind::Var(Variable::new(<span class="string">&quot;x&quot;</span>)).to_basic())
@@ -871,11 +861,11 @@
 
         <span class="kw">let </span>expr = (x.clone() &amp; y.clone()) | z.clone();
         <span class="kw">let </span>eval = expr.subs(<span class="string">&quot;x&quot;</span>, y.clone()).subs(<span class="string">&quot;y&quot;</span>, True).subs(<span class="string">&quot;z&quot;</span>, False);
-        <span class="macro">assert_eq!</span>(eval.simplify(), TRUE);
+        <span class="macro">assert_eq!</span>(eval.simplify(), TRUE.base());
 
         <span class="kw">let </span>expr = !((x.clone() &amp; y.clone()) | z.clone());
         <span class="kw">let </span>eval = expr.subs(<span class="string">&quot;x&quot;</span>, y.clone()).subs(<span class="string">&quot;y&quot;</span>, True).subs(<span class="string">&quot;z&quot;</span>, False);
-        <span class="macro">assert_eq!</span>(eval.simplify(), FALSE);
+        <span class="macro">assert_eq!</span>(eval.simplify(), FALSE.base());
     }
 }
 </code></pre></div></section></main></body></html>

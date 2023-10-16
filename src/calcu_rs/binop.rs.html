@@ -226,13 +226,11 @@
 <a href="#226" id="226">226</a>
 <a href="#227" id="227">227</a>
 <a href="#228" id="228">228</a>
-<a href="#229" id="229">229</a>
-<a href="#230" id="230">230</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{collections::HashMap, fmt};
 
 <span class="kw">use crate</span>::{
-    base::{Base, BasicKind},
-    numbers::{Integer, Number, NumberKind, ONE, ZERO},
+    base::{Base, BaseKind},
+    numeric::{Integer, Number, NumberKind, ONE, ZERO},
     traits::{CalcursType, Numeric},
 };
 
@@ -243,7 +241,7 @@
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>Add {
     coeff: NumberKind,
-    arg_map: HashMap&lt;BasicKind, NumberKind&gt;,
+    arg_map: HashMap&lt;BaseKind, NumberKind&gt;,
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Add {
@@ -278,7 +276,7 @@
 
 <span class="kw">impl </span>CalcursType <span class="kw">for </span>Add {
     <span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
-        BasicKind::Add(<span class="self">self</span>).into()
+        BaseKind::Add(<span class="self">self</span>).into()
     }
 }
 
@@ -289,7 +287,7 @@
         <span class="self">Self</span>::add_kind(b1.kind, b2.kind)
     }
 
-    <span class="kw">pub fn </span>add_kind(b1: BasicKind, b2: BasicKind) -&gt; Base {
+    <span class="kw">pub fn </span>add_kind(b1: BaseKind, b2: BaseKind) -&gt; Base {
         <span class="kw">let </span>add = <span class="self">Self </span>{
             coeff: Integer::num(<span class="number">0</span>),
             arg_map: Default::default(),
@@ -305,8 +303,8 @@
         }
     }
 
-    <span class="kw">fn </span>append_basic(<span class="kw-2">mut </span><span class="self">self</span>, b: BasicKind) -&gt; <span class="self">Self </span>{
-        <span class="kw">use </span>BasicKind <span class="kw">as </span>B;
+    <span class="kw">fn </span>append_basic(<span class="kw-2">mut </span><span class="self">self</span>, b: BaseKind) -&gt; <span class="self">Self </span>{
+        <span class="kw">use </span>BaseKind <span class="kw">as </span>B;
 
         <span class="kw">match </span>b {
             B::Boolean(<span class="kw">_</span>) =&gt; <span class="macro">todo!</span>(),
@@ -319,7 +317,7 @@
             B::Mul(<span class="kw-2">mut </span>mul) =&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>coeff = Integer::num(<span class="number">1</span>);
                 (mul.coeff, coeff) = (coeff, mul.coeff);
-                <span class="self">self</span>.append_term(coeff, BasicKind::Mul(mul));
+                <span class="self">self</span>.append_term(coeff, BaseKind::Mul(mul));
             }
 
             B::Add(add) =&gt; {
@@ -339,17 +337,15 @@
     </span>}
 
     <span class="doccomment">/// adds the term: coeff*b
-    </span><span class="kw">fn </span>append_term(<span class="kw-2">&amp;mut </span><span class="self">self</span>, coeff: NumberKind, b: BasicKind) {
+    </span><span class="kw">fn </span>append_term(<span class="kw-2">&amp;mut </span><span class="self">self</span>, coeff: NumberKind, b: BaseKind) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>key) = <span class="self">self</span>.arg_map.remove(<span class="kw-2">&amp;</span>b) {
             key = key.add_kind(coeff);
 
             <span class="kw">if </span>!key.is_zero() {
                 <span class="self">self</span>.arg_map.insert(b, key);
             }
-        } <span class="kw">else </span>{
-            <span class="kw">if </span>!coeff.is_zero() {
-                <span class="self">self</span>.arg_map.insert(b, coeff);
-            }
+        } <span class="kw">else if </span>!coeff.is_zero() {
+            <span class="self">self</span>.arg_map.insert(b, coeff);
         }
     }
 }
@@ -361,7 +357,7 @@
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>Mul {
     coeff: NumberKind,
-    arg_map: HashMap&lt;BasicKind, BasicKind&gt;,
+    arg_map: HashMap&lt;BaseKind, BaseKind&gt;,
 }
 
 <span class="kw">impl </span>Mul {
@@ -378,8 +374,8 @@
         .cleanup()
     }
 
-    <span class="kw">fn </span>append_basic(<span class="kw-2">mut </span><span class="self">self</span>, b: BasicKind) -&gt; <span class="self">Self </span>{
-        <span class="kw">use </span>BasicKind <span class="kw">as </span>B;
+    <span class="kw">fn </span>append_basic(<span class="kw-2">mut </span><span class="self">self</span>, b: BaseKind) -&gt; <span class="self">Self </span>{
+        <span class="kw">use </span>BaseKind <span class="kw">as </span>B;
 
         <span class="kw">match </span>b {
             B::Number(n) =&gt; {
@@ -397,7 +393,7 @@
                     .for_each(|(key, val)| <span class="self">self</span>.append_term(key, val))
             }
             B::Var(<span class="kw">_</span>) | B::Boolean(<span class="kw">_</span>) | B::Add(<span class="kw">_</span>) | B::Dummy =&gt; {
-                <span class="kw">let </span>exp = BasicKind::Number(ONE.clone());
+                <span class="kw">let </span>exp = BaseKind::Number(ONE.clone());
                 <span class="self">self</span>.append_term(b, exp);
             }
         }
@@ -405,7 +401,7 @@
     </span>}
 
     <span class="doccomment">/// adds the term: b^exp
-    </span><span class="kw">fn </span>append_term(<span class="kw-2">&amp;mut </span><span class="self">self</span>, b: BasicKind, exp: BasicKind) {
+    </span><span class="kw">fn </span>append_term(<span class="kw-2">&amp;mut </span><span class="self">self</span>, b: BaseKind, exp: BaseKind) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(key) = <span class="self">self</span>.arg_map.remove(<span class="kw-2">&amp;</span>b) {
             <span class="kw">let </span>exp = Add::add_kind(key, exp);
             <span class="self">self</span>.arg_map.insert(b, exp.kind);
@@ -455,7 +451,7 @@
 
 <span class="kw">impl </span>CalcursType <span class="kw">for </span>Mul {
     <span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
-        BasicKind::Mul(<span class="self">self</span>).into()
+        BaseKind::Mul(<span class="self">self</span>).into()
     }
 }
 </code></pre></div></section></main></body></html>

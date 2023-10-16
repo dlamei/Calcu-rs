@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["base","binop","boolean","numbers","prelude","traits"]};
+window.SIDEBAR_ITEMS = {"mod":["base","binop","boolean","numeric","prelude","traits"]};

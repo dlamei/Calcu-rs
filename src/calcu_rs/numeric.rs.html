@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/numbers.rs`."><title>numbers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9bb858ba049f1f21.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="calcu_rs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.72.1 (d5c2e9c34 2023-09-13)" data-channel="1.72.1" data-search-js="search-f6292fe389d70017.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ><script src="../../static.files/storage-59fd9b8ccb335783.js"></script><script defer src="../../static.files/source-script-106908c7a7964ba4.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../calcu_rs/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/numeric.rs`."><title>numeric.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9bb858ba049f1f21.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="calcu_rs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.72.1 (d5c2e9c34 2023-09-13)" data-channel="1.72.1" data-search-js="search-f6292fe389d70017.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ><script src="../../static.files/storage-59fd9b8ccb335783.js"></script><script defer src="../../static.files/source-script-106908c7a7964ba4.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../calcu_rs/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -570,45 +570,6 @@
 <a href="#570" id="570">570</a>
 <a href="#571" id="571">571</a>
 <a href="#572" id="572">572</a>
-<a href="#573" id="573">573</a>
-<a href="#574" id="574">574</a>
-<a href="#575" id="575">575</a>
-<a href="#576" id="576">576</a>
-<a href="#577" id="577">577</a>
-<a href="#578" id="578">578</a>
-<a href="#579" id="579">579</a>
-<a href="#580" id="580">580</a>
-<a href="#581" id="581">581</a>
-<a href="#582" id="582">582</a>
-<a href="#583" id="583">583</a>
-<a href="#584" id="584">584</a>
-<a href="#585" id="585">585</a>
-<a href="#586" id="586">586</a>
-<a href="#587" id="587">587</a>
-<a href="#588" id="588">588</a>
-<a href="#589" id="589">589</a>
-<a href="#590" id="590">590</a>
-<a href="#591" id="591">591</a>
-<a href="#592" id="592">592</a>
-<a href="#593" id="593">593</a>
-<a href="#594" id="594">594</a>
-<a href="#595" id="595">595</a>
-<a href="#596" id="596">596</a>
-<a href="#597" id="597">597</a>
-<a href="#598" id="598">598</a>
-<a href="#599" id="599">599</a>
-<a href="#600" id="600">600</a>
-<a href="#601" id="601">601</a>
-<a href="#602" id="602">602</a>
-<a href="#603" id="603">603</a>
-<a href="#604" id="604">604</a>
-<a href="#605" id="605">605</a>
-<a href="#606" id="606">606</a>
-<a href="#607" id="607">607</a>
-<a href="#608" id="608">608</a>
-<a href="#609" id="609">609</a>
-<a href="#610" id="610">610</a>
-<a href="#611" id="611">611</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::ops;
 
 <span class="kw">use </span>calcurs_macros::Procagate;
@@ -619,8 +580,7 @@
 
 <span class="kw">use crate</span>::{
     base::Base,
-    base::BasicKind,
-    binop::{Add, Mul},
+    base::BaseKind,
     traits::{CalcursType, Numeric},
 };
 
@@ -650,7 +610,7 @@
 
 <span class="kw">impl </span>CalcursType <span class="kw">for </span>Number {
     <span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
-        BasicKind::Number(<span class="self">self</span>).into()
+        BaseKind::Number(<span class="self">self</span>).into()
     }
 }
 
@@ -740,7 +700,7 @@
     }
 
     <span class="kw">pub fn </span>base(<span class="self">self</span>) -&gt; Base {
-        BasicKind::Number(<span class="self">self</span>.into()).into()
+        BaseKind::Number(<span class="self">self</span>.into()).into()
     }
 }
 
@@ -962,15 +922,7 @@
     <span class="kw">pub fn </span>mul_int(<span class="self">self</span>, other: Integer) -&gt; NumberKind {
         Integer(<span class="self">self</span>.<span class="number">0 </span>* other.<span class="number">0</span>).into()
     }
-
-    <span class="comment">// pub fn div_int(self, other: Integer) -&gt; NumberKind {
-    //     if other.0.is_zero() {
-    //         Infinity::new(Sign::from_sign(&amp;self.0)).into()
-    //     } else {
-    //         Integer(self.0 / other.0).into()
-    //     }
-    // }
-</span>}
+}
 
 <span class="attr">#[derive(Debug, Clone, Hash, PartialEq, Eq, Display, Default)]
 </span><span class="kw">pub struct </span>Rational(BigRational);
@@ -1061,30 +1013,6 @@
     }
 }
 
-<span class="kw">impl </span>ops::Add <span class="kw">for </span>Base {
-    <span class="kw">type </span>Output = Base;
-
-    <span class="kw">fn </span>add(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
-        Add::add(<span class="self">self</span>, rhs)
-    }
-}
-
-<span class="kw">impl </span>ops::Mul <span class="kw">for </span>Base {
-    <span class="kw">type </span>Output = Base;
-
-    <span class="kw">fn </span>mul(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
-        Mul::mul(<span class="self">self</span>, rhs)
-    }
-}
-
-<span class="kw">impl </span>ops::Sub <span class="kw">for </span>Base {
-    <span class="kw">type </span>Output = Base;
-
-    <span class="kw">fn </span>sub(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
-        Add::add(<span class="self">self</span>, Mul::mul(Integer::new(-<span class="number">1</span>), rhs))
-    }
-}
-
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>test_numbers {
 
@@ -1118,39 +1046,33 @@
         };
     }
 
-    <span class="macro">macro_rules! </span>c_impl {
+    <span class="macro">macro_rules! </span>c {
         (+inf) =&gt; {
-            Infinity::pos()
+            Infinity::pos().base()
         };
 
         (-inf) =&gt; {
-            Infinity::neg()
+            Infinity::neg().base()
         };
 
         (inf) =&gt; {
-            Infinity::default()
+            Infinity::default().base()
         };
 
         (nan) =&gt; {
-            NaN
+            NaN.base()
         };
 
         (<span class="macro-nonterminal">$int</span>: literal) =&gt; {
-            Integer::num(<span class="macro-nonterminal">$int</span>)
+            Integer::num(<span class="macro-nonterminal">$int</span>).base()
         };
 
         (<span class="macro-nonterminal">$val</span>: literal / <span class="macro-nonterminal">$denom</span>: literal) =&gt; {
-            Rational::num(<span class="macro-nonterminal">$val</span>, <span class="macro-nonterminal">$denom</span>)
+            Rational::num(<span class="macro-nonterminal">$val</span>, <span class="macro-nonterminal">$denom</span>).base()
         };
 
         (v(<span class="macro-nonterminal">$var</span>: tt)) =&gt; {
-            Variable::new(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$var</span>))
-        };
-    }
-
-    <span class="macro">macro_rules! </span>c {
-        ($(<span class="macro-nonterminal">$tt</span>: tt)+) =&gt; {
-            <span class="macro">c_impl!</span>($(<span class="macro-nonterminal">$tt</span>)+).base()
+            Variable::new(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$var</span>)).base()
         };
     }
 
