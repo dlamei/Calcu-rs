@@ -534,7 +534,7 @@
         <span class="kw">match </span><span class="self">self </span>{
             N::Rational(r) =&gt; {
                 <span class="kw">let </span>sign = r.sign();
-                inf.sign = inf.sign * sign;
+                inf.sign <span class="kw-2">*</span>= sign;
                 inf.into()
             }
             N::Infinity(i) =&gt; i.div_num(inf.into()),

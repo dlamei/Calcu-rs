@@ -318,15 +318,6 @@
 <a href="#318" id="318">318</a>
 <a href="#319" id="319">319</a>
 <a href="#320" id="320">320</a>
-<a href="#321" id="321">321</a>
-<a href="#322" id="322">322</a>
-<a href="#323" id="323">323</a>
-<a href="#324" id="324">324</a>
-<a href="#325" id="325">325</a>
-<a href="#326" id="326">326</a>
-<a href="#327" id="327">327</a>
-<a href="#328" id="328">328</a>
-<a href="#329" id="329">329</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{
     base::Base,
     numeric::{Infinity, Number, Sign, Undefined},
@@ -411,8 +402,8 @@
     </span>}
 
     <span class="kw">fn </span>is_one(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.numer == <span class="number">1 </span>&amp;&amp; <span class="self">self</span>.denom() == <span class="number">1 </span>&amp;&amp; <span class="self">self</span>.is_neg == <span class="bool-val">false
-    </span>}
+        <span class="self">self</span>.numer == <span class="number">1 </span>&amp;&amp; <span class="self">self</span>.denom() == <span class="number">1 </span>&amp;&amp; !<span class="self">self</span>.is_neg
+    }
 
     <span class="kw">fn </span>sign(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Sign {
         <span class="kw">match </span><span class="self">self</span>.is_neg {
@@ -431,8 +422,8 @@
         }
 
         <span class="kw">let </span>is_neg = (num * den).is_negative();
-        <span class="kw">let </span>numer = num.abs() <span class="kw">as </span>UInt;
-        <span class="kw">let </span>denom = NonZeroUInt::new(den.abs() <span class="kw">as </span>UInt).unwrap();
+        <span class="kw">let </span>numer = num.unsigned_abs() <span class="kw">as </span>UInt;
+        <span class="kw">let </span>denom = NonZeroUInt::new(den.unsigned_abs() <span class="kw">as </span>UInt).unwrap();
 
         <span class="self">Self </span>{
             is_neg,
@@ -445,7 +436,7 @@
 
     <span class="kw">pub fn </span>int(n: i32) -&gt; Number {
         <span class="kw">let </span>is_neg = n.is_negative();
-        <span class="kw">let </span>numer = n.abs() <span class="kw">as </span>UInt;
+        <span class="kw">let </span>numer = n.unsigned_abs() <span class="kw">as </span>UInt;
         <span class="kw">let </span>denom = NonZeroUInt::new(<span class="number">1</span>).unwrap();
         <span class="self">Self </span>{
             is_neg,
@@ -611,8 +602,8 @@
         <span class="self">self</span>.is_neg = <span class="self">self</span>.is_neg || rhs.is_neg;
         <span class="kw">let </span>gcd_ad = <span class="self">self</span>.numer.gcd(<span class="kw-2">&amp;</span>rhs.denom());
         <span class="kw">let </span>gcd_bc = <span class="self">self</span>.denom().gcd(<span class="kw-2">&amp;</span>rhs.numer);
-        <span class="self">self</span>.numer /= gcd_ad.clone();
-        <span class="self">self</span>.numer <span class="kw-2">*</span>= rhs.numer / gcd_bc.clone();
+        <span class="self">self</span>.numer /= gcd_ad;
+        <span class="self">self</span>.numer <span class="kw-2">*</span>= rhs.numer / gcd_bc;
         <span class="self">self</span>.denom.div(gcd_bc);
         <span class="self">self</span>.denom.mul(rhs.denom() / gcd_ad);
         <span class="self">self
@@ -626,28 +617,19 @@
         <span class="self">self</span>.is_neg = <span class="self">self</span>.is_neg || rhs.is_neg;
         <span class="kw">let </span>gcd_ac = <span class="self">self</span>.numer.gcd(<span class="kw-2">&amp;</span>rhs.numer);
         <span class="kw">let </span>gcd_bd = <span class="self">self</span>.denom().gcd(<span class="kw-2">&amp;</span>rhs.denom());
-        <span class="self">self</span>.numer /= gcd_ac.clone();
-        <span class="self">self</span>.numer <span class="kw-2">*</span>= rhs.denom() / gcd_bd.clone();
+        <span class="self">self</span>.numer /= gcd_ac;
+        <span class="self">self</span>.numer <span class="kw-2">*</span>= rhs.denom() / gcd_bd;
         <span class="self">self</span>.denom.div(gcd_bd);
         <span class="self">self</span>.denom.mul(rhs.numer / gcd_ac);
-        <span class="self">self</span>.into()
-    }
+        <span class="self">self
+    </span>}
 }
 
 <span class="kw">impl </span>PartialOrd <span class="kw">for </span>Rational {
     <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;std::cmp::Ordering&gt; {
-        <span class="kw">use </span>std::cmp::Ordering;
-
-        <span class="kw">let </span>self_val = <span class="self">self</span>.numer * other.denom();
-        <span class="kw">let </span>other_val = other.numer * <span class="self">self</span>.denom();
-
-        <span class="kw">if </span>self_val &lt; other_val {
-            <span class="prelude-val">Some</span>(Ordering::Less)
-        } <span class="kw">else if </span>self_val &gt; other_val {
-            <span class="prelude-val">Some</span>(Ordering::Greater)
-        } <span class="kw">else </span>{
-            <span class="prelude-val">Some</span>(Ordering::Equal)
-        }
+        <span class="kw">let </span>v1 = <span class="self">self</span>.numer * other.denom();
+        <span class="kw">let </span>v2 = other.numer * <span class="self">self</span>.denom();
+        v1.partial_cmp(<span class="kw-2">&amp;</span>v2)
     }
 }
 
