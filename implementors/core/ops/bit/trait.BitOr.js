@@ -1,3 +1,3 @@
 (function() {var implementors = {
-"calcu_rs":[["impl&lt;T: <a class=\"trait\" href=\"calcu_rs/traits/trait.CalcursType.html\" title=\"trait calcu_rs::traits::CalcursType\">CalcursType</a>&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/1.72.1/core/ops/bit/trait.BitOr.html\" title=\"trait core::ops::bit::BitOr\">BitOr</a>&lt;T&gt; for <a class=\"struct\" href=\"calcu_rs/base/struct.Base.html\" title=\"struct calcu_rs::base::Base\">Base</a>"]]
+"calcu_rs":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.73.0/core/ops/bit/trait.BitOr.html\" title=\"trait core::ops::bit::BitOr\">BitOr</a>&lt;<a class=\"enum\" href=\"calcu_rs/base/enum.Base.html\" title=\"enum calcu_rs::base::Base\">Base</a>&gt; for <a class=\"enum\" href=\"calcu_rs/base/enum.Base.html\" title=\"enum calcu_rs::base::Base\">Base</a>"]]
 };if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

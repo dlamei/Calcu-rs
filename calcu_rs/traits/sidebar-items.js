@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":["CalcursType","Numeric"]};
+window.SIDEBAR_ITEMS = {"trait":["Bool","CalcursType","Num"]};
