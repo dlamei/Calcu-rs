@@ -771,6 +771,28 @@
 <a href="#771" id="771">771</a>
 <a href="#772" id="772">772</a>
 <a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{
     collections::{HashMap, HashSet},
     fmt,
@@ -868,6 +890,10 @@
     <span class="kw">fn </span>reduce(<span class="self">self</span>) -&gt; Base {
         <span class="kw">if </span><span class="self">self</span>.arg_map.is_empty() {
             <span class="self">self</span>.coeff.base()
+        } <span class="kw">else if </span><span class="self">self</span>.arg_map.len() == <span class="number">1 </span>&amp;&amp; <span class="self">self</span>.coeff.is_zero() {
+            <span class="comment">// reduce to mul
+            </span><span class="kw">let </span>(a, b) = <span class="self">self</span>.arg_map.into_iter().next().unwrap();
+            Mul::mul(a, b)
         } <span class="kw">else </span>{
             <span class="self">self</span>.base()
         }
@@ -953,16 +979,7 @@
 
     <span class="doccomment">/// a * b^-1 &lt;=&gt; a * (1 / b)
     </span><span class="kw">pub fn </span>div(b1: <span class="kw">impl </span>CalcursType, b2: <span class="kw">impl </span>CalcursType) -&gt; Base {
-        <span class="kw">let </span>b1 = b1.base();
-        <span class="kw">let </span>b2 = b2.base();
-
-        <span class="self">Self </span>{
-            coeff: Rational::int_num(<span class="number">1</span>),
-            arg_map: Default::default(),
-        }
-        .mul_arg(b1)
-        .mul_arg(Pow::pow(b2, Rational::int_num(-<span class="number">1</span>)))
-        .reduce()
+        <span class="self">Self</span>::mul(b1, Pow::pow(b2, Rational::int_num(-<span class="number">1</span>)))
     }
 
     <span class="kw">fn </span>mul_arg(<span class="kw-2">mut </span><span class="self">self</span>, b: Base) -&gt; <span class="self">Self </span>{
@@ -1019,8 +1036,19 @@
     <span class="kw">fn </span>reduce(<span class="self">self</span>) -&gt; Base {
         <span class="kw">if </span><span class="self">self</span>.coeff.is_zero() || <span class="self">self</span>.arg_map.is_empty() {
             <span class="self">self</span>.coeff.base()
+        } <span class="kw">else if </span><span class="self">self</span>.arg_map.len() == <span class="number">1 </span>&amp;&amp; <span class="self">self</span>.coeff.is_one() {
+            <span class="comment">// reduce to pow
+            </span><span class="kw">let </span>(a, b) = <span class="self">self</span>.arg_map.into_iter().next().unwrap();
+            Pow::pow(a, b)
         } <span class="kw">else </span>{
             <span class="self">self</span>.base()
+        }
+    }
+
+    <span class="kw">fn </span>format_term(b: <span class="kw-2">&amp;</span>Base, e: <span class="kw-2">&amp;</span>Base, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">match </span>e {
+            Base::Number(n) <span class="kw">if </span>n.is_one() =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{b}&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{b}^{e}&quot;</span>),
         }
     }
 }
@@ -1029,6 +1057,10 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">if </span><span class="self">self</span>.arg_map.is_empty() {
             <span class="kw">return </span><span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.coeff);
+        } <span class="kw">else if </span><span class="self">self</span>.arg_map.len() == <span class="number">1 </span>&amp;&amp; !<span class="self">self</span>.coeff.is_one() {
+            <span class="kw">let </span>(a, b) = <span class="self">self</span>.arg_map.iter().next().unwrap();
+            <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.coeff)<span class="question-mark">?</span>;
+            <span class="kw">return </span><span class="self">Self</span>::format_term(a, b, f);
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.arg_map.iter();
@@ -1036,11 +1068,12 @@
         <span class="macro">write!</span>(f, <span class="string">&quot;(&quot;</span>)<span class="question-mark">?</span>;
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>((k, v)) = iter.next() {
-            <span class="macro">write!</span>(f, <span class="string">&quot;{k}^{v}&quot;</span>)<span class="question-mark">?</span>;
+            <span class="self">Self</span>::format_term(k, v, f)<span class="question-mark">?</span>;
         }
 
         <span class="kw">for </span>(k, v) <span class="kw">in </span>iter {
-            <span class="macro">write!</span>(f, <span class="string">&quot; * {k}^{v}&quot;</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">&quot; * &quot;</span>)<span class="question-mark">?</span>;
+            <span class="self">Self</span>::format_term(k, v, f)<span class="question-mark">?</span>;
         }
 
         <span class="kw">if </span>!<span class="self">self</span>.coeff.is_one() {
@@ -1105,8 +1138,9 @@
                 Rational::int_num(<span class="number">1</span>).div_num(num).base()
             }
 
-            (Base::Number(n1), B::Number(n2)) =&gt; {
-                <span class="macro">todo!</span>()
+            (Base::Number(_n1), B::Number(_n2)) =&gt; {
+                <span class="comment">//TODO: pow_num
+                </span><span class="macro">todo!</span>()
             }
 
             <span class="comment">// (a^e)^n =&gt; a^(e * n)
@@ -1412,6 +1446,7 @@
 </span><span class="kw">mod </span>op_test {
     <span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
     <span class="kw">use </span>pretty_assertions::assert_eq;
+    <span class="kw">use </span>test_case::test_case;
 
     <span class="macro">macro_rules! </span>c {
         (+inf) =&gt; {
@@ -1451,22 +1486,34 @@
         };
     }
 
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>add() {
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="number">2</span>) + <span class="macro">c!</span>(<span class="number">3</span>), <span class="macro">c!</span>(<span class="number">5</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(v:x) + <span class="macro">c!</span>(v:x) + <span class="macro">c!</span>(<span class="number">3</span>), <span class="macro">c!</span>(<span class="number">3</span>) + <span class="macro">c!</span>(v:x) + <span class="macro">c!</span>(v:x));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(-<span class="number">1</span>) + <span class="macro">c!</span>(<span class="number">3</span>), <span class="macro">c!</span>(<span class="number">2</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(-<span class="number">3</span>) + <span class="macro">c!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">c!</span>(-<span class="number">5 </span>/ <span class="number">2</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="number">1 </span>/ <span class="number">2</span>) + <span class="macro">c!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">c!</span>(<span class="number">1</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(inf) + <span class="macro">c!</span>(<span class="number">4</span>), <span class="macro">c!</span>(inf));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(-inf) + <span class="macro">c!</span>(<span class="number">4</span>), <span class="macro">c!</span>(-inf));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(+inf) + <span class="macro">c!</span>(+inf), <span class="macro">c!</span>(+inf));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(-inf) + <span class="macro">c!</span>(+inf), <span class="macro">c!</span>(nan));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(nan) + <span class="macro">c!</span>(inf), <span class="macro">c!</span>(nan));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="number">4 </span>/ <span class="number">2</span>), <span class="macro">c!</span>(<span class="number">2</span>));
+    <span class="attr">#[test_case(<span class="macro">c!</span>(<span class="number">2</span>), <span class="macro">c!</span>(<span class="number">3</span>), <span class="macro">c!</span>(<span class="number">5</span>))]
+    #[test_case(<span class="macro">c!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">c!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">c!</span>(<span class="number">1</span>))]
+    </span><span class="comment">// #[test_case(c!(v: x), c!(v: x), c!(v: x) * c!(2))]
+    </span><span class="kw">fn </span>add(x: Base, y: Base, z: Base) {
+        <span class="macro">assert_eq!</span>(x + y, z);
     }
 
     <span class="attr">#[test]
+    </span><span class="kw">fn </span>add_test() {
+        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(v: x) + <span class="macro">c!</span>(v: x), <span class="macro">c!</span>(<span class="number">2</span>) * <span class="macro">c!</span>(v: x));
+    }
+
+    <span class="comment">// #[test]
+    // fn add() {
+    //     assert_eq!(c!(2) + c!(3), c!(5));
+    //     assert_eq!(c!(v: x) + c!(v: x) + c!(3), c!(3) + c!(v: x) + c!(v: x));
+    //     assert_eq!(c!(-1) + c!(3), c!(2));
+    //     assert_eq!(c!(-3) + c!(1 / 2), c!(-5 / 2));
+    //     assert_eq!(c!(1 / 2) + c!(1 / 2), c!(1));
+    //     assert_eq!(c!(inf) + c!(4), c!(inf));
+    //     assert_eq!(c!(-inf) + c!(4), c!(-inf));
+    //     assert_eq!(c!(+inf) + c!(+inf), c!(+inf));
+    //     assert_eq!(c!(-inf) + c!(+inf), c!(nan));
+    //     assert_eq!(c!(nan) + c!(inf), c!(nan));
+    //     assert_eq!(c!(4 / 2), c!(2));
+    // }
+
+    </span><span class="attr">#[test]
     </span><span class="kw">fn </span>mul() {
         <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(-<span class="number">1</span>) * <span class="macro">c!</span>(<span class="number">3</span>), <span class="macro">c!</span>(-<span class="number">3</span>));
         <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(-<span class="number">1</span>) * <span class="macro">c!</span>(<span class="number">0</span>), <span class="macro">c!</span>(<span class="number">0</span>));
@@ -1501,15 +1548,12 @@
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>num_expr() {}
-
-    <span class="attr">#[test]
     </span><span class="kw">fn </span>and() {
         <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">false</span>) &amp; <span class="macro">c!</span>(<span class="bool-val">true</span>), <span class="macro">c!</span>(<span class="bool-val">false</span>));
         <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">true</span>) &amp; <span class="macro">c!</span>(<span class="bool-val">true</span>), <span class="macro">c!</span>(<span class="bool-val">true</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">false</span>) &amp; <span class="macro">c!</span>(v:x), <span class="macro">c!</span>(<span class="bool-val">false</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">true</span>) &amp; <span class="macro">c!</span>(v:x), <span class="macro">c!</span>(v:x));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(v:y) &amp; <span class="macro">c!</span>(v:x), <span class="macro">c!</span>(v:x) &amp; <span class="macro">c!</span>(v:y));
+        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">false</span>) &amp; <span class="macro">c!</span>(v: x), <span class="macro">c!</span>(<span class="bool-val">false</span>));
+        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">true</span>) &amp; <span class="macro">c!</span>(v: x), <span class="macro">c!</span>(v: x));
+        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(v: y) &amp; <span class="macro">c!</span>(v: x), <span class="macro">c!</span>(v: x) &amp; <span class="macro">c!</span>(v: y));
 
         <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">false</span>) &amp; <span class="macro">c!</span>(<span class="number">3</span>), <span class="macro">c!</span>(<span class="bool-val">false</span>));
         <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">true</span>) &amp; <span class="macro">c!</span>(<span class="number">0</span>), <span class="macro">c!</span>(<span class="bool-val">false</span>));
@@ -1519,9 +1563,9 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>or() {
         <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">false</span>) | <span class="macro">c!</span>(<span class="bool-val">true</span>), <span class="macro">c!</span>(<span class="bool-val">true</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">true</span>) | <span class="macro">c!</span>(v:x), <span class="macro">c!</span>(<span class="bool-val">true</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">false</span>) | <span class="macro">c!</span>(v:x), <span class="macro">c!</span>(v:x));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(v:y) | <span class="macro">c!</span>(v:x), <span class="macro">c!</span>(v:x) | <span class="macro">c!</span>(v:y));
+        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">true</span>) | <span class="macro">c!</span>(v: x), <span class="macro">c!</span>(<span class="bool-val">true</span>));
+        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">false</span>) | <span class="macro">c!</span>(v: x), <span class="macro">c!</span>(v: x));
+        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(v: y) | <span class="macro">c!</span>(v: x), <span class="macro">c!</span>(v: x) | <span class="macro">c!</span>(v: y));
 
         <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">false</span>) | <span class="macro">c!</span>(<span class="number">3</span>), <span class="macro">c!</span>(<span class="bool-val">true</span>));
         <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">true</span>) | <span class="macro">c!</span>(<span class="number">0</span>), <span class="macro">c!</span>(<span class="bool-val">true</span>));
@@ -1532,8 +1576,8 @@
     </span><span class="kw">fn </span>not() {
         <span class="macro">assert_eq!</span>(!<span class="macro">c!</span>(<span class="bool-val">false</span>), <span class="macro">c!</span>(<span class="bool-val">true</span>));
         <span class="macro">assert_eq!</span>(!<span class="macro">c!</span>(<span class="bool-val">true</span>), <span class="macro">c!</span>(<span class="bool-val">false</span>));
-        <span class="macro">assert_eq!</span>(!<span class="macro">c!</span>(v:x), !<span class="macro">c!</span>(v:x));
-        <span class="macro">assert!</span>(!<span class="macro">c!</span>(v:x) != <span class="macro">c!</span>(v:x));
+        <span class="macro">assert_eq!</span>(!<span class="macro">c!</span>(v: x), !<span class="macro">c!</span>(v: x));
+        <span class="macro">assert!</span>(!<span class="macro">c!</span>(v: x) != <span class="macro">c!</span>(v: x));
     }
 
     <span class="attr">#[test]
