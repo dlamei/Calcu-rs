@@ -63,6 +63,8 @@
 <a href="#63" id="63">63</a>
 <a href="#64" id="64">64</a>
 <a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{
     base::Base,
     boolean::{BoolValue, BooleanAtom},
@@ -76,6 +78,8 @@
 <span class="kw">pub trait </span>Num {
     <span class="kw">fn </span>is_zero(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
     <span class="kw">fn </span>is_one(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
+    <span class="kw">fn </span>is_neg_one(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
+
     <span class="kw">fn </span>sign(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Sign;
 
     <span class="kw">fn </span>is_pos(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -115,8 +119,8 @@
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>to_num(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Number {
         <span class="kw">match </span><span class="self">self</span>.is_false() {
-            <span class="bool-val">true </span>=&gt; Rational::int(<span class="number">0</span>),
-            <span class="bool-val">false </span>=&gt; Rational::int(<span class="number">1</span>),
+            <span class="bool-val">true </span>=&gt; Rational::int_num(<span class="number">0</span>),
+            <span class="bool-val">false </span>=&gt; Rational::int_num(<span class="number">1</span>),
         }
     }
 

@@ -29,8 +29,8 @@
 // pub const TRUE: Base = BooleanAtom::True;
 
 </span><span class="macro">lazy_static! </span>{
-    <span class="kw">pub static </span><span class="kw-2">ref </span>ZERO: Number = Rational::int(<span class="number">0</span>);
-    <span class="kw">pub static </span><span class="kw-2">ref </span>ONE: Number = Rational::int(<span class="number">1</span>);
+    <span class="kw">pub static </span><span class="kw-2">ref </span>ZERO: Number = Rational::int_num(<span class="number">0</span>);
+    <span class="kw">pub static </span><span class="kw-2">ref </span>ONE: Number = Rational::int_num(<span class="number">1</span>);
     <span class="kw">pub static </span><span class="kw-2">ref </span>FALSE: Base = BooleanAtom::False.base();
     <span class="kw">pub static </span><span class="kw-2">ref </span>TRUE: Base = BooleanAtom::True.base();
 }

@@ -710,6 +710,67 @@
 <a href="#710" id="710">710</a>
 <a href="#711" id="711">711</a>
 <a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{
     collections::{HashMap, HashSet},
     fmt,
@@ -733,9 +794,14 @@
     coeff: Number,
     arg_map: HashMap&lt;Base, Number&gt;,
 }
+<span class="kw">pub type </span>Sub = Add;
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Add {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">if </span><span class="self">self</span>.arg_map.is_empty() {
+            <span class="kw">return </span><span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.coeff);
+        }
+
         <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.arg_map.iter();
 
         <span class="macro">write!</span>(f, <span class="string">&quot;(&quot;</span>)<span class="question-mark">?</span>;
@@ -762,7 +828,7 @@
     <span class="kw">fn </span>hash&lt;H: std::hash::Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
         <span class="string">&quot;Add&quot;</span>.hash(state);
         <span class="self">self</span>.coeff.hash(state);
-        <span class="kw">for </span>a <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.arg_map {
+        <span class="kw">for </span>a <span class="kw">in </span><span class="self">self</span>.arg_map.iter() {
             a.hash(state);
         }
     }
@@ -771,22 +837,35 @@
 <span class="kw">impl </span>CalcursType <span class="kw">for </span>Add {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
-        Base::Add(<span class="self">self</span>).base()
+        Base::Add(<span class="self">self</span>.into()).base()
     }
 }
 
 <span class="kw">impl </span>Add {
-    <span class="kw">pub fn </span>add(b1: <span class="kw">impl </span>CalcursType, b2: <span class="kw">impl </span>CalcursType) -&gt; Base {
+    <span class="doccomment">/// a + b
+    </span><span class="kw">pub fn </span>add(b1: <span class="kw">impl </span>CalcursType, b2: <span class="kw">impl </span>CalcursType) -&gt; Base {
         <span class="self">Self </span>{
-            coeff: Rational::int(<span class="number">0</span>),
+            <span class="comment">// TODO: default element
+            </span>coeff: Rational::int_num(<span class="number">0</span>),
             arg_map: Default::default(),
         }
         .add_arg(b1.base())
         .add_arg(b2.base())
-        .cleanup()
+        .reduce()
     }
 
-    <span class="kw">fn </span>cleanup(<span class="self">self</span>) -&gt; Base {
+    <span class="doccomment">/// a - b
+    </span><span class="kw">pub fn </span>sub(b1: <span class="kw">impl </span>CalcursType, b2: <span class="kw">impl </span>CalcursType) -&gt; Base {
+        <span class="self">Self </span>{
+            coeff: Rational::int_num(<span class="number">0</span>),
+            arg_map: Default::default(),
+        }
+        .add_arg(b1.base())
+        .add_arg(Mul::mul(b2.base(), Rational::int_num(-<span class="number">1</span>)))
+        .reduce()
+    }
+
+    <span class="kw">fn </span>reduce(<span class="self">self</span>) -&gt; Base {
         <span class="kw">if </span><span class="self">self</span>.arg_map.is_empty() {
             <span class="self">self</span>.coeff.base()
         } <span class="kw">else </span>{
@@ -802,7 +881,7 @@
             B::Number(num) =&gt; <span class="self">self </span>= <span class="self">self</span>.add_num(num),
 
             B::Mul(<span class="kw-2">mut </span>mul) =&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>coeff = Rational::int(<span class="number">1</span>);
+                <span class="kw">let </span><span class="kw-2">mut </span>coeff = Rational::int_num(<span class="number">1</span>);
                 (mul.coeff, coeff) = (coeff, mul.coeff);
                 <span class="self">self</span>.add_term(coeff, Base::Mul(mul));
             }
@@ -855,19 +934,35 @@
     coeff: Number,
     arg_map: HashMap&lt;Base, Base&gt;,
 }
+<span class="kw">pub type </span>Div = Mul;
 
 <span class="kw">impl </span>Mul {
-    <span class="kw">pub fn </span>mul(b1: <span class="kw">impl </span>CalcursType, b2: <span class="kw">impl </span>CalcursType) -&gt; Base {
+    <span class="doccomment">/// a * b
+    </span><span class="kw">pub fn </span>mul(b1: <span class="kw">impl </span>CalcursType, b2: <span class="kw">impl </span>CalcursType) -&gt; Base {
         <span class="kw">let </span>b1 = b1.base();
         <span class="kw">let </span>b2 = b2.base();
 
         <span class="self">Self </span>{
-            coeff: Rational::int(<span class="number">1</span>),
+            coeff: Rational::int_num(<span class="number">1</span>),
             arg_map: Default::default(),
         }
         .mul_arg(b1)
         .mul_arg(b2)
-        .cleanup()
+        .reduce()
+    }
+
+    <span class="doccomment">/// a * b^-1 &lt;=&gt; a * (1 / b)
+    </span><span class="kw">pub fn </span>div(b1: <span class="kw">impl </span>CalcursType, b2: <span class="kw">impl </span>CalcursType) -&gt; Base {
+        <span class="kw">let </span>b1 = b1.base();
+        <span class="kw">let </span>b2 = b2.base();
+
+        <span class="self">Self </span>{
+            coeff: Rational::int_num(<span class="number">1</span>),
+            arg_map: Default::default(),
+        }
+        .mul_arg(b1)
+        .mul_arg(Pow::pow(b2, Rational::int_num(-<span class="number">1</span>)))
+        .reduce()
     }
 
     <span class="kw">fn </span>mul_arg(<span class="kw-2">mut </span><span class="self">self</span>, b: Base) -&gt; <span class="self">Self </span>{
@@ -887,7 +982,12 @@
                     .into_iter()
                     .for_each(|(key, val)| <span class="self">self</span>.mul_term(key, val))
             }
-            B::Pow(<span class="kw">_</span>) | B::Not(<span class="kw">_</span>) | B::And(<span class="kw">_</span>) | B::Or(<span class="kw">_</span>) | B::Var(<span class="kw">_</span>) | B::Add(<span class="kw">_</span>) | B::Dummy =&gt; {
+
+            B::Pow(pow) =&gt; {
+                <span class="self">self</span>.mul_term(pow.base, pow.exp);
+            }
+
+            B::Not(<span class="kw">_</span>) | B::And(<span class="kw">_</span>) | B::Or(<span class="kw">_</span>) | B::Var(<span class="kw">_</span>) | B::Add(<span class="kw">_</span>) | B::Dummy =&gt; {
                 <span class="kw">let </span>exp = ONE.clone().base();
                 <span class="self">self</span>.mul_term(b, exp);
             }
@@ -899,7 +999,7 @@
     <span class="doccomment">/// adds the term: b^exp
     </span><span class="kw">fn </span>mul_term(<span class="kw-2">&amp;mut </span><span class="self">self</span>, b: Base, exp: Base) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(key) = <span class="self">self</span>.arg_map.remove(<span class="kw-2">&amp;</span>b) {
-            <span class="kw">let </span>exp = Add::add(key.base(), exp.base());
+            <span class="kw">let </span>exp = Add::add(key, exp);
             <span class="self">self</span>.arg_map.insert(b, exp);
         } <span class="kw">else </span>{
             <span class="self">self</span>.arg_map.insert(b, exp);
@@ -908,6 +1008,7 @@
 
     <span class="kw">fn </span>mul_num(<span class="kw-2">mut </span><span class="self">self</span>, n: Number) -&gt; <span class="self">Self </span>{
         <span class="kw">if </span>n.is_zero() {
+            <span class="self">self</span>.arg_map.clear();
             <span class="self">self</span>.coeff = n;
         } <span class="kw">else if </span>!n.is_one() {
             <span class="self">self</span>.coeff = <span class="self">self</span>.coeff.mul_num(n);
@@ -915,7 +1016,7 @@
         <span class="self">self
     </span>}
 
-    <span class="kw">fn </span>cleanup(<span class="self">self</span>) -&gt; Base {
+    <span class="kw">fn </span>reduce(<span class="self">self</span>) -&gt; Base {
         <span class="kw">if </span><span class="self">self</span>.coeff.is_zero() || <span class="self">self</span>.arg_map.is_empty() {
             <span class="self">self</span>.coeff.base()
         } <span class="kw">else </span>{
@@ -956,7 +1057,7 @@
     <span class="kw">fn </span>hash&lt;H: std::hash::Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
         <span class="string">&quot;Mul&quot;</span>.hash(state);
         <span class="self">self</span>.coeff.hash(state);
-        <span class="kw">for </span>a <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.arg_map {
+        <span class="kw">for </span>a <span class="kw">in </span><span class="self">self</span>.arg_map.iter() {
             a.hash(state);
         }
     }
@@ -965,7 +1066,7 @@
 <span class="kw">impl </span>CalcursType <span class="kw">for </span>Mul {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
-        Base::Mul(<span class="self">self</span>).base()
+        Base::Mul(<span class="self">self</span>.into()).base()
     }
 }
 
@@ -996,7 +1097,24 @@
 
         <span class="kw">match </span>(base, exp) {
             (B::Number(n1), B::Number(n2)) <span class="kw">if </span>n1.is_zero() &amp;&amp; n2.is_zero() =&gt; Undefined.base(),
-            (<span class="kw">_</span>, B::Number(n)) <span class="kw">if </span>n.is_zero() =&gt; Rational::int(<span class="number">1</span>).base(),
+
+            (<span class="kw">_</span>, B::Number(n)) <span class="kw">if </span>n.is_zero() =&gt; Rational::int_num(<span class="number">1</span>).base(),
+            (base, B::Number(n)) <span class="kw">if </span>n.is_one() =&gt; base,
+
+            (B::Number(num), B::Number(n)) <span class="kw">if </span>n.is_neg_one() =&gt; {
+                Rational::int_num(<span class="number">1</span>).div_num(num).base()
+            }
+
+            (Base::Number(n1), B::Number(n2)) =&gt; {
+                <span class="macro">todo!</span>()
+            }
+
+            <span class="comment">// (a^e)^n =&gt; a^(e * n)
+            </span>(B::Pow(<span class="kw-2">mut </span>pow), B::Number(num)) =&gt; {
+                pow.exp = Add::add(pow.exp, num.base());
+                pow.base()
+            }
+
             (base, exp) =&gt; <span class="self">Self </span>{ base, exp }.base(),
         }
     }
@@ -1004,10 +1122,9 @@
 
 <span class="doccomment">/// Represents or in symbolic expressions
 ///
-/// Implemented with a coeff and a HashSet: \
-/// coeff ∨ v1 ∨ v2 ∨ v3...
+/// Implemented with a HashSet: \
+/// v1 ∨ v2 ∨ v3...
 ///
-/// coeff is used for extracting boolean atoms from the arguments
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>Or {
     arg_set: HashSet&lt;Base&gt;,
@@ -1066,7 +1183,7 @@
         }
         .or_arg(b1.base())
         .or_arg(b2.base())
-        .cleanup()
+        .reduce()
     }
 
     <span class="kw">fn </span>or_arg(<span class="kw-2">mut </span><span class="self">self</span>, b: Base) -&gt; <span class="self">Self </span>{
@@ -1112,7 +1229,7 @@
         <span class="self">self</span>.arg_set.insert(b);
     }
 
-    <span class="kw">fn </span>cleanup(<span class="self">self</span>) -&gt; Base {
+    <span class="kw">fn </span>reduce(<span class="self">self</span>) -&gt; Base {
         <span class="kw">if </span><span class="self">self</span>.arg_set.len() == <span class="number">1 </span>{
             <span class="kw">return </span><span class="self">self</span>.arg_set.into_iter().next().unwrap().base();
         }
@@ -1186,7 +1303,7 @@
         }
         .and_arg(b1.base())
         .and_arg(b2.base())
-        .cleanup()
+        .reduce()
     }
 
     <span class="kw">fn </span>and_arg(<span class="kw-2">mut </span><span class="self">self</span>, b: Base) -&gt; <span class="self">Self </span>{
@@ -1230,7 +1347,7 @@
         <span class="self">self</span>.arg_set.insert(b);
     }
 
-    <span class="kw">fn </span>cleanup(<span class="self">self</span>) -&gt; Base {
+    <span class="kw">fn </span>reduce(<span class="self">self</span>) -&gt; Base {
         <span class="kw">if </span><span class="self">self</span>.arg_set.len() == <span class="number">1 </span>{
             <span class="kw">return </span><span class="self">self</span>.arg_set.into_iter().next().unwrap().base();
         }
@@ -1322,11 +1439,11 @@
         };
 
         (<span class="macro-nonterminal">$int</span>: literal) =&gt; {
-            Rational::int(<span class="macro-nonterminal">$int</span>).base()
+            Rational::int_num(<span class="macro-nonterminal">$int</span>).base()
         };
 
         (<span class="macro-nonterminal">$val</span>: literal / <span class="macro-nonterminal">$denom</span>: literal) =&gt; {
-            Rational::frac(<span class="macro-nonterminal">$val</span>, <span class="macro-nonterminal">$denom</span>).base()
+            Rational::frac_num(<span class="macro-nonterminal">$val</span>, <span class="macro-nonterminal">$denom</span>).base()
         };
 
         (v: <span class="macro-nonterminal">$var</span>: tt) =&gt; {
@@ -1363,6 +1480,11 @@
         <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(+inf) * <span class="macro">c!</span>(+inf), <span class="macro">c!</span>(+inf));
         <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(-inf) * <span class="macro">c!</span>(+inf), <span class="macro">c!</span>(-inf));
         <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(nan) * <span class="macro">c!</span>(inf), <span class="macro">c!</span>(nan));
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>div() {
+        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="number">1</span>) / <span class="macro">c!</span>(<span class="number">3</span>), <span class="macro">c!</span>(<span class="number">1 </span>/ <span class="number">3</span>));
     }
 
     <span class="attr">#[test]
