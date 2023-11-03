@@ -793,65 +793,171 @@
 <a href="#793" id="793">793</a>
 <a href="#794" id="794">794</a>
 <a href="#795" id="795">795</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{
-    collections::{HashMap, HashSet},
-    fmt,
-    hash::Hash,
-};
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeMap;
 
 <span class="kw">use crate</span>::{
-    base::{Base, PTR},
-    boolean::{BoolValue, BooleanAtom},
-    constants::{FALSE, ONE, TRUE},
-    numeric::{Number, Rational, Undefined},
+    base::Base,
+    numeric::{Number, Undefined},
     traits::{Bool, CalcursType, Num},
 };
 
-<span class="doccomment">/// Represents addition in symbolic expressions
-///
-/// Implemented with a coefficient and a hashmap: \
-/// coeff + key1 * value1 + key2 * value2 + ...
-</span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
-</span><span class="kw">pub struct </span>Add {
-    coeff: Number,
-    arg_map: HashMap&lt;Base, Number&gt;,
+<span class="kw">use </span><span class="kw">crate</span>::constants <span class="kw">as </span>C;
+<span class="kw">use </span>Base <span class="kw">as </span>B;
+
+<span class="comment">//  n1 * mul_1 + n2 * mul_2 + n3 * mul_3 + ...
+// &lt;=&gt; n1 * {pow_1_1 * pow_1_2 * ... } + n2 * { pow_2_1 * pow_2_2 * ...} + ...
+</span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+</span><span class="kw">struct </span>AddArgs {
+    args: BTreeMap&lt;MulArgs, Number&gt;,
 }
-<span class="kw">pub type </span>Sub = Add;
 
-<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Add {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="kw">if </span><span class="self">self</span>.arg_map.is_empty() {
-            <span class="kw">return </span><span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.coeff);
+<span class="kw">impl </span>AddArgs {
+    <span class="kw">pub fn </span>insert_mul(<span class="kw-2">&amp;mut </span><span class="self">self</span>, mul: Mul) {
+        <span class="kw">if </span>mul.coeff.is_zero() {
+            <span class="kw">return</span>;
         }
 
-        <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.arg_map.iter();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(coeff) = <span class="self">self</span>.args.get_mut(<span class="kw-2">&amp;</span>mul.args) {
+            <span class="comment">// 2x + 3x =&gt; 5x
+            </span><span class="kw-2">*</span>coeff += mul.coeff;
+            <span class="kw">if </span>coeff.is_zero() {
+                <span class="self">self</span>.args.remove(<span class="kw-2">&amp;</span>mul.args);
+            }
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.args.insert(mul.args, mul.coeff);
+        }
+    }
 
-        <span class="macro">write!</span>(f, <span class="string">&quot;(&quot;</span>)<span class="question-mark">?</span>;
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>into_mul_iter(<span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = Mul&gt; {
+        <span class="self">self</span>.args
+            .into_iter()
+            .map(|(args, coeff)| Mul { coeff, args })
+    }
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>((k, v)) = iter.next() {
-            <span class="macro">write!</span>(f, <span class="string">&quot;{v}{k}&quot;</span>)<span class="question-mark">?</span>;
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.args.len()
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.args.is_empty()
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>is_mul(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.len() == <span class="number">1
+    </span>}
+
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>to_mul(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Mul&gt; {
+        <span class="kw">if </span><span class="self">self</span>.is_mul() {
+            <span class="kw">let </span>(args, coeff) = <span class="self">self</span>.args.pop_first().unwrap();
+            <span class="prelude-val">Some</span>(Mul { args, coeff })
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
+    }
+}
+
+<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>AddArgs {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.args.iter().rev();
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((args, coeff)) = iter.next() {
+            Mul::fmt_parts(args, coeff, f)<span class="question-mark">?</span>;
         }
 
-        <span class="kw">for </span>(k, v) <span class="kw">in </span>iter {
-            <span class="macro">write!</span>(f, <span class="string">&quot; + {v}{k}&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">while let </span><span class="prelude-val">Some</span>((args, coeff)) = iter.next() {
+            <span class="macro">write!</span>(f, <span class="string">&quot; + &quot;</span>)<span class="question-mark">?</span>;
+            Mul::fmt_parts(args, coeff, f)<span class="question-mark">?</span>;
         }
-
-        <span class="kw">if </span>!<span class="self">self</span>.coeff.is_zero() {
-            <span class="macro">write!</span>(f, <span class="string">&quot; + {}&quot;</span>, <span class="self">self</span>.coeff)<span class="question-mark">?</span>;
-        }
-
-        <span class="macro">write!</span>(f, <span class="string">&quot;)&quot;</span>)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl </span>Hash <span class="kw">for </span>Add {
-    <span class="kw">fn </span>hash&lt;H: std::hash::Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
-        <span class="string">&quot;Add&quot;</span>.hash(state);
-        <span class="self">self</span>.coeff.hash(state);
-        <span class="kw">for </span>a <span class="kw">in </span><span class="self">self</span>.arg_map.iter() {
-            a.hash(state);
+<span class="doccomment">/// Represents addition in symbolic expressions
+///
+/// Implemented with a coefficient and an [AddArgs]: \
+/// coeff + mul1 + mul2 + mul3...
+</span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+</span><span class="kw">pub struct </span>Add {
+    coeff: Number,
+    args: AddArgs,
+}
+
+<span class="kw">pub type </span>Sub = Add;
+
+<span class="kw">impl </span>Add {
+    <span class="doccomment">/// n1 + n2
+    </span><span class="kw">pub fn </span>add(n1: <span class="kw">impl </span>CalcursType, n2: <span class="kw">impl </span>CalcursType) -&gt; Base {
+        <span class="self">Self </span>{
+            coeff: C::ZERO,
+            args: Default::default(),
+        }
+        .arg(n1.base())
+        .arg(n2.base())
+        .reduce()
+    }
+
+    <span class="doccomment">/// n1 + (-1 * n2)
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>sub(n1: <span class="kw">impl </span>CalcursType, n2: <span class="kw">impl </span>CalcursType) -&gt; Base {
+        Add::add(n1, Mul::mul(C::MINUS_ONE, n2))
+    }
+
+    <span class="kw">fn </span>arg(<span class="kw-2">mut </span><span class="self">self</span>, b: Base) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>b {
+            B::BooleanAtom(atom) =&gt; <span class="self">self</span>.coeff += atom.to_num(),
+            B::Number(num) =&gt; <span class="self">self</span>.coeff += num,
+
+            B::Mul(mul) =&gt; <span class="self">self</span>.args.insert_mul(<span class="kw-2">*</span>mul),
+            B::Add(add) =&gt; {
+                <span class="self">self</span>.coeff += add.coeff;
+                add.args
+                    .into_mul_iter()
+                    .for_each(|mul| <span class="self">self</span>.args.insert_mul(mul));
+            }
+
+            base @ (B::Var(<span class="kw">_</span>) | B::Dummy | B::Pow(<span class="kw">_</span>)) =&gt; <span class="self">self</span>.args.insert_mul(Mul::from_base(base)),
+        };
+
+        <span class="self">self
+    </span>}
+
+    <span class="kw">fn </span>reduce(<span class="self">self</span>) -&gt; Base {
+        <span class="kw">match </span>(<span class="self">self</span>.coeff, <span class="self">self</span>.args) {
+            <span class="comment">// x + {} =&gt; x
+            </span>(x, args) <span class="kw">if </span>args.is_empty() =&gt; x.base(),
+            <span class="comment">// 0 + x =&gt; x
+            </span>(C::ZERO, x) <span class="kw">if </span>x.is_mul() =&gt; x.to_mul().unwrap().base(),
+
+            (coeff, args) =&gt; <span class="self">Self </span>{ coeff, args }.base(),
         }
     }
 }
@@ -859,733 +965,673 @@
 <span class="kw">impl </span>CalcursType <span class="kw">for </span>Add {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
-        Base::Add(<span class="self">self</span>.into()).base()
+        B::Add(<span class="self">self</span>.into())
     }
 }
 
-<span class="kw">impl </span>Add {
-    <span class="doccomment">/// a + b
-    </span><span class="kw">pub fn </span>add(b1: <span class="kw">impl </span>CalcursType, b2: <span class="kw">impl </span>CalcursType) -&gt; Base {
-        <span class="self">Self </span>{
-            <span class="comment">// TODO: default element
-            </span>coeff: Rational::int_num(<span class="number">0</span>),
-            arg_map: Default::default(),
-        }
-        .add_arg(b1.base())
-        .add_arg(b2.base())
-        .reduce()
-    }
+<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>Add {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.args)<span class="question-mark">?</span>;
 
-    <span class="doccomment">/// a - b
-    </span><span class="kw">pub fn </span>sub(b1: <span class="kw">impl </span>CalcursType, b2: <span class="kw">impl </span>CalcursType) -&gt; Base {
-        <span class="self">Self </span>{
-            coeff: Rational::int_num(<span class="number">0</span>),
-            arg_map: Default::default(),
-        }
-        .add_arg(b1.base())
-        .add_arg(Mul::mul(b2.base(), Rational::int_num(-<span class="number">1</span>)))
-        .reduce()
-    }
+        <span class="kw">if </span>!<span class="self">self</span>.coeff.is_zero() {
+            <span class="macro">write!</span>(f, <span class="string">&quot; + {}&quot;</span>, <span class="self">self</span>.coeff)<span class="question-mark">?</span>;
+        };
 
-    <span class="kw">fn </span>reduce(<span class="self">self</span>) -&gt; Base {
-        <span class="kw">if </span><span class="self">self</span>.arg_map.is_empty() {
-            <span class="self">self</span>.coeff.base()
-        } <span class="kw">else if </span><span class="self">self</span>.arg_map.len() == <span class="number">1 </span>&amp;&amp; <span class="self">self</span>.coeff.is_zero() {
-            <span class="comment">// reduce to mul
-            </span><span class="kw">let </span>(a, b) = <span class="self">self</span>.arg_map.into_iter().next().unwrap();
-            Mul::mul(a, b)
+        <span class="prelude-val">Ok</span>(())
+    }
+}
+
+<span class="attr">#[derive(Debug, Default, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+</span><span class="kw">struct </span>MulArgs {
+    args: BTreeMap&lt;Base, Base&gt;,
+}
+
+<span class="kw">impl </span>MulArgs {
+    <span class="kw">pub fn </span>insert_pow(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>pow: Pow) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(exp) = <span class="self">self</span>.args.remove(<span class="kw-2">&amp;</span>pow.base) {
+            pow.exp = Add::add(exp, pow.exp);
+            <span class="self">self</span>.args.insert(pow.base, pow.exp);
         } <span class="kw">else </span>{
-            <span class="self">self</span>.base()
+            <span class="self">self</span>.args.insert(pow.base, pow.exp);
         }
     }
 
-    <span class="kw">fn </span>add_arg(<span class="kw-2">mut </span><span class="self">self</span>, b: Base) -&gt; <span class="self">Self </span>{
-        <span class="kw">use </span>Base <span class="kw">as </span>B;
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>into_pow_iter(<span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = Pow&gt; {
+        <span class="self">self</span>.args.into_iter().map(|(base, exp)| Pow { base, exp })
+    }
 
-        <span class="kw">match </span>b {
-            B::BooleanAtom(bool) =&gt; <span class="self">self </span>= <span class="self">self</span>.add_num(bool.to_num()),
-            B::Number(num) =&gt; <span class="self">self </span>= <span class="self">self</span>.add_num(num),
-
-            B::Mul(<span class="kw-2">mut </span>mul) =&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>coeff = Rational::int_num(<span class="number">1</span>);
-                (mul.coeff, coeff) = (coeff, mul.coeff);
-                <span class="self">self</span>.add_term(coeff, Base::Mul(mul));
-            }
-
-            B::Add(add) =&gt; {
-                add.arg_map.into_iter().for_each(|(term, coeff)| {
-                    <span class="self">self</span>.add_term(coeff, term);
-                });
-
-                <span class="self">self</span>.coeff = <span class="self">self</span>.coeff.add_num(add.coeff);
-            }
-            B::Pow(<span class="kw">_</span>) | B::Not(<span class="kw">_</span>) | B::And(<span class="kw">_</span>) | B::Or(<span class="kw">_</span>) | B::Var(<span class="kw">_</span>) | B::Dummy =&gt; {
-                <span class="kw">let </span>coeff = ONE.clone();
-                <span class="self">self</span>.add_term(coeff, b);
-            }
-        }
-
-        <span class="self">self
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>is_pow(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.args.len() == <span class="number">1
     </span>}
 
-    <span class="kw">fn </span>add_num(<span class="kw-2">mut </span><span class="self">self</span>, n: Number) -&gt; <span class="self">Self </span>{
-        <span class="kw">if </span>!n.is_zero() {
-            <span class="self">self</span>.coeff = <span class="self">self</span>.coeff.add_num(n);
-        }
-        <span class="self">self
-    </span>}
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.args.len()
+    }
 
-    <span class="doccomment">/// adds the term: coeff * b
-    </span><span class="kw">fn </span>add_term(<span class="kw-2">&amp;mut </span><span class="self">self</span>, coeff: Number, b: Base) {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>key) = <span class="self">self</span>.arg_map.remove(<span class="kw-2">&amp;</span>b) {
-            key = key.add_num(coeff);
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>to_pow(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Pow&gt; {
+        <span class="kw">if </span><span class="self">self</span>.is_pow() {
+            <span class="kw">let </span>(base, exp) = <span class="self">self</span>.args.pop_first().unwrap();
+            <span class="prelude-val">Some</span>(Pow { base, exp })
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
+    }
 
-            <span class="kw">if </span>!key.is_zero() {
-                <span class="self">self</span>.arg_map.insert(b, key);
-            }
-        } <span class="kw">else if </span>!coeff.is_zero() {
-            <span class="self">self</span>.arg_map.insert(b, coeff);
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.args.is_empty()
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>from_base(b: Base) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>pow = Pow::from_base(b);
+        <span class="kw">let </span>args = BTreeMap::from([(pow.base, pow.exp)]);
+        <span class="self">Self </span>{ args }
+    }
+}
+
+<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>MulArgs {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.args.iter();
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((base, exp)) = iter.next() {
+            Pow::fmt_parts(base, exp, f)<span class="question-mark">?</span>;
         }
+
+        <span class="kw">while let </span><span class="prelude-val">Some</span>((base, exp)) = iter.next() {
+            <span class="macro">write!</span>(f, <span class="string">&quot; * &quot;</span>)<span class="question-mark">?</span>;
+            Pow::fmt_parts(base, exp, f)<span class="question-mark">?</span>;
+        }
+
+        <span class="prelude-val">Ok</span>(())
     }
 }
 
 <span class="doccomment">/// Represents multiplication in symbolic expressions
 ///
 /// Implemented with a coefficient and a hashmap: \
-/// coeff * key1^value1 * key2^value2 * ...
-///
-/// coeff is used to extract all [Number]s
-</span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
+/// coeff * pow1 * pow2 * pow3...
+</span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 </span><span class="kw">pub struct </span>Mul {
     coeff: Number,
-    arg_map: HashMap&lt;Base, Base&gt;,
+    args: MulArgs,
 }
+
 <span class="kw">pub type </span>Div = Mul;
 
 <span class="kw">impl </span>Mul {
-    <span class="doccomment">/// a * b
-    </span><span class="kw">pub fn </span>mul(b1: <span class="kw">impl </span>CalcursType, b2: <span class="kw">impl </span>CalcursType) -&gt; Base {
-        <span class="kw">let </span>b1 = b1.base();
-        <span class="kw">let </span>b2 = b2.base();
-
+    <span class="doccomment">/// n1 * n2
+    </span><span class="kw">pub fn </span>mul(n1: <span class="kw">impl </span>CalcursType, n2: <span class="kw">impl </span>CalcursType) -&gt; Base {
         <span class="self">Self </span>{
-            coeff: Rational::int_num(<span class="number">1</span>),
-            arg_map: Default::default(),
+            coeff: C::ONE,
+            args: MulArgs::default(),
         }
-        .mul_arg(b1)
-        .mul_arg(b2)
+        .arg(n1.base())
+        .arg(n2.base())
         .reduce()
     }
 
-    <span class="doccomment">/// a * b^-1 &lt;=&gt; a * (1 / b)
-    </span><span class="kw">pub fn </span>div(b1: <span class="kw">impl </span>CalcursType, b2: <span class="kw">impl </span>CalcursType) -&gt; Base {
-        <span class="self">Self</span>::mul(b1, Pow::pow(b2, Rational::int_num(-<span class="number">1</span>)))
+    <span class="doccomment">/// n1 * (1 / n2)
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>div(n1: <span class="kw">impl </span>CalcursType, n2: <span class="kw">impl </span>CalcursType) -&gt; Base {
+        Mul::mul(n1, Pow::pow(n2, C::MINUS_ONE))
     }
 
-    <span class="kw">fn </span>mul_arg(<span class="kw-2">mut </span><span class="self">self</span>, b: Base) -&gt; <span class="self">Self </span>{
-        <span class="kw">use </span>Base <span class="kw">as </span>B;
-
-        <span class="kw">if </span><span class="self">self</span>.coeff.is_zero() {
+    <span class="kw">fn </span>arg(<span class="kw-2">mut </span><span class="self">self</span>, b: Base) -&gt; <span class="self">Self </span>{
+        <span class="kw">if </span><span class="self">self</span>.coeff == C::ZERO || B::Number(C::ONE) == b {
             <span class="kw">return </span><span class="self">self</span>;
         }
 
         <span class="kw">match </span>b {
-            B::BooleanAtom(b) =&gt; <span class="self">self </span>= <span class="self">self</span>.mul_num(b.to_num()),
-            B::Number(n) =&gt; <span class="self">self </span>= <span class="self">self</span>.mul_num(n),
-
+            B::BooleanAtom(atom) =&gt; <span class="self">self</span>.coeff <span class="kw-2">*</span>= atom.to_num(),
+            B::Number(num) =&gt; <span class="self">self</span>.coeff <span class="kw-2">*</span>= num,
+            B::Pow(pow) =&gt; <span class="self">self</span>.args.insert_pow(<span class="kw-2">*</span>pow),
             B::Mul(mul) =&gt; {
-                <span class="self">self</span>.coeff = <span class="self">self</span>.coeff.mul_num(mul.coeff);
-                mul.arg_map
-                    .into_iter()
-                    .for_each(|(key, val)| <span class="self">self</span>.mul_term(key, val))
+                <span class="self">self</span>.coeff <span class="kw-2">*</span>= mul.coeff;
+                mul.args
+                    .into_pow_iter()
+                    .for_each(|pow| <span class="self">self</span>.args.insert_pow(pow))
             }
-
-            B::Pow(pow) =&gt; {
-                <span class="self">self</span>.mul_term(pow.base, pow.exp);
-            }
-
-            B::Not(<span class="kw">_</span>) | B::And(<span class="kw">_</span>) | B::Or(<span class="kw">_</span>) | B::Var(<span class="kw">_</span>) | B::Add(<span class="kw">_</span>) | B::Dummy =&gt; {
-                <span class="kw">let </span>exp = ONE.clone().base();
-                <span class="self">self</span>.mul_term(b, exp);
-            }
+            base @ (B::Var(<span class="kw">_</span>) | B::Dummy | B::Add(<span class="kw">_</span>)) =&gt; <span class="self">self</span>.args.insert_pow(Pow::from_base(base)),
         }
 
-        <span class="self">self
-    </span>}
-
-    <span class="doccomment">/// adds the term: b^exp
-    </span><span class="kw">fn </span>mul_term(<span class="kw-2">&amp;mut </span><span class="self">self</span>, b: Base, exp: Base) {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(key) = <span class="self">self</span>.arg_map.remove(<span class="kw-2">&amp;</span>b) {
-            <span class="kw">let </span>exp = Add::add(key, exp);
-            <span class="self">self</span>.arg_map.insert(b, exp);
-        } <span class="kw">else </span>{
-            <span class="self">self</span>.arg_map.insert(b, exp);
-        }
-    }
-
-    <span class="kw">fn </span>mul_num(<span class="kw-2">mut </span><span class="self">self</span>, n: Number) -&gt; <span class="self">Self </span>{
-        <span class="kw">if </span>n.is_zero() {
-            <span class="self">self</span>.arg_map.clear();
-            <span class="self">self</span>.coeff = n;
-        } <span class="kw">else if </span>!n.is_one() {
-            <span class="self">self</span>.coeff = <span class="self">self</span>.coeff.mul_num(n);
-        }
         <span class="self">self
     </span>}
 
     <span class="kw">fn </span>reduce(<span class="self">self</span>) -&gt; Base {
-        <span class="kw">if </span><span class="self">self</span>.coeff.is_zero() || <span class="self">self</span>.arg_map.is_empty() {
-            <span class="self">self</span>.coeff.base()
-        } <span class="kw">else if </span><span class="self">self</span>.arg_map.len() == <span class="number">1 </span>&amp;&amp; <span class="self">self</span>.coeff.is_one() {
-            <span class="comment">// reduce to pow
-            </span><span class="kw">let </span>(a, b) = <span class="self">self</span>.arg_map.into_iter().next().unwrap();
-            Pow::pow(a, b)
+        <span class="kw">match </span>(<span class="self">self</span>.coeff, <span class="self">self</span>.args) {
+            <span class="comment">// 0 * x =&gt; 0
+            </span>(C::ZERO, <span class="kw">_</span>) =&gt; C::ZERO.base(),
+            <span class="comment">// 1 * x =&gt; x
+            </span>(C::ONE, x) <span class="kw">if </span>x.is_pow() =&gt; x.to_pow().unwrap().base(),
+            <span class="comment">// x * {} =&gt; x
+            </span>(x, args) <span class="kw">if </span>args.is_empty() =&gt; x.base(),
+
+            (coeff, args) =&gt; <span class="self">Self </span>{ coeff, args }.base(),
+        }
+    }
+
+    <span class="kw">fn </span>fmt_parts(
+        args: <span class="kw-2">&amp;</span>MulArgs,
+        coeff: <span class="kw-2">&amp;</span>Number,
+        f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; std::fmt::Result {
+        <span class="kw">if </span>args.len() == <span class="number">1 </span>{
+            <span class="kw">if </span>coeff.is_one() {
+                <span class="macro">write!</span>(f, <span class="string">&quot;{args}&quot;</span>)<span class="question-mark">?</span>;
+            } <span class="kw">else </span>{
+                <span class="macro">write!</span>(f, <span class="string">&quot;{coeff}{args}&quot;</span>)<span class="question-mark">?</span>;
+            }
         } <span class="kw">else </span>{
-            <span class="self">self</span>.base()
+            <span class="macro">write!</span>(f, <span class="string">&quot;{coeff} * {args}&quot;</span>)<span class="question-mark">?</span>;
         }
-    }
-
-    <span class="kw">fn </span>format_term(b: <span class="kw-2">&amp;</span>Base, e: <span class="kw-2">&amp;</span>Base, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="kw">match </span>e {
-            Base::Number(n) <span class="kw">if </span>n.is_one() =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{b}&quot;</span>),
-            <span class="kw">_ </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{b}^{e}&quot;</span>),
-        }
-    }
-}
-
-<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Mul {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="kw">if </span><span class="self">self</span>.arg_map.is_empty() {
-            <span class="kw">return </span><span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.coeff);
-        } <span class="kw">else if </span><span class="self">self</span>.arg_map.len() == <span class="number">1 </span>&amp;&amp; !<span class="self">self</span>.coeff.is_one() {
-            <span class="kw">let </span>(a, b) = <span class="self">self</span>.arg_map.iter().next().unwrap();
-            <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.coeff)<span class="question-mark">?</span>;
-            <span class="kw">return </span><span class="self">Self</span>::format_term(a, b, f);
-        }
-
-        <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.arg_map.iter();
-
-        <span class="macro">write!</span>(f, <span class="string">&quot;(&quot;</span>)<span class="question-mark">?</span>;
-
-        <span class="kw">if let </span><span class="prelude-val">Some</span>((k, v)) = iter.next() {
-            <span class="self">Self</span>::format_term(k, v, f)<span class="question-mark">?</span>;
-        }
-
-        <span class="kw">for </span>(k, v) <span class="kw">in </span>iter {
-            <span class="macro">write!</span>(f, <span class="string">&quot; * &quot;</span>)<span class="question-mark">?</span>;
-            <span class="self">Self</span>::format_term(k, v, f)<span class="question-mark">?</span>;
-        }
-
-        <span class="kw">if </span>!<span class="self">self</span>.coeff.is_one() {
-            <span class="macro">write!</span>(f, <span class="string">&quot; * {}&quot;</span>, <span class="self">self</span>.coeff)<span class="question-mark">?</span>;
-        }
-
-        <span class="macro">write!</span>(f, <span class="string">&quot;)&quot;</span>)<span class="question-mark">?</span>;
-
         <span class="prelude-val">Ok</span>(())
     }
-}
 
-<span class="kw">impl </span>Hash <span class="kw">for </span>Mul {
-    <span class="kw">fn </span>hash&lt;H: std::hash::Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
-        <span class="string">&quot;Mul&quot;</span>.hash(state);
-        <span class="self">self</span>.coeff.hash(state);
-        <span class="kw">for </span>a <span class="kw">in </span><span class="self">self</span>.arg_map.iter() {
-            a.hash(state);
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>from_base(b: Base) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            coeff: C::ONE,
+            args: MulArgs::from_base(b),
         }
     }
 }
 
 <span class="kw">impl </span>CalcursType <span class="kw">for </span>Mul {
-    <span class="attr">#[inline]
-    </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
-        Base::Mul(<span class="self">self</span>.into()).base()
+    <span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
+        B::Mul(<span class="self">self</span>.into())
     }
 }
 
-<span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>Mul {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        Mul::fmt_parts(<span class="kw-2">&amp;</span><span class="self">self</span>.args, <span class="kw-2">&amp;</span><span class="self">self</span>.coeff, f)
+    }
+}
+
+<span class="doccomment">/// base^exp
+</span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 </span><span class="kw">pub struct </span>Pow {
     base: Base,
     exp: Base,
 }
 
+<span class="kw">impl </span>Pow {
+    <span class="kw">pub fn </span>pow(n1: <span class="kw">impl </span>CalcursType, n2: <span class="kw">impl </span>CalcursType) -&gt; Base {
+        <span class="self">Self </span>{
+            base: n1.base(),
+            exp: n2.base(),
+        }
+        .reduce()
+    }
+
+    <span class="kw">fn </span>reduce(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; Base {
+        <span class="kw">if let </span>B::BooleanAtom(atom) = <span class="self">self</span>.base {
+            <span class="self">self</span>.base = atom.to_num().base();
+        }
+
+        <span class="kw">if let </span>B::BooleanAtom(atom) = <span class="self">self</span>.exp {
+            <span class="self">self</span>.exp = atom.to_num().base();
+        }
+
+        <span class="kw">match </span>(<span class="self">self</span>.base, <span class="self">self</span>.exp) {
+            <span class="comment">// 1^x = 1
+            </span>(one @ B::Number(C::ONE), <span class="kw">_</span>) =&gt; one,
+            <span class="comment">// x^1 = x
+            </span>(x, B::Number(C::ONE)) =&gt; x,
+
+            <span class="comment">// 0^0 = undefined
+            </span>(B::Number(C::ZERO), B::Number(C::ZERO)) =&gt; Undefined.base(),
+
+            <span class="comment">// x^0 = 1 | x != 0 [0^0 already handled]
+            </span>(<span class="kw">_</span>, B::Number(C::ZERO)) =&gt; C::ONE.base(),
+
+            <span class="comment">// 0^x = undefined | x &lt; 0
+            </span>(B::Number(C::ZERO), B::Number(x)) <span class="kw">if </span>x.is_neg() =&gt; Undefined.base(),
+
+            <span class="comment">// 0^x = 0 | x &gt; 0 [0^x | x = 0 &amp; x &lt; 0 already handled]
+            </span>(zero @ B::Number(C::ZERO), <span class="kw">_</span>) =&gt; zero,
+
+            <span class="comment">// n^-1 = 1/n | n != 0 [0^x already handled]
+            </span>(B::Number(n), B::Number(C::MINUS_ONE)) <span class="kw">if </span>!n.is_zero() =&gt; C::ONE.div_num(n).base(),
+
+            <span class="comment">// (x^y)^z = x^(y*z)
+            //(B::Pow(pow), z) =&gt; Pow::pow(pow.base, Mul::mul(pow.exp, z)),
+            </span>(base, exp) =&gt; <span class="self">Self </span>{ base, exp }.base(),
+        }
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>from_base(b: Base) -&gt; <span class="self">Self </span>{
+        <span class="kw">if let </span>B::Pow(pow) = b {
+            <span class="kw-2">*</span>pow
+        } <span class="kw">else </span>{
+            Pow {
+                base: b,
+                exp: B::Number(C::ONE),
+            }
+        }
+    }
+
+    <span class="kw">fn </span>fmt_parts(base: <span class="kw-2">&amp;</span>Base, exp: <span class="kw-2">&amp;</span>Base, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="kw">if let </span>B::Number(C::ONE) = exp {
+            <span class="macro">write!</span>(f, <span class="string">&quot;{base}&quot;</span>)
+        } <span class="kw">else </span>{
+            <span class="macro">write!</span>(f, <span class="string">&quot;{base}^{exp}&quot;</span>)
+        }
+    }
+}
+
 <span class="kw">impl </span>CalcursType <span class="kw">for </span>Pow {
     <span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
-        Base::Pow(<span class="self">self</span>.into())
+        B::Pow(<span class="self">self</span>.into())
     }
 }
 
-<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Pow {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;({}^{})&quot;</span>, <span class="self">self</span>.base, <span class="self">self</span>.exp)
-    }
-}
-
-<span class="kw">impl </span>Pow {
-    <span class="kw">pub fn </span>pow(b: <span class="kw">impl </span>CalcursType, e: <span class="kw">impl </span>CalcursType) -&gt; Base {
-        <span class="kw">use </span>Base <span class="kw">as </span>B;
-
-        <span class="kw">let </span>base = b.base();
-        <span class="kw">let </span>exp = e.base();
-
-        <span class="kw">match </span>(base, exp) {
-            (B::Number(n1), B::Number(n2)) <span class="kw">if </span>n1.is_zero() &amp;&amp; n2.is_zero() =&gt; Undefined.base(),
-
-            (<span class="kw">_</span>, B::Number(n)) <span class="kw">if </span>n.is_zero() =&gt; Rational::int_num(<span class="number">1</span>).base(),
-            (base, B::Number(n)) <span class="kw">if </span>n.is_one() =&gt; base,
-
-            (B::Number(num), B::Number(n)) <span class="kw">if </span>n.is_neg_one() =&gt; {
-                Rational::int_num(<span class="number">1</span>).div_num(num).base()
-            }
-
-            (Base::Number(_n1), B::Number(_n2)) =&gt; {
-                <span class="comment">//TODO: pow_num
-                </span><span class="macro">todo!</span>()
-            }
-
-            <span class="comment">// (a^e)^n =&gt; a^(e * n)
-            </span>(B::Pow(<span class="kw-2">mut </span>pow), B::Number(num)) =&gt; {
-                pow.exp = Add::add(pow.exp, num.base());
-                pow.base()
-            }
-
-            (base, exp) =&gt; <span class="self">Self </span>{ base, exp }.base(),
-        }
-    }
-}
-
-<span class="doccomment">/// Represents or in symbolic expressions
-///
-/// Implemented with a HashSet: \
-/// v1 ∨ v2 ∨ v3...
-///
-</span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
-</span><span class="kw">pub struct </span>Or {
-    arg_set: HashSet&lt;Base&gt;,
-}
-
-<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Or {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.arg_set.iter();
-
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(a) = iter.next() {
-            <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, a)<span class="question-mark">?</span>;
-        }
-
-        <span class="kw">for </span>arg <span class="kw">in </span>iter {
-            <span class="macro">write!</span>(f, <span class="string">&quot; ∨ {}&quot;</span>, arg)<span class="question-mark">?</span>;
-        }
-
-        <span class="prelude-val">Ok</span>(())
-    }
-}
-
-<span class="kw">impl </span>Hash <span class="kw">for </span>Or {
-    <span class="kw">fn </span>hash&lt;H: std::hash::Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
-        <span class="string">&quot;Or&quot;</span>.hash(state);
-        <span class="kw">for </span>arg <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.arg_set {
-            arg.hash(state)
-        }
-    }
-}
-
-<span class="kw">impl </span>CalcursType <span class="kw">for </span>Or {
-    <span class="attr">#[inline]
-    </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
-        Base::Or(<span class="self">self</span>).base()
-    }
-}
-
-<span class="kw">impl </span>Bool <span class="kw">for </span>Or {
-    <span class="kw">fn </span>bool_val(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BoolValue {
-        <span class="kw">if </span><span class="self">self</span>.arg_set.contains(<span class="kw-2">&amp;</span>TRUE) {
-            BoolValue::True
-        } <span class="kw">else if </span><span class="self">self</span>.arg_set.is_empty()
-            || (<span class="self">self</span>.arg_set.len() == <span class="number">1 </span>&amp;&amp; <span class="self">self</span>.arg_set.contains(<span class="kw-2">&amp;</span>FALSE))
-        {
-            BoolValue::False
-        } <span class="kw">else </span>{
-            BoolValue::Unknown
-        }
-    }
-}
-
-<span class="kw">impl </span>Or {
-    <span class="kw">pub fn </span>or(b1: <span class="kw">impl </span>CalcursType, b2: <span class="kw">impl </span>CalcursType) -&gt; Base {
-        <span class="self">Self </span>{
-            arg_set: Default::default(),
-        }
-        .or_arg(b1.base())
-        .or_arg(b2.base())
-        .reduce()
-    }
-
-    <span class="kw">fn </span>or_arg(<span class="kw-2">mut </span><span class="self">self</span>, b: Base) -&gt; <span class="self">Self </span>{
-        <span class="kw">use </span>Base <span class="kw">as </span>B;
-
-        <span class="kw">if </span><span class="self">self</span>.is_true() {
-            <span class="kw">return </span><span class="self">self</span>;
-        }
-
-        <span class="kw">match </span>b {
-            B::Or(or) =&gt; {
-                or.arg_set.into_iter().for_each(|b| {
-                    <span class="self">self</span>.or_term(b);
-                });
-            }
-
-            B::Number(n) =&gt; {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(bool) = n.to_bool() {
-                    <span class="self">self</span>.or_term(B::BooleanAtom(bool))
-                } <span class="kw">else </span>{
-                    <span class="self">self</span>.or_term(B::Number(n));
-                }
-            }
-
-            <span class="comment">// neutral element
-            </span>B::BooleanAtom(BooleanAtom::False) =&gt; (),
-
-            B::Not(<span class="kw">_</span>)
-            | B::BooleanAtom(<span class="kw">_</span>)
-            | B::And(<span class="kw">_</span>)
-            | B::Add(<span class="kw">_</span>)
-            | B::Mul(<span class="kw">_</span>)
-            | B::Pow(<span class="kw">_</span>)
-            | B::Var(<span class="kw">_</span>)
-            | B::Dummy =&gt; <span class="self">self</span>.or_term(b),
-        }
-
-        <span class="self">self
-    </span>}
-
-    <span class="doccomment">/// adds the term b to [Or]
-    </span><span class="kw">fn </span>or_term(<span class="kw-2">&amp;mut </span><span class="self">self</span>, b: Base) {
-        <span class="self">self</span>.arg_set.insert(b);
-    }
-
-    <span class="kw">fn </span>reduce(<span class="self">self</span>) -&gt; Base {
-        <span class="kw">if </span><span class="self">self</span>.arg_set.len() == <span class="number">1 </span>{
-            <span class="kw">return </span><span class="self">self</span>.arg_set.into_iter().next().unwrap().base();
-        }
-
-        <span class="kw">match </span><span class="self">self</span>.to_bool() {
-            <span class="prelude-val">Some</span>(b) =&gt; b.base(),
-            <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.base(),
-        }
-    }
-}
-
-<span class="doccomment">/// Represents or in symbolic expressions
-///
-/// Implemented with a HashSet: \
-/// v1 ∧ v2 ∧ v3...
-</span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
-</span><span class="kw">pub struct </span>And {
-    arg_set: HashSet&lt;Base&gt;,
-}
-
-<span class="kw">impl </span>Bool <span class="kw">for </span>And {
-    <span class="kw">fn </span>bool_val(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BoolValue {
-        <span class="kw">if </span><span class="self">self</span>.arg_set.contains(<span class="kw-2">&amp;</span>FALSE) {
-            BoolValue::False
-        } <span class="kw">else if </span><span class="self">self</span>.arg_set.is_empty()
-            || (<span class="self">self</span>.arg_set.len() == <span class="number">1 </span>&amp;&amp; <span class="self">self</span>.arg_set.contains(<span class="kw-2">&amp;</span>TRUE))
-        {
-            BoolValue::True
-        } <span class="kw">else </span>{
-            BoolValue::Unknown
-        }
-    }
-}
-
-<span class="kw">impl </span>CalcursType <span class="kw">for </span>And {
-    <span class="attr">#[inline]
-    </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
-        Base::And(<span class="self">self</span>).base()
-    }
-}
-
-<span class="kw">impl </span>fmt::Display <span class="kw">for </span>And {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.arg_set.iter();
-
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(a) = iter.next() {
-            <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, a)<span class="question-mark">?</span>;
-        }
-
-        <span class="kw">for </span>arg <span class="kw">in </span>iter {
-            <span class="macro">write!</span>(f, <span class="string">&quot; ∧ {}&quot;</span>, arg)<span class="question-mark">?</span>;
-        }
-
-        <span class="prelude-val">Ok</span>(())
-    }
-}
-
-<span class="kw">impl </span>Hash <span class="kw">for </span>And {
-    <span class="kw">fn </span>hash&lt;H: std::hash::Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
-        <span class="string">&quot;And&quot;</span>.hash(state);
-        <span class="kw">for </span>arg <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.arg_set {
-            arg.hash(state)
-        }
-    }
-}
-
-<span class="kw">impl </span>And {
-    <span class="kw">pub fn </span>and(b1: <span class="kw">impl </span>CalcursType, b2: <span class="kw">impl </span>CalcursType) -&gt; Base {
-        <span class="self">Self </span>{
-            arg_set: Default::default(),
-        }
-        .and_arg(b1.base())
-        .and_arg(b2.base())
-        .reduce()
-    }
-
-    <span class="kw">fn </span>and_arg(<span class="kw-2">mut </span><span class="self">self</span>, b: Base) -&gt; <span class="self">Self </span>{
-        <span class="kw">use </span>Base <span class="kw">as </span>B;
-
-        <span class="kw">if </span><span class="self">self</span>.is_false() {
-            <span class="kw">return </span><span class="self">self</span>;
-        }
-
-        <span class="kw">match </span>b {
-            B::And(and) =&gt; {
-                and.arg_set.into_iter().for_each(|b| {
-                    <span class="self">self</span>.and_term(b);
-                });
-            }
-
-            B::Number(n) =&gt; {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(bool) = n.to_bool() {
-                    <span class="self">self</span>.and_term(B::BooleanAtom(bool));
-                } <span class="kw">else </span>{
-                    <span class="self">self</span>.and_term(B::Number(n));
-                }
-            }
-
-            <span class="comment">// neutral element
-            </span>B::BooleanAtom(BooleanAtom::True) =&gt; (),
-
-            B::BooleanAtom(<span class="kw">_</span>)
-            | B::Not(<span class="kw">_</span>)
-            | B::Or(<span class="kw">_</span>)
-            | B::Var(<span class="kw">_</span>)
-            | B::Mul(<span class="kw">_</span>)
-            | B::Pow(<span class="kw">_</span>)
-            | B::Add(<span class="kw">_</span>)
-            | B::Dummy =&gt; <span class="self">self</span>.and_term(b),
-        }
-        <span class="self">self
-    </span>}
-
-    <span class="kw">fn </span>and_term(<span class="kw-2">&amp;mut </span><span class="self">self</span>, b: Base) {
-        <span class="self">self</span>.arg_set.insert(b);
-    }
-
-    <span class="kw">fn </span>reduce(<span class="self">self</span>) -&gt; Base {
-        <span class="kw">if </span><span class="self">self</span>.arg_set.len() == <span class="number">1 </span>{
-            <span class="kw">return </span><span class="self">self</span>.arg_set.into_iter().next().unwrap().base();
-        }
-        <span class="kw">match </span><span class="self">self</span>.to_bool() {
-            <span class="prelude-val">Some</span>(b) =&gt; b.base(),
-            <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.base(),
-        }
-    }
-}
-
-<span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-</span><span class="kw">pub struct </span>Not {
-    val: PTR&lt;Base&gt;,
-}
-
-<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Not {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;¬({})&quot;</span>, <span class="self">self</span>.val)
-    }
-}
-
-<span class="kw">impl </span>CalcursType <span class="kw">for </span>Not {
-    <span class="attr">#[inline]
-    </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
-        Base::Not(<span class="self">self</span>).base()
-    }
-}
-
-<span class="kw">impl </span>Not {
-    <span class="kw">pub fn </span>new(b: Base) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ val: b.into() }
-    }
-
-    <span class="kw">pub fn </span>not(b: <span class="kw">impl </span>CalcursType) -&gt; Base {
-        <span class="kw">use </span>Base <span class="kw">as </span>B;
-        <span class="kw">let </span>b = b.base();
-
-        <span class="kw">match </span>b {
-            B::Not(not) =&gt; not.val.base(),
-
-            B::BooleanAtom(a) =&gt; <span class="kw">match </span>a {
-                BooleanAtom::True =&gt; FALSE.clone(),
-                BooleanAtom::False =&gt; TRUE.clone(),
-            },
-
-            B::Number(n) =&gt; {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(bool) = n.to_bool() {
-                    bool.base()
-                } <span class="kw">else </span>{
-                    <span class="self">Self</span>::new(B::Number(n)).base()
-                }
-            }
-
-            B::Pow(<span class="kw">_</span>) | B::Var(<span class="kw">_</span>) | B::Add(<span class="kw">_</span>) | B::Mul(<span class="kw">_</span>) | B::Or(<span class="kw">_</span>) | B::And(<span class="kw">_</span>) | B::Dummy =&gt; {
-                <span class="self">Self</span>::new(b).base()
-            }
-        }
+<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>Pow {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        Pow::fmt_parts(<span class="kw-2">&amp;</span><span class="self">self</span>.base, <span class="kw-2">&amp;</span><span class="self">self</span>.exp, f)
     }
 }
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>op_test {
+    <span class="kw">use </span><span class="kw">crate</span>::base;
     <span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
     <span class="kw">use </span>pretty_assertions::assert_eq;
     <span class="kw">use </span>test_case::test_case;
 
-    <span class="macro">macro_rules! </span>c {
-        (+inf) =&gt; {
-            Infinity::pos().base()
-        };
-
-        (-inf) =&gt; {
-            Infinity::neg().base()
-        };
-
-        (inf) =&gt; {
-            Infinity::default().base()
-        };
-
-        (nan) =&gt; {
-            Undefined.base()
-        };
-
-        (<span class="bool-val">false</span>) =&gt; {
-            FALSE.clone()
-        };
-
-        (<span class="bool-val">true</span>) =&gt; {
-            TRUE.clone()
-        };
-
-        (<span class="macro-nonterminal">$int</span>: literal) =&gt; {
-            Rational::int_num(<span class="macro-nonterminal">$int</span>).base()
-        };
-
-        (<span class="macro-nonterminal">$val</span>: literal / <span class="macro-nonterminal">$denom</span>: literal) =&gt; {
-            Rational::frac_num(<span class="macro-nonterminal">$val</span>, <span class="macro-nonterminal">$denom</span>).base()
-        };
-
-        (v: <span class="macro-nonterminal">$var</span>: tt) =&gt; {
-            Variable::new(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$var</span>)).base()
-        };
-    }
-
-    <span class="attr">#[test_case(<span class="macro">c!</span>(<span class="number">2</span>), <span class="macro">c!</span>(<span class="number">3</span>), <span class="macro">c!</span>(<span class="number">5</span>))]
-    #[test_case(<span class="macro">c!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">c!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">c!</span>(<span class="number">1</span>))]
-    </span><span class="comment">// #[test_case(c!(v: x), c!(v: x), c!(v: x) * c!(2))]
+    <span class="attr">#[test_case(<span class="macro">base!</span>(<span class="number">2</span>), <span class="macro">base!</span>(<span class="number">3</span>), <span class="macro">base!</span>(<span class="number">5</span>))]
+    #[test_case(<span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(<span class="number">1</span>))]
+    #[test_case(<span class="macro">base!</span>(v: x), <span class="macro">base!</span>(v: x), <span class="macro">base!</span>(v: x) * <span class="macro">base!</span>(<span class="number">2</span>))]
+    #[test_case(<span class="macro">base!</span>(-<span class="number">3</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(-<span class="number">5 </span>/ <span class="number">2</span>))]
+    #[test_case(<span class="macro">base!</span>(inf), <span class="macro">base!</span>(<span class="number">4</span>), <span class="macro">base!</span>(inf))]
+    #[test_case(<span class="macro">base!</span>(neg_inf), <span class="macro">base!</span>(<span class="number">4</span>), <span class="macro">base!</span>(neg_inf))]
+    #[test_case(<span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(pos_inf))]
+    #[test_case(<span class="macro">base!</span>(neg_inf), <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(nan))]
+    #[test_case(<span class="macro">base!</span>(nan), <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(nan))]
+    #[test_case(<span class="macro">base!</span>(<span class="number">4 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(<span class="number">2</span>))]
     </span><span class="kw">fn </span>add(x: Base, y: Base, z: Base) {
         <span class="macro">assert_eq!</span>(x + y, z);
     }
 
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>add_test() {
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(v: x) + <span class="macro">c!</span>(v: x), <span class="macro">c!</span>(<span class="number">2</span>) * <span class="macro">c!</span>(v: x));
+    <span class="attr">#[test_case(<span class="macro">base!</span>(-<span class="number">1</span>), <span class="macro">base!</span>(<span class="number">3</span>), <span class="macro">base!</span>(-<span class="number">4</span>))]
+    #[test_case(<span class="macro">base!</span>(-<span class="number">3</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(-<span class="number">7 </span>/ <span class="number">2</span>))]
+    #[test_case(<span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(<span class="number">0</span>))]
+    #[test_case(<span class="macro">base!</span>(inf), <span class="macro">base!</span>(<span class="number">4</span>), <span class="macro">base!</span>(inf))]
+    #[test_case(<span class="macro">base!</span>(neg_inf), <span class="macro">base!</span>(<span class="number">4 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(neg_inf))]
+    #[test_case(<span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(<span class="number">4</span>), <span class="macro">base!</span>(pos_inf))]
+    #[test_case(<span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(nan))]
+    #[test_case(<span class="macro">base!</span>(neg_inf), <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(neg_inf))]
+    #[test_case(<span class="macro">base!</span>(nan), <span class="macro">base!</span>(inf), <span class="macro">base!</span>(nan))]
+    </span><span class="kw">fn </span>sub(x: Base, y: Base, z: Base) {
+        <span class="macro">assert_eq!</span>(x - y, z)
     }
 
-    <span class="comment">// #[test]
-    // fn add() {
-    //     assert_eq!(c!(2) + c!(3), c!(5));
-    //     assert_eq!(c!(v: x) + c!(v: x) + c!(3), c!(3) + c!(v: x) + c!(v: x));
-    //     assert_eq!(c!(-1) + c!(3), c!(2));
-    //     assert_eq!(c!(-3) + c!(1 / 2), c!(-5 / 2));
-    //     assert_eq!(c!(1 / 2) + c!(1 / 2), c!(1));
-    //     assert_eq!(c!(inf) + c!(4), c!(inf));
-    //     assert_eq!(c!(-inf) + c!(4), c!(-inf));
-    //     assert_eq!(c!(+inf) + c!(+inf), c!(+inf));
-    //     assert_eq!(c!(-inf) + c!(+inf), c!(nan));
-    //     assert_eq!(c!(nan) + c!(inf), c!(nan));
-    //     assert_eq!(c!(4 / 2), c!(2));
-    // }
-
-    </span><span class="attr">#[test]
-    </span><span class="kw">fn </span>mul() {
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(-<span class="number">1</span>) * <span class="macro">c!</span>(<span class="number">3</span>), <span class="macro">c!</span>(-<span class="number">3</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(-<span class="number">1</span>) * <span class="macro">c!</span>(<span class="number">0</span>), <span class="macro">c!</span>(<span class="number">0</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(-<span class="number">1</span>) * <span class="macro">c!</span>(<span class="number">3</span>) * <span class="macro">c!</span>(<span class="number">0</span>), <span class="macro">c!</span>(<span class="number">0</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(-<span class="number">3</span>) * <span class="macro">c!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">c!</span>(-<span class="number">3 </span>/ <span class="number">2</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="number">1 </span>/ <span class="number">2</span>) * <span class="macro">c!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">c!</span>(<span class="number">1 </span>/ <span class="number">4</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(inf) * <span class="macro">c!</span>(<span class="number">4</span>), <span class="macro">c!</span>(inf));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(-inf) * <span class="macro">c!</span>(<span class="number">4 </span>/ <span class="number">2</span>), <span class="macro">c!</span>(-inf));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(+inf) * <span class="macro">c!</span>(<span class="number">4</span>), <span class="macro">c!</span>(+inf));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(+inf) * <span class="macro">c!</span>(-<span class="number">1</span>), <span class="macro">c!</span>(-inf));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(+inf) * <span class="macro">c!</span>(+inf), <span class="macro">c!</span>(+inf));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(-inf) * <span class="macro">c!</span>(+inf), <span class="macro">c!</span>(-inf));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(nan) * <span class="macro">c!</span>(inf), <span class="macro">c!</span>(nan));
+    <span class="attr">#[test_case(<span class="macro">base!</span>(-<span class="number">1</span>), <span class="macro">base!</span>(<span class="number">3</span>), <span class="macro">base!</span>(-<span class="number">3</span>))]
+    #[test_case(<span class="macro">base!</span>(-<span class="number">1</span>), <span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(<span class="number">0</span>))]
+    #[test_case(<span class="macro">base!</span>(-<span class="number">1</span>), <span class="macro">base!</span>(<span class="number">3</span>) * <span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(<span class="number">0</span>))]
+    #[test_case(<span class="macro">base!</span>(-<span class="number">3</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(-<span class="number">3 </span>/ <span class="number">2</span>))]
+    #[test_case(<span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">4</span>))]
+    #[test_case(<span class="macro">base!</span>(inf), <span class="macro">base!</span>(<span class="number">4</span>), <span class="macro">base!</span>(inf))]
+    #[test_case(<span class="macro">base!</span>(neg_inf), <span class="macro">base!</span>(<span class="number">4 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(neg_inf))]
+    #[test_case(<span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(<span class="number">4</span>), <span class="macro">base!</span>(pos_inf))]
+    #[test_case(<span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(-<span class="number">1</span>), <span class="macro">base!</span>(neg_inf))]
+    #[test_case(<span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(pos_inf))]
+    #[test_case(<span class="macro">base!</span>(neg_inf), <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(neg_inf))]
+    #[test_case(<span class="macro">base!</span>(nan), <span class="macro">base!</span>(inf), <span class="macro">base!</span>(nan))]
+    </span><span class="kw">fn </span>mul(x: Base, y: Base, z: Base) {
+        <span class="macro">assert_eq!</span>(x * y, z);
     }
 
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>div() {
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="number">1</span>) / <span class="macro">c!</span>(<span class="number">3</span>), <span class="macro">c!</span>(<span class="number">1 </span>/ <span class="number">3</span>));
+    <span class="attr">#[test_case(<span class="macro">base!</span>(<span class="number">1</span>), <span class="macro">base!</span>(<span class="number">3</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">3</span>))]
+    </span><span class="kw">fn </span>div(x: Base, y: Base, z: Base) {
+        <span class="macro">assert_eq!</span>(x / y, z);
     }
 
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>sub() {
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(-<span class="number">1</span>) - <span class="macro">c!</span>(<span class="number">3</span>), <span class="macro">c!</span>(-<span class="number">4</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(-<span class="number">3</span>) - <span class="macro">c!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">c!</span>(-<span class="number">7 </span>/ <span class="number">2</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="number">1 </span>/ <span class="number">2</span>) - <span class="macro">c!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">c!</span>(<span class="number">0</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(inf) - <span class="macro">c!</span>(<span class="number">4</span>), <span class="macro">c!</span>(inf));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(-inf) - <span class="macro">c!</span>(<span class="number">4 </span>/ <span class="number">2</span>), <span class="macro">c!</span>(-inf));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(+inf) - <span class="macro">c!</span>(<span class="number">4</span>), <span class="macro">c!</span>(+inf));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(+inf) - <span class="macro">c!</span>(+inf), <span class="macro">c!</span>(nan));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(-inf) - <span class="macro">c!</span>(+inf), <span class="macro">c!</span>(-inf));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(nan) - <span class="macro">c!</span>(inf), <span class="macro">c!</span>(nan));
+    <span class="comment">//#[test]
+    //fn and() {
+    //    assert_eq!(c!(false) &amp; c!(true), c!(false));
+    //    assert_eq!(c!(true) &amp; c!(true), c!(true));
+    //    assert_eq!(c!(false) &amp; c!(v: x), c!(false));
+    //    assert_eq!(c!(true) &amp; c!(v: x), c!(v: x));
+    //    assert_eq!(c!(v: y) &amp; c!(v: x), c!(v: x) &amp; c!(v: y));
+
+    //    assert_eq!(c!(false) &amp; c!(3), c!(false));
+    //    assert_eq!(c!(true) &amp; c!(0), c!(false));
+    //    assert_eq!(c!(true) &amp; c!(10), c!(true));
+    //}
+
+    //#[test]
+    //fn or() {
+    //    assert_eq!(c!(false) | c!(true), c!(true));
+    //    assert_eq!(c!(true) | c!(v: x), c!(true));
+    //    assert_eq!(c!(false) | c!(v: x), c!(v: x));
+    //    assert_eq!(c!(v: y) | c!(v: x), c!(v: x) | c!(v: y));
+
+    //    assert_eq!(c!(false) | c!(3), c!(true));
+    //    assert_eq!(c!(true) | c!(0), c!(true));
+    //    assert_eq!(c!(false) | c!(0), c!(false));
+    //}
+
+    //#[test]
+    //fn not() {
+    //    assert_eq!(!c!(false), c!(true));
+    //    assert_eq!(!c!(true), c!(false));
+    //    assert_eq!(!c!(v: x), !c!(v: x));
+    //    assert!(!c!(v: x) != c!(v: x));
+    //}
+
+    //#[test]
+    //fn bool_expr() {
+    //    assert_eq!(c!(false) &amp; c!(false) | c!(true), c!(true));
+    //    assert_eq!(c!(false) | c!(false) &amp; c!(true), c!(false));
+    //    assert_eq!(c!(false) &amp; c!(true) | c!(false), c!(false));
+    //    assert_eq!(c!(true) &amp; (c!(false) | c!(true)), c!(true));
+    //}
+</span>}
+
+<span class="attr">#[cfg(hide)]
+</span><span class="kw">mod </span>__ {
+    <span class="kw">use </span>std::{collections::HashSet, fmt, hash::Hash};
+
+    <span class="kw">use crate</span>::{
+        base::{Base, PTR},
+        boolean::{BoolValue, BooleanAtom},
+        constants::{FALSE, TRUE},
+        traits::{Bool, CalcursType},
+    };
+
+    <span class="doccomment">/// Represents or in symbolic expressions
+    ///
+    /// Implemented with a HashSet: \
+    /// v1 ∨ v2 ∨ v3...
+    ///
+    </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
+    </span><span class="kw">pub struct </span>Or {
+        arg_set: HashSet&lt;Base&gt;,
     }
 
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>and() {
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">false</span>) &amp; <span class="macro">c!</span>(<span class="bool-val">true</span>), <span class="macro">c!</span>(<span class="bool-val">false</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">true</span>) &amp; <span class="macro">c!</span>(<span class="bool-val">true</span>), <span class="macro">c!</span>(<span class="bool-val">true</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">false</span>) &amp; <span class="macro">c!</span>(v: x), <span class="macro">c!</span>(<span class="bool-val">false</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">true</span>) &amp; <span class="macro">c!</span>(v: x), <span class="macro">c!</span>(v: x));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(v: y) &amp; <span class="macro">c!</span>(v: x), <span class="macro">c!</span>(v: x) &amp; <span class="macro">c!</span>(v: y));
+    <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Or {
+        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+            <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.arg_set.iter();
 
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">false</span>) &amp; <span class="macro">c!</span>(<span class="number">3</span>), <span class="macro">c!</span>(<span class="bool-val">false</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">true</span>) &amp; <span class="macro">c!</span>(<span class="number">0</span>), <span class="macro">c!</span>(<span class="bool-val">false</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">true</span>) &amp; <span class="macro">c!</span>(<span class="number">10</span>), <span class="macro">c!</span>(<span class="bool-val">true</span>));
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(a) = iter.next() {
+                <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, a)<span class="question-mark">?</span>;
+            }
+
+            <span class="kw">for </span>arg <span class="kw">in </span>iter {
+                <span class="macro">write!</span>(f, <span class="string">&quot; ∨ {}&quot;</span>, arg)<span class="question-mark">?</span>;
+            }
+
+            <span class="prelude-val">Ok</span>(())
+        }
     }
 
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>or() {
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">false</span>) | <span class="macro">c!</span>(<span class="bool-val">true</span>), <span class="macro">c!</span>(<span class="bool-val">true</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">true</span>) | <span class="macro">c!</span>(v: x), <span class="macro">c!</span>(<span class="bool-val">true</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">false</span>) | <span class="macro">c!</span>(v: x), <span class="macro">c!</span>(v: x));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(v: y) | <span class="macro">c!</span>(v: x), <span class="macro">c!</span>(v: x) | <span class="macro">c!</span>(v: y));
-
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">false</span>) | <span class="macro">c!</span>(<span class="number">3</span>), <span class="macro">c!</span>(<span class="bool-val">true</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">true</span>) | <span class="macro">c!</span>(<span class="number">0</span>), <span class="macro">c!</span>(<span class="bool-val">true</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">false</span>) | <span class="macro">c!</span>(<span class="number">0</span>), <span class="macro">c!</span>(<span class="bool-val">false</span>));
+    <span class="kw">impl </span>Hash <span class="kw">for </span>Or {
+        <span class="kw">fn </span>hash&lt;H: std::hash::Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
+            <span class="string">&quot;Or&quot;</span>.hash(state);
+            <span class="kw">for </span>arg <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.arg_set {
+                arg.hash(state)
+            }
+        }
     }
 
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>not() {
-        <span class="macro">assert_eq!</span>(!<span class="macro">c!</span>(<span class="bool-val">false</span>), <span class="macro">c!</span>(<span class="bool-val">true</span>));
-        <span class="macro">assert_eq!</span>(!<span class="macro">c!</span>(<span class="bool-val">true</span>), <span class="macro">c!</span>(<span class="bool-val">false</span>));
-        <span class="macro">assert_eq!</span>(!<span class="macro">c!</span>(v: x), !<span class="macro">c!</span>(v: x));
-        <span class="macro">assert!</span>(!<span class="macro">c!</span>(v: x) != <span class="macro">c!</span>(v: x));
+    <span class="kw">impl </span>CalcursType <span class="kw">for </span>Or {
+        <span class="attr">#[inline]
+        </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
+            Base::Or(<span class="self">self</span>).base()
+        }
     }
 
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>bool_expr() {
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">false</span>) &amp; <span class="macro">c!</span>(<span class="bool-val">false</span>) | <span class="macro">c!</span>(<span class="bool-val">true</span>), <span class="macro">c!</span>(<span class="bool-val">true</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">false</span>) | <span class="macro">c!</span>(<span class="bool-val">false</span>) &amp; <span class="macro">c!</span>(<span class="bool-val">true</span>), <span class="macro">c!</span>(<span class="bool-val">false</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">false</span>) &amp; <span class="macro">c!</span>(<span class="bool-val">true</span>) | <span class="macro">c!</span>(<span class="bool-val">false</span>), <span class="macro">c!</span>(<span class="bool-val">false</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">c!</span>(<span class="bool-val">true</span>) &amp; (<span class="macro">c!</span>(<span class="bool-val">false</span>) | <span class="macro">c!</span>(<span class="bool-val">true</span>)), <span class="macro">c!</span>(<span class="bool-val">true</span>));
+    <span class="kw">impl </span>Bool <span class="kw">for </span>Or {
+        <span class="kw">fn </span>bool_val(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BoolValue {
+            <span class="kw">if </span><span class="self">self</span>.arg_set.contains(<span class="kw-2">&amp;</span>TRUE) {
+                BoolValue::True
+            } <span class="kw">else if </span><span class="self">self</span>.arg_set.is_empty()
+                || (<span class="self">self</span>.arg_set.len() == <span class="number">1 </span>&amp;&amp; <span class="self">self</span>.arg_set.contains(<span class="kw-2">&amp;</span>FALSE))
+            {
+                BoolValue::False
+            } <span class="kw">else </span>{
+                BoolValue::Unknown
+            }
+        }
+    }
+
+    <span class="kw">impl </span>Or {
+        <span class="kw">pub fn </span>or(b1: <span class="kw">impl </span>CalcursType, b2: <span class="kw">impl </span>CalcursType) -&gt; Base {
+            <span class="self">Self </span>{
+                arg_set: Default::default(),
+            }
+            .or_arg(b1.base())
+            .or_arg(b2.base())
+            .reduce()
+        }
+
+        <span class="kw">fn </span>or_arg(<span class="kw-2">mut </span><span class="self">self</span>, b: Base) -&gt; <span class="self">Self </span>{
+            <span class="kw">use </span>Base <span class="kw">as </span>B;
+
+            <span class="kw">if </span><span class="self">self</span>.is_true() {
+                <span class="kw">return </span><span class="self">self</span>;
+            }
+
+            <span class="kw">match </span>b {
+                B::Or(or) =&gt; {
+                    or.arg_set.into_iter().for_each(|b| {
+                        <span class="self">self</span>.or_term(b);
+                    });
+                }
+
+                B::Number(n) =&gt; {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(bool) = n.to_bool() {
+                        <span class="self">self</span>.or_term(B::BooleanAtom(bool))
+                    } <span class="kw">else </span>{
+                        <span class="self">self</span>.or_term(B::Number(n));
+                    }
+                }
+
+                <span class="comment">// neutral element
+                </span>B::BooleanAtom(BooleanAtom::False) =&gt; (),
+
+                B::Not(<span class="kw">_</span>)
+                | B::BooleanAtom(<span class="kw">_</span>)
+                | B::And(<span class="kw">_</span>)
+                | B::Add(<span class="kw">_</span>)
+                | B::Mul(<span class="kw">_</span>)
+                | B::Pow(<span class="kw">_</span>)
+                | B::Var(<span class="kw">_</span>)
+                | B::Dummy =&gt; <span class="self">self</span>.or_term(b),
+            }
+
+            <span class="self">self
+        </span>}
+
+        <span class="doccomment">/// adds the term b to [Or]
+        </span><span class="kw">fn </span>or_term(<span class="kw-2">&amp;mut </span><span class="self">self</span>, b: Base) {
+            <span class="self">self</span>.arg_set.insert(b);
+        }
+
+        <span class="kw">fn </span>reduce(<span class="self">self</span>) -&gt; Base {
+            <span class="kw">if </span><span class="self">self</span>.arg_set.len() == <span class="number">1 </span>{
+                <span class="kw">return </span><span class="self">self</span>.arg_set.into_iter().next().unwrap().base();
+            }
+
+            <span class="kw">match </span><span class="self">self</span>.to_bool() {
+                <span class="prelude-val">Some</span>(b) =&gt; b.base(),
+                <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.base(),
+            }
+        }
+    }
+
+    <span class="doccomment">/// Represents or in symbolic expressions
+    ///
+    /// Implemented with a HashSet: \
+    /// v1 ∧ v2 ∧ v3...
+    </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
+    </span><span class="kw">pub struct </span>And {
+        arg_set: HashSet&lt;Base&gt;,
+    }
+
+    <span class="kw">impl </span>Bool <span class="kw">for </span>And {
+        <span class="kw">fn </span>bool_val(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BoolValue {
+            <span class="kw">if </span><span class="self">self</span>.arg_set.contains(<span class="kw-2">&amp;</span>FALSE) {
+                BoolValue::False
+            } <span class="kw">else if </span><span class="self">self</span>.arg_set.is_empty()
+                || (<span class="self">self</span>.arg_set.len() == <span class="number">1 </span>&amp;&amp; <span class="self">self</span>.arg_set.contains(<span class="kw-2">&amp;</span>TRUE))
+            {
+                BoolValue::True
+            } <span class="kw">else </span>{
+                BoolValue::Unknown
+            }
+        }
+    }
+
+    <span class="kw">impl </span>CalcursType <span class="kw">for </span>And {
+        <span class="attr">#[inline]
+        </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
+            Base::And(<span class="self">self</span>).base()
+        }
+    }
+
+    <span class="kw">impl </span>fmt::Display <span class="kw">for </span>And {
+        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+            <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.arg_set.iter();
+
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(a) = iter.next() {
+                <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, a)<span class="question-mark">?</span>;
+            }
+
+            <span class="kw">for </span>arg <span class="kw">in </span>iter {
+                <span class="macro">write!</span>(f, <span class="string">&quot; ∧ {}&quot;</span>, arg)<span class="question-mark">?</span>;
+            }
+
+            <span class="prelude-val">Ok</span>(())
+        }
+    }
+
+    <span class="kw">impl </span>Hash <span class="kw">for </span>And {
+        <span class="kw">fn </span>hash&lt;H: std::hash::Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
+            <span class="string">&quot;And&quot;</span>.hash(state);
+            <span class="kw">for </span>arg <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.arg_set {
+                arg.hash(state)
+            }
+        }
+    }
+
+    <span class="kw">impl </span>And {
+        <span class="kw">pub fn </span>and(b1: <span class="kw">impl </span>CalcursType, b2: <span class="kw">impl </span>CalcursType) -&gt; Base {
+            <span class="self">Self </span>{
+                arg_set: Default::default(),
+            }
+            .and_arg(b1.base())
+            .and_arg(b2.base())
+            .reduce()
+        }
+
+        <span class="kw">fn </span>and_arg(<span class="kw-2">mut </span><span class="self">self</span>, b: Base) -&gt; <span class="self">Self </span>{
+            <span class="kw">use </span>Base <span class="kw">as </span>B;
+
+            <span class="kw">if </span><span class="self">self</span>.is_false() {
+                <span class="kw">return </span><span class="self">self</span>;
+            }
+
+            <span class="kw">match </span>b {
+                B::And(and) =&gt; {
+                    and.arg_set.into_iter().for_each(|b| {
+                        <span class="self">self</span>.and_term(b);
+                    });
+                }
+
+                B::Number(n) =&gt; {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(bool) = n.to_bool() {
+                        <span class="self">self</span>.and_term(B::BooleanAtom(bool));
+                    } <span class="kw">else </span>{
+                        <span class="self">self</span>.and_term(B::Number(n));
+                    }
+                }
+
+                <span class="comment">// neutral element
+                </span>B::BooleanAtom(BooleanAtom::True) =&gt; (),
+
+                B::BooleanAtom(<span class="kw">_</span>)
+                | B::Not(<span class="kw">_</span>)
+                | B::Or(<span class="kw">_</span>)
+                | B::Var(<span class="kw">_</span>)
+                | B::Mul(<span class="kw">_</span>)
+                | B::Pow(<span class="kw">_</span>)
+                | B::Add(<span class="kw">_</span>)
+                | B::Dummy =&gt; <span class="self">self</span>.and_term(b),
+            }
+            <span class="self">self
+        </span>}
+
+        <span class="kw">fn </span>and_term(<span class="kw-2">&amp;mut </span><span class="self">self</span>, b: Base) {
+            <span class="self">self</span>.arg_set.insert(b);
+        }
+
+        <span class="kw">fn </span>reduce(<span class="self">self</span>) -&gt; Base {
+            <span class="kw">if </span><span class="self">self</span>.arg_set.len() == <span class="number">1 </span>{
+                <span class="kw">return </span><span class="self">self</span>.arg_set.into_iter().next().unwrap().base();
+            }
+            <span class="kw">match </span><span class="self">self</span>.to_bool() {
+                <span class="prelude-val">Some</span>(b) =&gt; b.base(),
+                <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.base(),
+            }
+        }
+    }
+
+    <span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+    </span><span class="kw">pub struct </span>Not {
+        val: PTR&lt;Base&gt;,
+    }
+
+    <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Not {
+        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+            <span class="macro">write!</span>(f, <span class="string">&quot;¬({})&quot;</span>, <span class="self">self</span>.val)
+        }
+    }
+
+    <span class="kw">impl </span>CalcursType <span class="kw">for </span>Not {
+        <span class="attr">#[inline]
+        </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
+            Base::Not(<span class="self">self</span>).base()
+        }
+    }
+
+    <span class="kw">impl </span>Not {
+        <span class="kw">pub fn </span>new(b: Base) -&gt; <span class="self">Self </span>{
+            <span class="self">Self </span>{ val: b.into() }
+        }
+
+        <span class="kw">pub fn </span>not(b: <span class="kw">impl </span>CalcursType) -&gt; Base {
+            <span class="kw">use </span>Base <span class="kw">as </span>B;
+            <span class="kw">let </span>b = b.base();
+
+            <span class="kw">match </span>b {
+                B::Not(not) =&gt; not.val.base(),
+
+                B::BooleanAtom(a) =&gt; <span class="kw">match </span>a {
+                    BooleanAtom::True =&gt; FALSE.clone(),
+                    BooleanAtom::False =&gt; TRUE.clone(),
+                },
+
+                B::Number(n) =&gt; {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(bool) = n.to_bool() {
+                        bool.base()
+                    } <span class="kw">else </span>{
+                        <span class="self">Self</span>::new(B::Number(n)).base()
+                    }
+                }
+
+                B::Pow(<span class="kw">_</span>) | B::Var(<span class="kw">_</span>) | B::Add(<span class="kw">_</span>) | B::Mul(<span class="kw">_</span>) | B::Or(<span class="kw">_</span>) | B::And(<span class="kw">_</span>) | B::Dummy =&gt; {
+                    <span class="self">Self</span>::new(b).base()
+                }
+            }
+        }
     }
 }
 </code></pre></div></section></main></body></html>

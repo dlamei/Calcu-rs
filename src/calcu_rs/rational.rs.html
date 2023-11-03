@@ -382,6 +382,16 @@
 <a href="#382" id="382">382</a>
 <a href="#383" id="383">383</a>
 <a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{
     base::Base,
     numeric::{Infinity, Number, Sign, Undefined},
@@ -393,11 +403,11 @@
 
 <span class="attr">#[repr(transparent)]
 #[derive(Debug, derive_more::Display, Copy, Clone, PartialEq, Eq, Hash)]
-</span><span class="kw">struct </span>NonZeroUInt(UInt);
+</span><span class="kw">pub struct </span>NonZeroUInt(UInt);
 
 <span class="kw">impl </span>NonZeroUInt {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>new(n: UInt) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub const fn </span>new(n: UInt) -&gt; <span class="self">Self </span>{
         <span class="kw">if </span>n == <span class="number">0 </span>{
             <span class="macro">panic!</span>(<span class="string">&quot;NonZeroUInt::new: found 0&quot;</span>);
         } <span class="kw">else </span>{
@@ -406,7 +416,7 @@
     }
 
     <span class="doccomment">/// panics if n is not 0
-    </span><span class="kw">fn </span>set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: UInt) {
+    </span><span class="kw">pub fn </span>set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: UInt) {
         <span class="kw">if </span>n == <span class="number">0 </span>{
             <span class="macro">panic!</span>(<span class="string">&quot;NonZeroUInt::set: found 0&quot;</span>);
         }
@@ -433,11 +443,11 @@
     }
 }
 
-<span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+<span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Copy, Hash)]
 </span><span class="kw">pub struct </span>Rational {
-    is_neg: bool,
-    numer: UInt,
-    denom: NonZeroUInt,
+    <span class="kw">pub </span>is_neg: bool,
+    <span class="kw">pub </span>numer: UInt,
+    <span class="kw">pub </span>denom: NonZeroUInt,
 }
 
 <span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>Rational {
@@ -449,7 +459,7 @@
         <span class="kw">if </span><span class="self">self</span>.denom() == <span class="number">1 </span>{
             <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.numer)
         } <span class="kw">else </span>{
-            <span class="macro">write!</span>(f, <span class="string">&quot;{} / {}&quot;</span>, <span class="self">self</span>.numer, <span class="self">self</span>.denom)
+            <span class="macro">write!</span>(f, <span class="string">&quot;({} / {})&quot;</span>, <span class="self">self</span>.numer, <span class="self">self</span>.denom)
         }
     }
 }
@@ -461,21 +471,25 @@
 }
 
 <span class="kw">impl </span>Num <span class="kw">for </span>Rational {
-    <span class="kw">fn </span>is_zero(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>is_zero(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.numer == <span class="number">0
     </span>}
 
-    <span class="kw">fn </span>is_one(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>is_one(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.numer == <span class="number">1 </span>&amp;&amp; <span class="self">self</span>.denom() == <span class="number">1 </span>&amp;&amp; !<span class="self">self</span>.is_neg
     }
 
-    <span class="kw">fn </span>is_neg_one(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>is_neg_one(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.numer == <span class="number">1 </span>&amp;&amp; <span class="self">self</span>.denom() == <span class="number">1 </span>&amp;&amp; <span class="self">self</span>.is_neg
     }
 
-    <span class="kw">fn </span>sign(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Sign {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>sign(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Sign {
         <span class="kw">match </span><span class="self">self</span>.is_neg {
-            <span class="bool-val">true </span>=&gt; Sign::Negitive,
+            <span class="bool-val">true </span>=&gt; Sign::Negative,
             <span class="bool-val">false </span>=&gt; Sign::Positive,
         }
     }
@@ -709,6 +723,7 @@
         <span class="self">self</span>.numer <span class="kw-2">*</span>= rhs.numer / gcd_bc;
         <span class="self">self</span>.denom.div(gcd_bc);
         <span class="self">self</span>.denom.mul(rhs.denom() / gcd_ad);
+        <span class="self">self</span>.is_neg = <span class="self">self</span>.is_neg &amp;&amp; (<span class="self">self</span>.numer != <span class="number">0</span>);
         <span class="self">self
     </span>}
 }
@@ -724,6 +739,7 @@
         <span class="self">self</span>.numer <span class="kw-2">*</span>= rhs.denom() / gcd_bd;
         <span class="self">self</span>.denom.div(gcd_bd);
         <span class="self">self</span>.denom.mul(rhs.numer / gcd_ac);
+        <span class="self">self</span>.is_neg = <span class="self">self</span>.is_neg &amp;&amp; (<span class="self">self</span>.numer != <span class="number">0</span>);
         <span class="self">self
     </span>}
 }
@@ -764,6 +780,10 @@
         <span class="macro">assert_eq!</span>(<span class="macro">r!</span>(<span class="number">1 </span>/ <span class="number">3</span>) + <span class="macro">r!</span>(<span class="number">2 </span>/ <span class="number">3</span>), <span class="macro">r!</span>(<span class="number">1</span>));
         <span class="macro">assert_eq!</span>(<span class="macro">r!</span>(<span class="number">1 </span>/ <span class="number">3</span>) - <span class="macro">r!</span>(<span class="number">2 </span>/ <span class="number">3</span>), <span class="macro">r!</span>(-<span class="number">1 </span>/ <span class="number">3</span>));
         <span class="macro">assert_eq!</span>(<span class="macro">r!</span>(<span class="number">1 </span>/ -<span class="number">3</span>) * <span class="macro">r!</span>(<span class="number">3</span>), <span class="macro">r!</span>(-<span class="number">1</span>));
+        <span class="macro">assert!</span>(<span class="macro">r!</span>(<span class="number">2</span>) &gt; <span class="macro">r!</span>(<span class="number">1</span>));
+        <span class="macro">assert!</span>(<span class="macro">r!</span>(<span class="number">2</span>) &gt;= <span class="macro">r!</span>(<span class="number">2</span>));
+        <span class="macro">assert!</span>(<span class="macro">r!</span>(<span class="number">2 </span>/ <span class="number">4</span>) &lt;= <span class="macro">r!</span>(<span class="number">4 </span>/ <span class="number">8</span>));
+        <span class="macro">assert!</span>(<span class="macro">r!</span>(<span class="number">5 </span>/ <span class="number">128</span>) &gt; <span class="macro">r!</span>(<span class="number">11 </span>/ <span class="number">2516</span>));
     }
 }
 </code></pre></div></section></main></body></html>

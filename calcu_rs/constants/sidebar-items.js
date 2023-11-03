@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["FALSE","ONE","TRUE","ZERO"]};
+window.SIDEBAR_ITEMS = {"constant":["MINUS_ONE","ONE","ZERO"],"struct":["FALSE","TRUE"]};

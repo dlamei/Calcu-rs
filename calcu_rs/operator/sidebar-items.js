@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Add","And","Mul","Not","Or","Pow"],"type":["Div","Sub"]};
+window.SIDEBAR_ITEMS = {"struct":["Add","AddArgs","Mul","MulArgs","Pow"],"type":["Div","Sub"]};
