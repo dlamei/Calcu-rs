@@ -195,21 +195,49 @@
 <a href="#195" id="195">195</a>
 <a href="#196" id="196">196</a>
 <a href="#197" id="197">197</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{cell::RefCell, collections::HashMap, rc::Rc};
-
-<span class="kw">use </span>derive_more::Display;
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::{
+    cell::RefCell,
+    collections::HashMap,
+    fmt::{Debug, Display},
+    ops,
+    rc::Rc,
+};
 
 <span class="kw">use crate</span>::{
-    boolean::BooleanAtom,
-    numeric::Number,
+    numeric::{Number, Sign},
     operator::{Add, Div, Mul, Pow, Sub},
-    traits::CalcursType,
 };
+
+<span class="doccomment">/// implemented by every symbolic math type
+</span><span class="kw">pub trait </span>CalcursType: Clone + Debug + Display {
+    <span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base;
+}
+
+<span class="doccomment">/// implemented by every struct that represenets a numeric type
+</span><span class="kw">pub trait </span>Num {
+    <span class="kw">fn </span>is_zero(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
+    <span class="kw">fn </span>is_one(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
+    <span class="kw">fn </span>is_neg_one(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
+    <span class="kw">fn </span>sign(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Sign&gt;;
+
+    <span class="kw">fn </span>is_pos(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.sign().map_or_else(|| <span class="bool-val">false</span>, |s| s.is_pos())
+    }
+
+    <span class="kw">fn </span>is_neg(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.sign().map_or_else(|| <span class="bool-val">false</span>, |s| s.is_neg())
+    }
+}
 
 <span class="kw">pub type </span>PTR&lt;T&gt; = Box&lt;T&gt;;
 <span class="kw">pub type </span>SubsDict = Rc&lt;RefCell&lt;HashMap&lt;Variable, Base&gt;&gt;&gt;;
 
-<span class="attr">#[derive(Debug, Clone, PartialEq, PartialOrd, Ord, Eq, Hash, Display)]
+<span class="attr">#[derive(Debug, Clone, PartialEq, PartialOrd, Ord, Eq, Hash)]
 </span><span class="kw">pub struct </span>Variable {
     <span class="kw">pub </span>name: String,
 }
@@ -224,6 +252,12 @@
     </span>}
 }
 
+<span class="kw">impl </span>Display <span class="kw">for </span>Variable {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.name)
+    }
+}
+
 <span class="kw">impl </span>CalcursType <span class="kw">for </span>Variable {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
@@ -231,21 +265,16 @@
     }
 }
 
-<span class="attr">#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Display)]
+<span class="attr">#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 </span><span class="kw">pub enum </span>Base {
     Var(Variable),
-    <span class="comment">//TODO: move to numeric?
-    </span>BooleanAtom(BooleanAtom),
     Number(Number),
     Dummy,
 
-    Add(PTR&lt;Add&gt;),
-    Mul(PTR&lt;Mul&gt;),
+    Add(Add),
+    Mul(Mul),
     Pow(PTR&lt;Pow&gt;),
-    <span class="comment">//Or(Or),
-    //And(And),
-    //Not(Not),
-</span>}
+}
 
 <span class="attr">#[macro_export]
 </span><span class="macro">macro_rules! </span>base {
@@ -258,19 +287,11 @@
     };
 
     (inf) =&gt; {
-        Infinity::default().base()
+        Infinity::pos().base()
     };
 
     (nan) =&gt; {
         Undefined.base()
-    };
-
-    (<span class="bool-val">false</span>) =&gt; {
-        FALSE.clone()
-    };
-
-    (<span class="bool-val">true</span>) =&gt; {
-        TRUE.clone()
     };
 
     (<span class="macro-nonterminal">$int</span>: literal) =&gt; {
@@ -286,6 +307,19 @@
     };
 }
 
+<span class="kw">impl </span>Display <span class="kw">for </span>Base {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="kw">match </span><span class="self">self </span>{
+            Base::Var(v) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{v}&quot;</span>),
+            Base::Number(n) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{n}&quot;</span>),
+            Base::Dummy =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Dummy&quot;</span>),
+            Base::Add(a) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{a}&quot;</span>),
+            Base::Mul(m) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{m}&quot;</span>),
+            Base::Pow(p) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{p}&quot;</span>),
+        }
+    }
+}
+
 <span class="kw">impl </span>CalcursType <span class="kw">for </span>Base {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
@@ -299,7 +333,7 @@
     }
 }
 
-<span class="kw">impl </span>std::ops::Add <span class="kw">for </span>Base {
+<span class="kw">impl </span>ops::Add <span class="kw">for </span>Base {
     <span class="kw">type </span>Output = Base;
 
     <span class="kw">fn </span>add(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
@@ -307,13 +341,13 @@
     }
 }
 
-<span class="kw">impl </span>std::ops::AddAssign <span class="kw">for </span>Base {
+<span class="kw">impl </span>ops::AddAssign <span class="kw">for </span>Base {
     <span class="kw">fn </span>add_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: <span class="self">Self</span>) {
         <span class="kw-2">*</span><span class="self">self </span>= Add::add(<span class="self">self</span>.clone(), rhs);
     }
 }
 
-<span class="kw">impl </span>std::ops::Sub <span class="kw">for </span>Base {
+<span class="kw">impl </span>ops::Sub <span class="kw">for </span>Base {
     <span class="kw">type </span>Output = Base;
 
     <span class="kw">fn </span>sub(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
@@ -321,13 +355,13 @@
     }
 }
 
-<span class="kw">impl </span>std::ops::SubAssign <span class="kw">for </span>Base {
+<span class="kw">impl </span>ops::SubAssign <span class="kw">for </span>Base {
     <span class="kw">fn </span>sub_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: <span class="self">Self</span>) {
         <span class="kw-2">*</span><span class="self">self </span>= Sub::sub(<span class="self">self</span>.clone(), rhs);
     }
 }
 
-<span class="kw">impl </span>std::ops::Mul <span class="kw">for </span>Base {
+<span class="kw">impl </span>ops::Mul <span class="kw">for </span>Base {
     <span class="kw">type </span>Output = Base;
 
     <span class="kw">fn </span>mul(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
@@ -335,13 +369,13 @@
     }
 }
 
-<span class="kw">impl </span>std::ops::MulAssign <span class="kw">for </span>Base {
+<span class="kw">impl </span>ops::MulAssign <span class="kw">for </span>Base {
     <span class="kw">fn </span>mul_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: <span class="self">Self</span>) {
         <span class="kw-2">*</span><span class="self">self </span>= Mul::mul(<span class="self">self</span>.clone(), rhs);
     }
 }
 
-<span class="kw">impl </span>std::ops::Div <span class="kw">for </span>Base {
+<span class="kw">impl </span>ops::Div <span class="kw">for </span>Base {
     <span class="kw">type </span>Output = Base;
 
     <span class="kw">fn </span>div(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
@@ -349,13 +383,13 @@
     }
 }
 
-<span class="kw">impl </span>std::ops::DivAssign <span class="kw">for </span>Base {
+<span class="kw">impl </span>ops::DivAssign <span class="kw">for </span>Base {
     <span class="kw">fn </span>div_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: <span class="self">Self</span>) {
         <span class="kw-2">*</span><span class="self">self </span>= Div::div(<span class="self">self</span>.clone(), rhs);
     }
 }
 
-<span class="kw">impl </span>std::ops::BitXor <span class="kw">for </span>Base {
+<span class="kw">impl </span>ops::BitXor <span class="kw">for </span>Base {
     <span class="kw">type </span>Output = Base;
 
     <span class="kw">fn </span>bitxor(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
@@ -363,33 +397,9 @@
     }
 }
 
-<span class="kw">impl </span>std::ops::BitXorAssign <span class="kw">for </span>Base {
+<span class="kw">impl </span>ops::BitXorAssign <span class="kw">for </span>Base {
     <span class="kw">fn </span>bitxor_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: <span class="self">Self</span>) {
         <span class="kw-2">*</span><span class="self">self </span>= Pow::pow(<span class="self">self</span>.clone(), rhs);
     }
 }
-
-<span class="comment">//impl std::ops::BitOr for Base {
-//    type Output = Base;
-//
-//    fn bitor(self, rhs: Self) -&gt; Self::Output {
-//        Or::or(self, rhs)
-//    }
-//}
-//
-//impl std::ops::BitAnd for Base {
-//    type Output = Base;
-//
-//    fn bitand(self, rhs: Self) -&gt; Self::Output {
-//        And::and(self, rhs)
-//    }
-//}
-//
-//impl std::ops::Not for Base {
-//    type Output = Base;
-//
-//    fn not(self) -&gt; Self::Output {
-//        Not::not(self)
-//    }
-//}
-</span></code></pre></div></section></main></body></html>
+</code></pre></div></section></main></body></html>

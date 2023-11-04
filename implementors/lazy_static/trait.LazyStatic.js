@@ -1,3 +1,0 @@
-(function() {var implementors = {
-"calcu_rs":[["impl <a class=\"trait\" href=\"https://docs.rs/lazy_static/1.4.0/lazy_static/trait.LazyStatic.html\" title=\"trait lazy_static::LazyStatic\">LazyStatic</a> for <a class=\"struct\" href=\"calcu_rs/constants/struct.FALSE.html\" title=\"struct calcu_rs::constants::FALSE\">FALSE</a>"],["impl <a class=\"trait\" href=\"https://docs.rs/lazy_static/1.4.0/lazy_static/trait.LazyStatic.html\" title=\"trait lazy_static::LazyStatic\">LazyStatic</a> for <a class=\"struct\" href=\"calcu_rs/constants/struct.TRUE.html\" title=\"struct calcu_rs::constants::TRUE\">TRUE</a>"]]
-};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

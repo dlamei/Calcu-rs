@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Base"],"struct":["Variable"],"type":["PTR","SubsDict"]};
+window.SIDEBAR_ITEMS = {"enum":["Base"],"struct":["Variable"],"trait":["CalcursType","Num"],"type":["PTR","SubsDict"]};
