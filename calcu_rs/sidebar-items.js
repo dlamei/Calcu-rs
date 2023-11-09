@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":["base"],"mod":["base","numeric","operator","prelude","rational"]};
+window.SIDEBAR_ITEMS = {"macro":["base"],"mod":["base","derivative","numeric","operator","pattern","prelude","rational"]};

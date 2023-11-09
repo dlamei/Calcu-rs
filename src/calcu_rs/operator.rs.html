@@ -500,21 +500,36 @@
 <a href="#500" id="500">500</a>
 <a href="#501" id="501">501</a>
 <a href="#502" id="502">502</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeMap;
+<a href="#503" id="503">503</a>
+<a href="#504" id="504">504</a>
+<a href="#505" id="505">505</a>
+<a href="#506" id="506">506</a>
+<a href="#507" id="507">507</a>
+<a href="#508" id="508">508</a>
+<a href="#509" id="509">509</a>
+<a href="#510" id="510">510</a>
+<a href="#511" id="511">511</a>
+<a href="#512" id="512">512</a>
+<a href="#513" id="513">513</a>
+<a href="#514" id="514">514</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::{
+    collections::BTreeMap,
+    fmt::{<span class="self">self</span>, Display},
+};
 
 <span class="kw">use crate</span>::{
-    base::{Base, CalcursType, Num},
-    numeric::{
-        constants::{MINUS_ONE, ONE, UNDEF, ZERO},
-        Number, Undefined,
-    },
+    base::CalcursType,
+    numeric::constants::{MINUS_ONE, ONE, UNDEF, ZERO},
+    pattern::pat,
 };
+
+<span class="macro">pat!</span>(<span class="kw">use</span>);
 
 <span class="kw">use </span>Base <span class="kw">as </span>B;
 
 <span class="doccomment">/// helper container for [Add]
 ///
-///  n1 * mul_1 + n2 * mul_2 + n3 * mul_3 + ...
+///  n1 * mul_1 + n2 * mul_2 + n3 * mul_3 + ... \
 /// &lt;=&gt; n1 * {pow_1_1 * pow_1_2 * ... } + n2 * { pow_2_1 * pow_2_2 * ...} + ...
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>AddArgs {
@@ -523,14 +538,15 @@
 
 <span class="kw">impl </span>AddArgs {
     <span class="kw">pub fn </span>insert_mul(<span class="kw-2">&amp;mut </span><span class="self">self</span>, mul: Mul) {
-        <span class="kw">if </span>mul.coeff.is_zero() {
+        <span class="kw">if let </span><span class="macro">pat!</span>(Number: <span class="number">0</span>) = mul.coeff {
             <span class="kw">return</span>;
         }
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(coeff) = <span class="self">self</span>.args.get_mut(<span class="kw-2">&amp;</span>mul.args) {
             <span class="comment">// 2x + 3x =&gt; 5x
             </span><span class="kw-2">*</span>coeff += mul.coeff;
-            <span class="kw">if </span>coeff.is_zero() {
+
+            <span class="kw">if let </span><span class="macro">pat!</span>(Number: <span class="number">0</span>) = coeff {
                 <span class="self">self</span>.args.remove(<span class="kw-2">&amp;</span>mul.args);
             }
         } <span class="kw">else </span>{
@@ -561,7 +577,7 @@
     </span>}
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>to_mul(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Mul&gt; {
+    </span><span class="kw">pub fn </span>into_mul(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Mul&gt; {
         <span class="kw">if </span><span class="self">self</span>.is_mul() {
             <span class="kw">let </span>(args, coeff) = <span class="self">self</span>.args.pop_first().unwrap();
             <span class="prelude-val">Some</span>(Mul { args, coeff })
@@ -571,15 +587,15 @@
     }
 }
 
-<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>AddArgs {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+<span class="kw">impl </span>Display <span class="kw">for </span>AddArgs {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.args.iter().rev();
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>((args, coeff)) = iter.next() {
             Mul::fmt_parts(args, coeff, f)<span class="question-mark">?</span>;
         }
 
-        <span class="kw">while let </span><span class="prelude-val">Some</span>((args, coeff)) = iter.next() {
+        <span class="kw">for </span>(args, coeff) <span class="kw">in </span>iter {
             <span class="macro">write!</span>(f, <span class="string">&quot; + &quot;</span>)<span class="question-mark">?</span>;
             Mul::fmt_parts(args, coeff, f)<span class="question-mark">?</span>;
         }
@@ -629,7 +645,7 @@
                     .for_each(|mul| <span class="self">self</span>.args.insert_mul(mul));
             }
 
-            base @ (B::Var(<span class="kw">_</span>) | B::Dummy | B::Pow(<span class="kw">_</span>)) =&gt; <span class="self">self</span>.args.insert_mul(Mul::from_base(base)),
+            base @ (B::Symbol(<span class="kw">_</span>) | B::Pow(<span class="kw">_</span>)) =&gt; <span class="self">self</span>.args.insert_mul(Mul::from_base(base)),
         };
 
         <span class="self">self
@@ -640,7 +656,7 @@
             <span class="comment">// x + {} =&gt; x
             </span>(x, args) <span class="kw">if </span>args.is_empty() =&gt; x.base(),
             <span class="comment">// 0 + x * y =&gt; x * y
-            </span>(n, x) <span class="kw">if </span>n.is_zero() &amp;&amp; x.is_mul() =&gt; x.to_mul().unwrap().base(),
+            </span>(<span class="macro">pat!</span>(Number: <span class="number">0</span>), x) <span class="kw">if </span>x.is_mul() =&gt; x.into_mul().unwrap().base(),
 
             (coeff, args) =&gt; <span class="self">Self </span>{ coeff, args }.base(),
         }
@@ -650,17 +666,18 @@
 <span class="kw">impl </span>CalcursType <span class="kw">for </span>Add {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
-        B::Add(<span class="self">self</span>.into())
+        B::Add(<span class="self">self</span>)
     }
 }
 
-<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>Add {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+<span class="kw">impl </span>Display <span class="kw">for </span>Add {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
         <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.args)<span class="question-mark">?</span>;
 
-        <span class="kw">if </span>!<span class="self">self</span>.coeff.is_zero() {
+        <span class="kw">if let </span><span class="macro">pat!</span>(Number: <span class="number">0</span>) = <span class="self">self</span>.coeff {
+        } <span class="kw">else </span>{
             <span class="macro">write!</span>(f, <span class="string">&quot; + {}&quot;</span>, <span class="self">self</span>.coeff)<span class="question-mark">?</span>;
-        };
+        }
 
         <span class="prelude-val">Ok</span>(())
     }
@@ -700,7 +717,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>to_pow(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Pow&gt; {
+    </span><span class="kw">pub fn </span>into_pow(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Pow&gt; {
         <span class="kw">if </span><span class="self">self</span>.is_pow() {
             <span class="kw">let </span>(base, exp) = <span class="self">self</span>.args.pop_first().unwrap();
             <span class="prelude-val">Some</span>(Pow { base, exp })
@@ -722,15 +739,15 @@
     }
 }
 
-<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>MulArgs {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+<span class="kw">impl </span>Display <span class="kw">for </span>MulArgs {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.args.iter();
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>((base, exp)) = iter.next() {
             Pow::fmt_parts(base, exp, f)<span class="question-mark">?</span>;
         }
 
-        <span class="kw">while let </span><span class="prelude-val">Some</span>((base, exp)) = iter.next() {
+        <span class="kw">for </span>(base, exp) <span class="kw">in </span>iter {
             <span class="macro">write!</span>(f, <span class="string">&quot; * &quot;</span>)<span class="question-mark">?</span>;
             Pow::fmt_parts(base, exp, f)<span class="question-mark">?</span>;
         }
@@ -786,7 +803,7 @@
                     .into_pow_iter()
                     .for_each(|pow| <span class="self">self</span>.args.insert_pow(pow))
             }
-            base @ (B::Var(<span class="kw">_</span>) | B::Dummy | B::Add(<span class="kw">_</span>)) =&gt; <span class="self">self</span>.args.insert_pow(Pow::from_base(base)),
+            base @ (B::Symbol(<span class="kw">_</span>) | B::Add(<span class="kw">_</span>)) =&gt; <span class="self">self</span>.args.insert_pow(Pow::from_base(base)),
         }
 
         <span class="self">self
@@ -794,25 +811,24 @@
 
     <span class="kw">fn </span>reduce(<span class="self">self</span>) -&gt; Base {
         <span class="kw">match </span>(<span class="self">self</span>.coeff, <span class="self">self</span>.args) {
-            (UNDEF, <span class="kw">_</span>) =&gt; UNDEF.base(),
+            (<span class="macro">pat!</span>(Number: undef), <span class="kw">_</span>) =&gt; Undefined.base(),
+
             <span class="comment">// 0 * x =&gt; 0
-            </span>(n, <span class="kw">_</span>) <span class="kw">if </span>n.is_zero() =&gt; n.base(),
+            </span>(<span class="macro">pat!</span>(Number: <span class="number">0</span>), <span class="kw">_</span>) =&gt; ZERO.base(),
+
             <span class="comment">// 1 * x =&gt; x
-            </span>(n, args) <span class="kw">if </span>n.is_one() &amp;&amp; args.is_pow() =&gt; args.to_pow().unwrap().base(),
+            </span>(<span class="macro">pat!</span>(Number: <span class="number">1</span>), args) <span class="kw">if </span>args.is_pow() =&gt; args.into_pow().unwrap().base(),
+
             <span class="comment">// x * {} =&gt; x
-            </span>(n, args) <span class="kw">if </span>args.is_empty() =&gt; n.base(),
+            </span>(coeff, args) <span class="kw">if </span>args.is_empty() =&gt; coeff.base(),
 
             (coeff, args) =&gt; <span class="self">Self </span>{ coeff, args }.base(),
         }
     }
 
-    <span class="kw">fn </span>fmt_parts(
-        args: <span class="kw-2">&amp;</span>MulArgs,
-        coeff: <span class="kw-2">&amp;</span>Number,
-        f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;,
-    ) -&gt; std::fmt::Result {
+    <span class="kw">fn </span>fmt_parts(args: <span class="kw-2">&amp;</span>MulArgs, coeff: <span class="kw-2">&amp;</span>Number, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">if </span>args.len() == <span class="number">1 </span>{
-            <span class="kw">if </span>coeff.is_one() {
+            <span class="kw">if let </span><span class="macro">pat!</span>(Number: <span class="number">1</span>) = coeff {
                 <span class="macro">write!</span>(f, <span class="string">&quot;{args}&quot;</span>)<span class="question-mark">?</span>;
             } <span class="kw">else </span>{
                 <span class="macro">write!</span>(f, <span class="string">&quot;{coeff}{args}&quot;</span>)<span class="question-mark">?</span>;
@@ -834,12 +850,12 @@
 
 <span class="kw">impl </span>CalcursType <span class="kw">for </span>Mul {
     <span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
-        B::Mul(<span class="self">self</span>.into())
+        B::Mul(<span class="self">self</span>)
     }
 }
 
-<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>Mul {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+<span class="kw">impl </span>Display <span class="kw">for </span>Mul {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
         Mul::fmt_parts(<span class="kw-2">&amp;</span><span class="self">self</span>.args, <span class="kw-2">&amp;</span><span class="self">self</span>.coeff, f)
     }
 }
@@ -861,33 +877,31 @@
     }
 
     <span class="kw">fn </span>reduce(<span class="self">self</span>) -&gt; Base {
-        <span class="kw">use </span>B::Number <span class="kw">as </span>N;
-
         <span class="kw">match </span>(<span class="self">self</span>.base, <span class="self">self</span>.exp) {
-            (N(UNDEF), N(UNDEF)) =&gt; Undefined.base(),
-
-            <span class="comment">// 1^x = 1
-            </span>(N(n1), <span class="kw">_</span>) <span class="kw">if </span>n1 == ONE =&gt; N(n1),
-            <span class="comment">// x^1 = x
-            </span>(n1, N(n2)) <span class="kw">if </span>n2 == ONE =&gt; n1,
+            (<span class="macro">pat!</span>(undef), <span class="kw">_</span>) | (<span class="kw">_</span>, <span class="macro">pat!</span>(undef)) =&gt; Undefined.base(),
 
             <span class="comment">// 0^0 = undefined
-            </span>(N(n1), N(n2)) <span class="kw">if </span>n1 == ZERO &amp;&amp; n2 == ZERO =&gt; N(UNDEF),
+            </span>(<span class="macro">pat!</span>(<span class="number">0</span>), <span class="macro">pat!</span>(<span class="number">0</span>)) =&gt; Undefined.base(),
 
-            <span class="comment">// x^0 = 1 | x != 0 [0^0 already handled]
-            </span>(<span class="kw">_</span>, N(n2)) <span class="kw">if </span>n2 == ZERO =&gt; N(ONE),
+            <span class="comment">// 1^x = 1
+            </span>(<span class="macro">pat!</span>(<span class="number">1</span>), <span class="kw">_</span>) =&gt; ONE.base(),
+
+            <span class="comment">// x^1 = x
+            </span>(x, <span class="macro">pat!</span>(<span class="number">1</span>)) =&gt; x,
+
+            <span class="comment">// x^0 = 1 | x != 0
+            </span>(<span class="macro">pat!</span>(Number: n), <span class="macro">pat!</span>(<span class="number">0</span>)) <span class="kw">if </span>!n.is_zero() =&gt; ONE.base(),
 
             <span class="comment">// 0^x = undefined | x &lt; 0
-            </span>(n1, N(n2)) <span class="kw">if </span>n1 == N(ZERO) &amp;&amp; n2.is_neg() =&gt; N(UNDEF),
+            </span>(<span class="macro">pat!</span>(<span class="number">0</span>), <span class="macro">pat!</span>(-)) =&gt; Undefined.base(),
 
-            <span class="comment">// 0^x = 0 | x &gt; 0 [0^x | x = 0 &amp; x &lt; 0 already handled]
-            </span>(N(n1), <span class="kw">_</span>) <span class="kw">if </span>n1 == ZERO =&gt; N(n1),
+            <span class="comment">// 0^x = 0 | x &gt; 0
+            </span>(<span class="macro">pat!</span>(<span class="number">0</span>), <span class="macro">pat!</span>(+)) =&gt; ZERO.base(),
 
-            <span class="comment">// n^-1 = 1/n | n != 0 [0^x already handled]
-            </span>(N(n1), N(n2)) <span class="kw">if </span>n1 != ZERO &amp;&amp; n2.is_neg_one() =&gt; N(ONE / n1),
+            <span class="comment">// n^-1 = 1/n | n != 0
+            </span>(<span class="macro">pat!</span>(Rational: r), <span class="macro">pat!</span>(-<span class="number">1</span>)) =&gt; (Rational::one() / r).base(),
 
             <span class="comment">// (x^y)^z = x^(y*z)
-            //(B::Pow(pow), z) =&gt; Pow::pow(pow.base, Mul::mul(pow.exp, z)),
             </span>(base, exp) =&gt; <span class="self">Self </span>{ base, exp }.base(),
         }
     }
@@ -904,7 +918,7 @@
         }
     }
 
-    <span class="kw">fn </span>fmt_parts(base: <span class="kw-2">&amp;</span>Base, exp: <span class="kw-2">&amp;</span>Base, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+    <span class="kw">fn </span>fmt_parts(base: <span class="kw-2">&amp;</span>Base, exp: <span class="kw-2">&amp;</span>Base, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">if </span><span class="kw-2">&amp;</span>B::Number(ONE) == exp {
             <span class="macro">write!</span>(f, <span class="string">&quot;{base}&quot;</span>)
         } <span class="kw">else </span>{
@@ -919,8 +933,8 @@
     }
 }
 
-<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>Pow {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+<span class="kw">impl </span>Display <span class="kw">for </span>Pow {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
         Pow::fmt_parts(<span class="kw-2">&amp;</span><span class="self">self</span>.base, <span class="kw-2">&amp;</span><span class="self">self</span>.exp, f)
     }
 }
@@ -932,66 +946,76 @@
     <span class="kw">use </span>pretty_assertions::assert_eq;
     <span class="kw">use </span>test_case::test_case;
 
-    <span class="attr">#[test_case(<span class="macro">base!</span>(<span class="number">2</span>), <span class="macro">base!</span>(<span class="number">3</span>), <span class="macro">base!</span>(<span class="number">5</span>))]
-    #[test_case(<span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(<span class="number">1</span>))]
-    #[test_case(<span class="macro">base!</span>(v: x), <span class="macro">base!</span>(v: x), <span class="macro">base!</span>(v: x) * <span class="macro">base!</span>(<span class="number">2</span>))]
-    #[test_case(<span class="macro">base!</span>(-<span class="number">3</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(-<span class="number">5 </span>/ <span class="number">2</span>))]
-    #[test_case(<span class="macro">base!</span>(inf), <span class="macro">base!</span>(<span class="number">4</span>), <span class="macro">base!</span>(inf))]
-    #[test_case(<span class="macro">base!</span>(neg_inf), <span class="macro">base!</span>(<span class="number">4</span>), <span class="macro">base!</span>(neg_inf))]
-    #[test_case(<span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(pos_inf))]
-    #[test_case(<span class="macro">base!</span>(neg_inf), <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(nan))]
-    #[test_case(<span class="macro">base!</span>(nan), <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(nan))]
-    #[test_case(<span class="macro">base!</span>(<span class="number">4 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(<span class="number">2</span>))]
-    </span><span class="kw">fn </span>add(x: Base, y: Base, z: Base) {
-        <span class="macro">assert_eq!</span>(x + y, z);
+    <span class="attr">#[test_case(<span class="number">1</span>, <span class="macro">base!</span>(<span class="number">2</span>), <span class="macro">base!</span>(<span class="number">3</span>), <span class="macro">base!</span>(<span class="number">5</span>))]
+    #[test_case(<span class="number">2</span>, <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(<span class="number">1</span>))]
+    #[test_case(<span class="number">3</span>, <span class="macro">base!</span>(v: x), <span class="macro">base!</span>(v: x), <span class="macro">base!</span>(v: x) * <span class="macro">base!</span>(<span class="number">2</span>))]
+    #[test_case(<span class="number">4</span>, <span class="macro">base!</span>(-<span class="number">3</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(-<span class="number">5 </span>/ <span class="number">2</span>))]
+    #[test_case(<span class="number">5</span>, <span class="macro">base!</span>(inf), <span class="macro">base!</span>(<span class="number">4</span>), <span class="macro">base!</span>(inf))]
+    #[test_case(<span class="number">6</span>, <span class="macro">base!</span>(neg_inf), <span class="macro">base!</span>(<span class="number">4</span>), <span class="macro">base!</span>(neg_inf))]
+    #[test_case(<span class="number">7</span>, <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(pos_inf))]
+    #[test_case(<span class="number">8</span>, <span class="macro">base!</span>(neg_inf), <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(nan))]
+    #[test_case(<span class="number">9</span>, <span class="macro">base!</span>(nan), <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(nan))]
+    #[test_case(<span class="number">10</span>, <span class="macro">base!</span>(<span class="number">4 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(<span class="number">2</span>))]
+    </span><span class="kw">fn </span>add(case: u32, x: Base, y: Base, z: Base) {
+        <span class="kw">let </span>expr = x + y;
+        <span class="macro">eprintln!</span>(<span class="string">&quot;case {case}: {expr} = {z}&quot;</span>);
+        <span class="macro">assert_eq!</span>(expr, z);
     }
 
-    <span class="attr">#[test_case(<span class="macro">base!</span>(-<span class="number">1</span>), <span class="macro">base!</span>(<span class="number">3</span>), <span class="macro">base!</span>(-<span class="number">4</span>))]
-    #[test_case(<span class="macro">base!</span>(-<span class="number">3</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(-<span class="number">7 </span>/ <span class="number">2</span>))]
-    #[test_case(<span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(<span class="number">0</span>))]
-    #[test_case(<span class="macro">base!</span>(inf), <span class="macro">base!</span>(<span class="number">4</span>), <span class="macro">base!</span>(inf))]
-    #[test_case(<span class="macro">base!</span>(neg_inf), <span class="macro">base!</span>(<span class="number">4 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(neg_inf))]
-    #[test_case(<span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(<span class="number">4</span>), <span class="macro">base!</span>(pos_inf))]
-    #[test_case(<span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(nan))]
-    #[test_case(<span class="macro">base!</span>(neg_inf), <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(neg_inf))]
-    #[test_case(<span class="macro">base!</span>(nan), <span class="macro">base!</span>(inf), <span class="macro">base!</span>(nan))]
-    </span><span class="kw">fn </span>sub(x: Base, y: Base, z: Base) {
-        <span class="macro">assert_eq!</span>(x - y, z)
+    <span class="attr">#[test_case(<span class="number">1</span>, <span class="macro">base!</span>(-<span class="number">1</span>), <span class="macro">base!</span>(<span class="number">3</span>), <span class="macro">base!</span>(-<span class="number">4</span>))]
+    #[test_case(<span class="number">2</span>, <span class="macro">base!</span>(-<span class="number">3</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(-<span class="number">7 </span>/ <span class="number">2</span>))]
+    #[test_case(<span class="number">3</span>, <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(<span class="number">0</span>))]
+    #[test_case(<span class="number">4</span>, <span class="macro">base!</span>(inf), <span class="macro">base!</span>(<span class="number">4</span>), <span class="macro">base!</span>(inf))]
+    #[test_case(<span class="number">5</span>, <span class="macro">base!</span>(neg_inf), <span class="macro">base!</span>(<span class="number">4 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(neg_inf))]
+    #[test_case(<span class="number">6</span>, <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(<span class="number">4</span>), <span class="macro">base!</span>(pos_inf))]
+    #[test_case(<span class="number">7</span>, <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(nan))]
+    #[test_case(<span class="number">8</span>, <span class="macro">base!</span>(neg_inf), <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(neg_inf))]
+    #[test_case(<span class="number">9</span>, <span class="macro">base!</span>(nan), <span class="macro">base!</span>(inf), <span class="macro">base!</span>(nan))]
+    </span><span class="kw">fn </span>sub(case: u32, x: Base, y: Base, z: Base) {
+        <span class="kw">let </span>expr = x - y;
+        <span class="macro">eprintln!</span>(<span class="string">&quot;case {case}: {expr} = {z}&quot;</span>);
+        <span class="macro">assert_eq!</span>(expr, z)
     }
 
-    <span class="attr">#[test_case(<span class="macro">base!</span>(-<span class="number">1</span>), <span class="macro">base!</span>(<span class="number">3</span>), <span class="macro">base!</span>(-<span class="number">3</span>))]
-    #[test_case(<span class="macro">base!</span>(-<span class="number">1</span>), <span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(<span class="number">0</span>))]
-    #[test_case(<span class="macro">base!</span>(-<span class="number">1</span>), <span class="macro">base!</span>(<span class="number">3</span>) * <span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(<span class="number">0</span>))]
-    #[test_case(<span class="macro">base!</span>(-<span class="number">3</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(-<span class="number">3 </span>/ <span class="number">2</span>))]
-    #[test_case(<span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">4</span>))]
-    #[test_case(<span class="macro">base!</span>(inf), <span class="macro">base!</span>(<span class="number">4</span>), <span class="macro">base!</span>(inf))]
-    #[test_case(<span class="macro">base!</span>(neg_inf), <span class="macro">base!</span>(<span class="number">4 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(neg_inf))]
-    #[test_case(<span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(<span class="number">4</span>), <span class="macro">base!</span>(pos_inf))]
-    #[test_case(<span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(-<span class="number">1</span>), <span class="macro">base!</span>(neg_inf))]
-    #[test_case(<span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(pos_inf))]
-    #[test_case(<span class="macro">base!</span>(neg_inf), <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(neg_inf))]
-    #[test_case(<span class="macro">base!</span>(nan), <span class="macro">base!</span>(inf), <span class="macro">base!</span>(nan))]
-    </span><span class="kw">fn </span>mul(x: Base, y: Base, z: Base) {
-        <span class="macro">assert_eq!</span>(x * y, z);
+    <span class="attr">#[test_case(<span class="number">1</span>, <span class="macro">base!</span>(-<span class="number">1</span>), <span class="macro">base!</span>(<span class="number">3</span>), <span class="macro">base!</span>(-<span class="number">3</span>))]
+    #[test_case(<span class="number">2</span>, <span class="macro">base!</span>(-<span class="number">1</span>), <span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(<span class="number">0</span>))]
+    #[test_case(<span class="number">3</span>, <span class="macro">base!</span>(-<span class="number">1</span>), <span class="macro">base!</span>(<span class="number">3</span>) * <span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(<span class="number">0</span>))]
+    #[test_case(<span class="number">4</span>, <span class="macro">base!</span>(-<span class="number">3</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(-<span class="number">3 </span>/ <span class="number">2</span>))]
+    #[test_case(<span class="number">5</span>, <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">4</span>))]
+    #[test_case(<span class="number">6</span>, <span class="macro">base!</span>(inf), <span class="macro">base!</span>(<span class="number">4</span>), <span class="macro">base!</span>(inf))]
+    #[test_case(<span class="number">7</span>, <span class="macro">base!</span>(neg_inf), <span class="macro">base!</span>(<span class="number">4 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(neg_inf))]
+    #[test_case(<span class="number">8</span>, <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(<span class="number">4</span>), <span class="macro">base!</span>(pos_inf))]
+    #[test_case(<span class="number">9</span>, <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(-<span class="number">1</span>), <span class="macro">base!</span>(neg_inf))]
+    #[test_case(<span class="number">10</span>, <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(pos_inf))]
+    #[test_case(<span class="number">11</span>, <span class="macro">base!</span>(neg_inf), <span class="macro">base!</span>(pos_inf), <span class="macro">base!</span>(neg_inf))]
+    #[test_case(<span class="number">12</span>, <span class="macro">base!</span>(nan), <span class="macro">base!</span>(inf), <span class="macro">base!</span>(nan))]
+    </span><span class="kw">fn </span>mul(case: u32, x: Base, y: Base, z: Base) {
+        <span class="kw">let </span>expr = x * y;
+        <span class="macro">eprintln!</span>(<span class="string">&quot;case {case}: {expr} = {z}&quot;</span>);
+        <span class="macro">assert_eq!</span>(expr, z);
     }
 
-    <span class="attr">#[test_case(<span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(nan))]
-    #[test_case(<span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(<span class="number">5</span>), <span class="macro">base!</span>(<span class="number">0</span>))]
-    #[test_case(<span class="macro">base!</span>(<span class="number">5</span>), <span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(nan))]
-    #[test_case(<span class="macro">base!</span>(<span class="number">5</span>), <span class="macro">base!</span>(<span class="number">5</span>), <span class="macro">base!</span>(<span class="number">1</span>))]
-    #[test_case(<span class="macro">base!</span>(<span class="number">1</span>), <span class="macro">base!</span>(<span class="number">3</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">3</span>))]
-    </span><span class="kw">fn </span>div(x: Base, y: Base, z: Base) {
-        <span class="macro">assert_eq!</span>(x / y, z);
+    <span class="attr">#[test_case(<span class="number">1</span>, <span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(nan))]
+    #[test_case(<span class="number">2</span>, <span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(<span class="number">5</span>), <span class="macro">base!</span>(<span class="number">0</span>))]
+    #[test_case(<span class="number">3</span>, <span class="macro">base!</span>(<span class="number">5</span>), <span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(nan))]
+    #[test_case(<span class="number">4</span>, <span class="macro">base!</span>(<span class="number">5</span>), <span class="macro">base!</span>(<span class="number">5</span>), <span class="macro">base!</span>(<span class="number">1</span>))]
+    #[test_case(<span class="number">5</span>, <span class="macro">base!</span>(<span class="number">1</span>), <span class="macro">base!</span>(<span class="number">3</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">3</span>))]
+    </span><span class="kw">fn </span>div(case: u32, x: Base, y: Base, z: Base) {
+        <span class="kw">let </span>div = x / y;
+        <span class="macro">eprintln!</span>(<span class="string">&quot;case {case}: {div} = {z}&quot;</span>);
+        <span class="macro">assert_eq!</span>(div, z);
     }
 
-    <span class="attr">#[test_case(<span class="macro">base!</span>(<span class="number">1</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">100</span>), <span class="macro">base!</span>(<span class="number">1</span>))]
-    #[test_case(<span class="macro">base!</span>(<span class="number">4</span>), <span class="macro">base!</span>(<span class="number">1</span>), <span class="macro">base!</span>(<span class="number">4</span>))]
-    #[test_case(<span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(nan))]
-    #[test_case(<span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(-<span class="number">3 </span>/ <span class="number">4</span>), <span class="macro">base!</span>(nan))]
-    #[test_case(<span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(<span class="number">3 </span>/ <span class="number">4</span>), <span class="macro">base!</span>(<span class="number">0</span>))]
-    #[test_case(<span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(-<span class="number">1</span>), <span class="macro">base!</span>(<span class="number">4 </span>/ <span class="number">2</span>))]
-    </span><span class="kw">fn </span>pow(x: Base, y: Base, z: Base) {
-        <span class="macro">assert_eq!</span>(x ^ y, z);
+    <span class="attr">#[test_case(<span class="number">1</span>, <span class="macro">base!</span>(<span class="number">1</span>), <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">100</span>), <span class="macro">base!</span>(<span class="number">1</span>))]
+    #[test_case(<span class="number">2</span>, <span class="macro">base!</span>(<span class="number">4</span>), <span class="macro">base!</span>(<span class="number">1</span>), <span class="macro">base!</span>(<span class="number">4</span>))]
+    #[test_case(<span class="number">3</span>, <span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(nan))]
+    #[test_case(<span class="number">4</span>, <span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(-<span class="number">3 </span>/ <span class="number">4</span>), <span class="macro">base!</span>(nan))]
+    #[test_case(<span class="number">5</span>, <span class="macro">base!</span>(<span class="number">0</span>), <span class="macro">base!</span>(<span class="number">3 </span>/ <span class="number">4</span>), <span class="macro">base!</span>(<span class="number">0</span>))]
+    #[test_case(<span class="number">6</span>, <span class="macro">base!</span>(<span class="number">1 </span>/ <span class="number">2</span>), <span class="macro">base!</span>(-<span class="number">1</span>), <span class="macro">base!</span>(<span class="number">4 </span>/ <span class="number">2</span>))]
+    </span><span class="kw">fn </span>pow(case: u32, x: Base, y: Base, z: Base) {
+        <span class="kw">let </span>expr = x ^ y;
+        <span class="macro">eprintln!</span>(<span class="string">&quot;case {case}: {expr} = {z}&quot;</span>);
+        <span class="macro">assert_eq!</span>(expr, z);
     }
 
     <span class="attr">#[test]

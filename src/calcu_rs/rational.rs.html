@@ -405,16 +405,14 @@
 <a href="#405" id="405">405</a>
 <a href="#406" id="406">406</a>
 <a href="#407" id="407">407</a>
-<a href="#408" id="408">408</a>
-<a href="#409" id="409">409</a>
-<a href="#410" id="410">410</a>
-<a href="#411" id="411">411</a>
-<a href="#412" id="412">412</a>
-<a href="#413" id="413">413</a>
-<a href="#414" id="414">414</a>
-<a href="#415" id="415">415</a>
-</pre></div><pre class="rust"><code><span class="kw">use crate</span>::{
-    base::{Base, CalcursType, Num},
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::{
+    fmt::{<span class="self">self</span>, Display},
+    hash::Hash,
+    ops::{Add, Deref, Div, Mul, Neg, Sub},
+};
+
+<span class="kw">use crate</span>::{
+    base::{Base, CalcursType},
     numeric::{Number, Sign, Undefined},
 };
 <span class="kw">use </span>num::Integer;
@@ -426,7 +424,7 @@
 /// will panic otherwise
 </span><span class="attr">#[repr(transparent)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>NonZeroUInt(UInt);
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>NonZeroUInt(<span class="kw">pub</span>(<span class="kw">crate</span>) UInt);
 
 <span class="kw">impl </span>NonZeroUInt {
     <span class="attr">#[inline]
@@ -467,7 +465,7 @@
     }
 }
 
-<span class="kw">impl </span>std::ops::Deref <span class="kw">for </span>NonZeroUInt {
+<span class="kw">impl </span>Deref <span class="kw">for </span>NonZeroUInt {
     <span class="kw">type </span>Target = UInt;
 
     <span class="attr">#[inline]
@@ -480,11 +478,21 @@
 ///
 /// implemented with two [UInt]: numer and a denom, where denom is of type [NonZeroUInt] \
 /// Sign defined with a boolean field
-</span><span class="attr">#[derive(Debug, Clone, Eq, Copy, Hash)]
+</span><span class="attr">#[derive(Debug, Clone, Eq, Copy)]
 </span><span class="kw">pub struct </span>Rational {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) is_neg: bool,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) sign: Sign,
     <span class="kw">pub</span>(<span class="kw">crate</span>) numer: UInt,
     <span class="kw">pub</span>(<span class="kw">crate</span>) denom: NonZeroUInt,
+}
+
+<span class="kw">impl </span>Hash <span class="kw">for </span>Rational {
+    <span class="kw">fn </span>hash&lt;H: std::hash::Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
+        <span class="kw">if </span><span class="self">self</span>.numer != <span class="number">0 </span>{
+            <span class="self">self</span>.sign.hash(state);
+        }
+        <span class="self">self</span>.numer.hash(state);
+        <span class="self">self</span>.denom.hash(state);
+    }
 }
 
 <span class="kw">impl </span>PartialEq <span class="kw">for </span>Rational {
@@ -492,7 +500,7 @@
         <span class="kw">if </span><span class="self">self</span>.numer == <span class="number">0 </span>&amp;&amp; other.numer == <span class="number">0 </span>{
             <span class="bool-val">true
         </span>} <span class="kw">else </span>{
-            <span class="self">self</span>.is_neg == other.is_neg &amp;&amp; <span class="self">self</span>.numer == other.numer &amp;&amp; <span class="self">self</span>.denom == other.denom
+            <span class="self">self</span>.sign == other.sign &amp;&amp; <span class="self">self</span>.numer == other.numer &amp;&amp; <span class="self">self</span>.denom == other.denom
         }
     }
 }
@@ -503,68 +511,46 @@
     }
 }
 
-<span class="kw">impl </span>Num <span class="kw">for </span>Rational {
-    <span class="attr">#[inline]
-    </span><span class="kw">fn </span>is_zero(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.numer == <span class="number">0
-    </span>}
-
-    <span class="attr">#[inline]
-    </span><span class="kw">fn </span>is_one(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.numer == <span class="number">1 </span>&amp;&amp; <span class="kw-2">*</span><span class="self">self</span>.denom == <span class="number">1 </span>&amp;&amp; !<span class="self">self</span>.is_neg
-    }
-
-    <span class="attr">#[inline]
-    </span><span class="kw">fn </span>is_neg_one(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.numer == <span class="number">1 </span>&amp;&amp; <span class="kw-2">*</span><span class="self">self</span>.denom == <span class="number">1 </span>&amp;&amp; <span class="self">self</span>.is_neg
-    }
-
-    <span class="attr">#[inline]
-    </span><span class="kw">fn </span>sign(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Sign&gt; {
-        <span class="prelude-val">Some</span>(<span class="kw">match </span><span class="self">self</span>.is_neg {
-            <span class="bool-val">true </span>=&gt; Sign::Neg,
-            <span class="bool-val">false </span>=&gt; Sign::Pos,
-        })
-    }
-}
-
 <span class="kw">impl </span>Rational {
+    <span class="kw">pub const fn </span>one() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            numer: <span class="number">1</span>,
+            denom: NonZeroUInt::new(<span class="number">1</span>),
+            sign: Sign::Positive,
+        }
+    }
+
     <span class="kw">pub fn </span>new(num: i32, den: i32) -&gt; <span class="self">Self </span>{
-        <span class="kw">match </span>(num, den) {
-            (<span class="kw">_</span>, <span class="number">0</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Rational::new: found 0 denominator&quot;</span>),
-            <span class="kw">_ </span>=&gt; (),
+        <span class="kw">if let </span>(<span class="kw">_</span>, <span class="number">0</span>) = (num, den) {
+            <span class="macro">panic!</span>(<span class="string">&quot;Rational::new: found 0 denominator&quot;</span>)
         }
 
-        <span class="kw">let </span>is_neg = (num * den).is_negative();
+        <span class="kw">let </span>sign = <span class="kw">match </span>(num * den).is_positive() {
+            <span class="bool-val">true </span>=&gt; Sign::Positive,
+            <span class="bool-val">false </span>=&gt; Sign::Negative,
+        };
+
         <span class="kw">let </span>numer = num.unsigned_abs() <span class="kw">as </span>UInt;
         <span class="kw">let </span>denom = NonZeroUInt::new(den.unsigned_abs() <span class="kw">as </span>UInt);
 
-        <span class="self">Self </span>{
-            is_neg,
-            numer,
-            denom,
-        }
-        .reduce()
-        .into()
+        <span class="self">Self </span>{ sign, numer, denom }.reduce()
     }
 
     <span class="kw">pub fn </span>frac_num(num: i32, den: i32) -&gt; Number {
         <span class="kw">match </span>(num, den) {
-            (<span class="kw">_</span>, <span class="number">0</span>) =&gt; <span class="kw">return </span>Undefined.into(),
+            (<span class="kw">_</span>, <span class="number">0</span>) =&gt; Undefined.into(),
             <span class="kw">_ </span>=&gt; <span class="self">Self</span>::new(num, den).into(),
         }
     }
 
     <span class="kw">pub fn </span>int_num(n: i32) -&gt; Number {
-        <span class="kw">let </span>is_neg = n.is_negative();
+        <span class="kw">let </span>sign = <span class="kw">match </span>n.is_positive() {
+            <span class="bool-val">true </span>=&gt; Sign::Positive,
+            <span class="bool-val">false </span>=&gt; Sign::Negative,
+        };
         <span class="kw">let </span>numer = n.unsigned_abs() <span class="kw">as </span>UInt;
         <span class="kw">let </span>denom = NonZeroUInt::new(<span class="number">1</span>);
-        <span class="self">Self </span>{
-            is_neg,
-            numer,
-            denom,
-        }
-        .into()
+        <span class="self">Self </span>{ sign, numer, denom }.into()
     }
 
     <span class="attr">#[inline]
@@ -573,7 +559,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>denom(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; UInt {
+    </span><span class="kw">pub const fn </span>denom(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; UInt {
         <span class="self">self</span>.denom.<span class="number">0
     </span>}
 
@@ -584,7 +570,7 @@
             <span class="comment">// 0 / x =&gt; 0 / 1
             </span>(<span class="number">0</span>, <span class="kw">_</span>) =&gt; {
                 <span class="self">self</span>.denom.set(<span class="number">1</span>);
-                <span class="self">self</span>.is_neg = <span class="bool-val">false</span>;
+                <span class="self">self</span>.sign = Sign::Positive;
             }
 
             <span class="comment">// x / x =&gt; 1
@@ -611,7 +597,7 @@
         <span class="kw">let </span>lhs_numer = f1.<span class="number">0 </span>* (lcm / f1.<span class="number">1</span>);
         <span class="kw">let </span>rhs_numer = f2.<span class="number">0 </span>* (lcm / f2.<span class="number">1</span>);
         Rational {
-            is_neg: <span class="bool-val">false</span>,
+            sign: Sign::Positive,
             numer: lhs_numer + rhs_numer,
             denom: NonZeroUInt::new(lcm),
         }
@@ -627,7 +613,7 @@
         <span class="kw">let </span>lhs_numer = f1.<span class="number">0 </span>* (lcm / f1.<span class="number">1</span>);
         <span class="kw">let </span>rhs_numer = f2.<span class="number">0 </span>* (lcm / f2.<span class="number">1</span>);
         Rational {
-            is_neg: <span class="bool-val">false</span>,
+            sign: Sign::Positive,
             numer: lhs_numer - rhs_numer,
             denom: NonZeroUInt::new(lcm),
         }
@@ -636,54 +622,52 @@
 
     <span class="kw">pub fn </span>abs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>res = <span class="kw-2">*</span><span class="self">self</span>;
-        res.is_neg = <span class="bool-val">false</span>;
+        res.sign = Sign::Positive;
         res
     }
 
     <span class="kw">pub fn </span>div_ratio(<span class="self">self</span>, other: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>(<span class="kw-2">mut </span>lhs, rhs) = (<span class="self">self</span>, other);
-        lhs.is_neg = lhs.is_neg || rhs.is_neg;
+        lhs.sign <span class="kw-2">*</span>= rhs.sign;
         <span class="kw">let </span>gcd_ac = lhs.numer.gcd(<span class="kw-2">&amp;</span>rhs.numer);
         <span class="kw">let </span>gcd_bd = lhs.denom.gcd(<span class="kw-2">&amp;</span>rhs.denom);
         lhs.numer /= gcd_ac;
         lhs.numer <span class="kw-2">*</span>= <span class="kw-2">*</span>rhs.denom / gcd_bd;
         lhs.denom.div(gcd_bd);
         lhs.denom.mul(rhs.numer / gcd_ac);
-        lhs.is_neg = lhs.is_neg &amp;&amp; (lhs.numer != <span class="number">0</span>);
         lhs
     }
 
     <span class="kw">pub fn </span>mul_ratio(<span class="self">self</span>, other: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>(<span class="kw-2">mut </span>lhs, rhs) = (<span class="self">self</span>, other);
-        lhs.is_neg = lhs.is_neg || rhs.is_neg;
+        lhs.sign <span class="kw-2">*</span>= rhs.sign;
         <span class="kw">let </span>gcd_ad = lhs.numer.gcd(<span class="kw-2">&amp;</span>rhs.denom);
         <span class="kw">let </span>gcd_bc = lhs.denom.gcd(<span class="kw-2">&amp;</span>rhs.numer);
         lhs.numer /= gcd_ad;
         lhs.numer <span class="kw-2">*</span>= rhs.numer / gcd_bc;
         lhs.denom.div(gcd_bc);
         lhs.denom.mul(<span class="kw-2">*</span>rhs.denom / gcd_ad);
-        lhs.is_neg = lhs.is_neg &amp;&amp; (lhs.numer != <span class="number">0</span>);
         lhs
     }
 
     <span class="kw">pub fn </span>sub_ratio(<span class="self">self</span>, other: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>rhs = other;
-        rhs.is_neg = !rhs.is_neg;
-        <span class="self">self</span>.add_ratio(rhs).into()
+        rhs.sign = rhs.sign * Sign::Negative;
+        <span class="self">self</span>.add_ratio(rhs)
     }
 
     <span class="kw">pub fn </span>add_ratio(<span class="self">self</span>, other: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>(<span class="kw-2">mut </span>lhs, rhs) = (<span class="self">self</span>, other);
 
-        <span class="kw">if </span>lhs.denom == rhs.denom &amp;&amp; lhs.is_neg == rhs.is_neg {
+        <span class="kw">if </span>lhs.denom == rhs.denom &amp;&amp; lhs.sign == rhs.sign {
             lhs.numer += rhs.numer;
             <span class="kw">return </span>lhs.reduce();
         }
 
-        <span class="kw">match </span>(lhs.is_pos(), rhs.is_pos()) {
+        <span class="kw">match </span>(lhs.sign.is_pos(), rhs.sign.is_pos()) {
             (<span class="bool-val">true</span>, <span class="bool-val">true</span>) | (<span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>res = <span class="self">Self</span>::unsigned_add((lhs.numer, <span class="kw-2">*</span>lhs.denom), (rhs.numer, <span class="kw-2">*</span>rhs.denom));
-                res.is_neg = lhs.is_neg;
+                res.sign = lhs.sign;
                 res
             }
 
@@ -696,7 +680,7 @@
                     <span class="comment">// lhs &gt;= rhs =&gt; -(lhs - rhs)
                     </span><span class="kw">let </span><span class="kw-2">mut </span>res =
                         <span class="self">Self</span>::unsigned_sub((lhs.numer, <span class="kw-2">*</span>lhs.denom), (rhs.numer, <span class="kw-2">*</span>rhs.denom));
-                    res.is_neg = <span class="bool-val">true</span>;
+                    res.sign = Sign::Negative;
                     res
                 } <span class="kw">else </span>{
                     <span class="comment">// rhs &gt; lhs =&gt; rhs - lhs
@@ -716,7 +700,7 @@
                     <span class="comment">// rhs &gt; lhs =&gt; -(lhs + rhs)
                     </span><span class="kw">let </span><span class="kw-2">mut </span>res =
                         <span class="self">Self</span>::unsigned_sub((rhs.numer, <span class="kw-2">*</span>rhs.denom), (lhs.numer, <span class="kw-2">*</span>lhs.denom));
-                    res.is_neg = <span class="bool-val">true</span>;
+                    res.sign = Sign::Negative;
                     res
                 }
             }
@@ -724,17 +708,17 @@
     }
 }
 
-<span class="kw">impl </span>std::ops::Neg <span class="kw">for </span>Rational {
+<span class="kw">impl </span>Neg <span class="kw">for </span>Rational {
     <span class="kw">type </span>Output = <span class="self">Self</span>;
 
     <span class="kw">fn </span>neg(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Output {
-        <span class="self">self</span>.is_neg = !<span class="self">self</span>.is_neg;
+        <span class="self">self</span>.sign <span class="kw-2">*</span>= Sign::Negative;
         <span class="self">self
     </span>}
 }
 
 <span class="comment">//TODO: checked add
-</span><span class="kw">impl </span>std::ops::Add <span class="kw">for </span>Rational {
+</span><span class="kw">impl </span>Add <span class="kw">for </span>Rational {
     <span class="kw">type </span>Output = Rational;
 
     <span class="kw">fn </span>add(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
@@ -742,7 +726,7 @@
     }
 }
 
-<span class="kw">impl </span>std::ops::Sub <span class="kw">for </span>Rational {
+<span class="kw">impl </span>Sub <span class="kw">for </span>Rational {
     <span class="kw">type </span>Output = Rational;
 
     <span class="kw">fn </span>sub(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
@@ -750,7 +734,7 @@
     }
 }
 
-<span class="kw">impl </span>std::ops::Mul <span class="kw">for </span>Rational {
+<span class="kw">impl </span>Mul <span class="kw">for </span>Rational {
     <span class="kw">type </span>Output = Rational;
 
     <span class="kw">fn </span>mul(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
@@ -758,7 +742,7 @@
     }
 }
 
-<span class="kw">impl </span>std::ops::Div <span class="kw">for </span>Rational {
+<span class="kw">impl </span>Div <span class="kw">for </span>Rational {
     <span class="kw">type </span>Output = Rational;
 
     <span class="kw">fn </span>div(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
@@ -768,21 +752,21 @@
 
 <span class="kw">impl </span>PartialOrd <span class="kw">for </span>Rational {
     <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;std::cmp::Ordering&gt; {
-        <span class="kw">let </span>v1 = <span class="self">self</span>.numer * <span class="kw-2">*</span>other.denom;
-        <span class="kw">let </span>v2 = other.numer * <span class="kw-2">*</span><span class="self">self</span>.denom;
-        v1.partial_cmp(<span class="kw-2">&amp;</span>v2)
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.cmp(other))
     }
 }
 
 <span class="kw">impl </span>Ord <span class="kw">for </span>Rational {
     <span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; std::cmp::Ordering {
-        <span class="self">self</span>.partial_cmp(other).unwrap()
+        <span class="kw">let </span>v1 = <span class="self">self</span>.numer * <span class="kw-2">*</span>other.denom;
+        <span class="kw">let </span>v2 = other.numer * <span class="kw-2">*</span><span class="self">self</span>.denom;
+        v1.cmp(<span class="kw-2">&amp;</span>v2)
     }
 }
 
-<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>Rational {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
-        <span class="kw">if </span><span class="self">self</span>.is_neg {
+<span class="kw">impl </span>Display <span class="kw">for </span>Rational {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">if </span><span class="self">self</span>.sign.is_neg() {
             <span class="macro">write!</span>(f, <span class="string">&quot;-&quot;</span>)<span class="question-mark">?</span>;
         }
 
@@ -794,8 +778,8 @@
     }
 }
 
-<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>NonZeroUInt {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+<span class="kw">impl </span>Display <span class="kw">for </span>NonZeroUInt {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
         <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
     }
 }

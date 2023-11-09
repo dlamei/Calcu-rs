@@ -183,23 +183,6 @@
 <a href="#183" id="183">183</a>
 <a href="#184" id="184">184</a>
 <a href="#185" id="185">185</a>
-<a href="#186" id="186">186</a>
-<a href="#187" id="187">187</a>
-<a href="#188" id="188">188</a>
-<a href="#189" id="189">189</a>
-<a href="#190" id="190">190</a>
-<a href="#191" id="191">191</a>
-<a href="#192" id="192">192</a>
-<a href="#193" id="193">193</a>
-<a href="#194" id="194">194</a>
-<a href="#195" id="195">195</a>
-<a href="#196" id="196">196</a>
-<a href="#197" id="197">197</a>
-<a href="#198" id="198">198</a>
-<a href="#199" id="199">199</a>
-<a href="#200" id="200">200</a>
-<a href="#201" id="201">201</a>
-<a href="#202" id="202">202</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{
     cell::RefCell,
     collections::HashMap,
@@ -209,7 +192,7 @@
 };
 
 <span class="kw">use crate</span>::{
-    numeric::{Number, Sign},
+    numeric::Number,
     operator::{Add, Div, Mul, Pow, Sub},
 };
 
@@ -218,31 +201,15 @@
     <span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base;
 }
 
-<span class="doccomment">/// implemented by every struct that represenets a numeric type
-</span><span class="kw">pub trait </span>Num {
-    <span class="kw">fn </span>is_zero(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
-    <span class="kw">fn </span>is_one(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
-    <span class="kw">fn </span>is_neg_one(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
-    <span class="kw">fn </span>sign(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Sign&gt;;
-
-    <span class="kw">fn </span>is_pos(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.sign().map_or_else(|| <span class="bool-val">false</span>, |s| s.is_pos())
-    }
-
-    <span class="kw">fn </span>is_neg(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.sign().map_or_else(|| <span class="bool-val">false</span>, |s| s.is_neg())
-    }
-}
-
 <span class="kw">pub type </span>PTR&lt;T&gt; = Box&lt;T&gt;;
-<span class="kw">pub type </span>SubsDict = Rc&lt;RefCell&lt;HashMap&lt;Variable, Base&gt;&gt;&gt;;
+<span class="kw">pub type </span>SubsDict = Rc&lt;RefCell&lt;HashMap&lt;Symbol, Base&gt;&gt;&gt;;
 
 <span class="attr">#[derive(Debug, Clone, PartialEq, PartialOrd, Ord, Eq, Hash)]
-</span><span class="kw">pub struct </span>Variable {
+</span><span class="kw">pub struct </span>Symbol {
     <span class="kw">pub </span>name: String,
 }
 
-<span class="kw">impl </span>Variable {
+<span class="kw">impl </span>Symbol {
     <span class="kw">pub fn </span>new&lt;I: Into&lt;String&gt;&gt;(name: I) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ name: name.into() }
     }
@@ -252,26 +219,25 @@
     </span>}
 }
 
-<span class="kw">impl </span>Display <span class="kw">for </span>Variable {
+<span class="kw">impl </span>Display <span class="kw">for </span>Symbol {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
         <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.name)
     }
 }
 
-<span class="kw">impl </span>CalcursType <span class="kw">for </span>Variable {
+<span class="kw">impl </span>CalcursType <span class="kw">for </span>Symbol {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
-        Base::Var(<span class="self">self</span>).base()
+        Base::Symbol(<span class="self">self</span>).base()
     }
 }
 
 <span class="attr">#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 </span><span class="kw">pub enum </span>Base {
-    Var(Variable),
+    Symbol(Symbol),
     Number(Number),
-    Dummy,
-
-    Add(Add),
+    <span class="comment">// Dummy,
+    </span>Add(Add),
     Mul(Mul),
     Pow(PTR&lt;Pow&gt;),
 }
@@ -303,17 +269,17 @@
     };
 
     (v: <span class="macro-nonterminal">$var</span>: tt) =&gt; {
-        Variable::new(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$var</span>)).base()
+        Symbol::new(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$var</span>)).base()
     };
 }
 
 <span class="kw">impl </span>Display <span class="kw">for </span>Base {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            Base::Var(v) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{v}&quot;</span>),
+            Base::Symbol(v) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{v}&quot;</span>),
             Base::Number(n) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{n}&quot;</span>),
-            Base::Dummy =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Dummy&quot;</span>),
-            Base::Add(a) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{a}&quot;</span>),
+            <span class="comment">// Base::Dummy =&gt; write!(f, &quot;Dummy&quot;),
+            </span>Base::Add(a) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{a}&quot;</span>),
             Base::Mul(m) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{m}&quot;</span>),
             Base::Pow(p) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{p}&quot;</span>),
         }
@@ -327,9 +293,9 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;T: Into&lt;String&gt;&gt; From&lt;T&gt; <span class="kw">for </span>Variable {
+<span class="kw">impl</span>&lt;T: Into&lt;String&gt;&gt; From&lt;T&gt; <span class="kw">for </span>Symbol {
     <span class="kw">fn </span>from(value: T) -&gt; <span class="self">Self </span>{
-        Variable { name: value.into() }
+        Symbol { name: value.into() }
     }
 }
 

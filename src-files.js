@@ -1,4 +1,4 @@
 var srcIndex = JSON.parse('{\
-"calcu_rs":["",[],["base.rs","lib.rs","numeric.rs","operator.rs","rational.rs"]]\
+"calcu_rs":["",[],["base.rs","derivative.rs","lib.rs","numeric.rs","operator.rs","pattern.rs","rational.rs"]]\
 }');
 createSrcSidebar();
