@@ -66,72 +66,178 @@
 <a href="#66" id="66">66</a>
 <a href="#67" id="67">67</a>
 <a href="#68" id="68">68</a>
-</pre></div><pre class="rust"><code><span class="macro">macro_rules! </span>pat {
-    (<span class="kw">use</span>) =&gt; {
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+</pre></div><pre class="rust"><code><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>__ {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>p {
         <span class="attr">#[allow(unused_imports)]
-        </span><span class="kw">use crate</span>::{base::Base, numeric::{Number, Infinity, Undefined, Sign}, rational::{Rational, NonZeroUInt}};
-    };
+        </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use crate</span>::{
+            base::Base,
+            numeric::{Infinity, Number, Sign, Undefined},
+            pattern::num_pat,
+            rational::{NonZeroUInt, Rational},
+        };
+    }
+}
 
-    (Number: <span class="number">0</span>) =&gt; {
-        Number::Rational(Rational { numer: <span class="number">0</span>, .. })
-    };
-
-    (Number: <span class="number">1</span>) =&gt; {
-        Number::Rational(Rational { numer: <span class="number">1</span>, denom: NonZeroUInt(<span class="number">1</span>), sign: Sign::Positive })
-    };
-
-    (Number: -<span class="number">1</span>) =&gt; {
-        Number::Rational(Rational { numer: <span class="number">1</span>, denom: NonZeroUInt(<span class="number">1</span>), sign: Sign::Negative })
-    };
-
-    (Number: undef) =&gt; {
-        Number::Undefined(<span class="kw">_</span>)
-    };
-
-    (Number: +) =&gt; {
-        Number::Infinity(Infinity { sign: Sign::Positive })
-        | Number::Rational(Rational { sign: Sign::Positive, ..})
-    };
-
-    (Number: -) =&gt; {
-        Number::Infinity(Infinity { sign: Sign::Negative })
-        | Number::Rational(Rational { sign: Sign::Negative, ..})
+<span class="macro">macro_rules! </span>num_pat {
+    (base: $(<span class="macro-nonterminal">$n</span>: tt)<span class="kw-2">*</span>) =&gt; {
+        p::Base::Number(<span class="macro">p::num_pat!</span>($(<span class="macro-nonterminal">$n</span>)<span class="kw-2">*</span>))
     };
 
     (<span class="number">0</span>) =&gt; {
-        Base::Number(<span class="macro">pat!</span>(Number: <span class="number">0</span>))
+        p::Number::Rational(p::Rational { numer: <span class="number">0</span>, .. })
     };
 
     (<span class="number">1</span>) =&gt; {
-        Base::Number(<span class="macro">pat!</span>(Number: <span class="number">1</span>))
+        p::Number::Rational(p::Rational {
+            numer: <span class="number">1</span>,
+            denom: p::NonZeroUInt { non_zero_val: <span class="number">1 </span>},
+            sign: p::Sign::Positive,
+        })
     };
 
     (-<span class="number">1</span>) =&gt; {
-        Base::Number(<span class="macro">pat!</span>(Number: -<span class="number">1</span>))
+        p::Number::Rational(p::Rational {
+            numer: <span class="number">1</span>,
+            denom: p::NonZeroUInt { non_zero_val: <span class="number">1 </span>},
+            sign: p::Sign::Negative,
+        })
     };
 
     (undef) =&gt; {
-        Base::Number(<span class="macro">pat!</span>(Number: undef))
+        p::Number::Undefined(<span class="kw">_</span>)
+    };
+
+    <span class="comment">//TODO: +oo?
+    </span>(+) =&gt; {
+        Number::Rational(p::Rational {
+            sign: p::Sign::Positive,
+            ..
+        })
+    };
+
+    (-) =&gt; {
+        Number::Rational(p::Rational {
+            sign: p::Sign::Negative,
+            ..
+        })
+    };
+
+    (<span class="macro-nonterminal">$n</span>: ident) =&gt; {
+        p::Base::Number(<span class="macro-nonterminal">$n</span>)
+    };
+
+    () =&gt; {
+        p::Base::Number(<span class="kw">_</span>)
     };
 
     (Rational: <span class="macro-nonterminal">$r</span>: ident) =&gt; {
-        Base::Number(Number::Rational(<span class="macro-nonterminal">$r</span>))
+        p::Number::Rational(<span class="macro-nonterminal">$r</span>)
+    }
+}
+
+<span class="macro">macro_rules! </span>pat {
+    (<span class="kw">use</span>) =&gt; {
+        <span class="kw">use </span><span class="kw">crate</span>::pattern::__::p;
     };
 
-    (Number: <span class="macro-nonterminal">$n</span>: ident) =&gt; {
-        Base::Number(<span class="macro-nonterminal">$n</span>)
+    <span class="comment">// --- types ---
+
+    </span>(Symbol: <span class="macro-nonterminal">$s</span>: ident) =&gt; {
+        p::Base::Symbol(<span class="macro-nonterminal">$s</span>)
     };
 
-    <span class="comment">// +Inf, +rational
-    </span>(+) =&gt; {
-        Base::Number(<span class="macro">pat!</span>(Number: +))
+    (Number) =&gt; {
+        <span class="macro">p::num_pat!</span>()
     };
 
-    <span class="comment">// -Inf, -rational
-    </span>(-) =&gt; {
-        Base::Number(<span class="macro">pat!</span>(Number: -))
+    (Number: $(<span class="macro-nonterminal">$n</span>: tt)+) =&gt; {
+        <span class="macro">p::num_pat!</span>($(<span class="macro-nonterminal">$n</span>)+)
+    };
+
+    (Rational: <span class="macro-nonterminal">$r</span>: ident) =&gt; {
+        <span class="macro">p::num_pat!</span>(base: Rational: <span class="macro-nonterminal">$r</span>)
+    };
+
+    <span class="comment">// --- values ---
+
+    </span>(<span class="number">0</span>) =&gt; {
+        <span class="macro">p::num_pat!</span>(base: <span class="number">0</span>)
+    };
+
+    (<span class="number">1</span>) =&gt; {
+        <span class="macro">p::num_pat!</span>(base: <span class="number">1</span>)
+    };
+
+    (-<span class="number">1</span>) =&gt; {
+        <span class="macro">p::num_pat!</span>(base: -<span class="number">1</span>)
+    };
+
+    (undef) =&gt; {
+        <span class="macro">p::num_pat!</span>(base: undef)
+    };
+
+    (+) =&gt; {
+        <span class="macro">p::num_pat!</span>(base: +)
+    };
+
+    (-) =&gt; {
+        <span class="macro">p::num_pat!</span>(base: -)
     };
 }
 
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>num_pat;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>pat;
 </code></pre></div></section></main></body></html>

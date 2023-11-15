@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":["pat"]};
+window.SIDEBAR_ITEMS = {"macro":["num_pat","pat"],"mod":["__"]};

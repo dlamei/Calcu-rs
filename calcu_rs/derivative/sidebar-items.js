@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["derive"]};
+window.SIDEBAR_ITEMS = {"struct":["Derivative"]};
