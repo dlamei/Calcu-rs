@@ -484,6 +484,12 @@
 <a href="#484" id="484">484</a>
 <a href="#485" id="485">485</a>
 <a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a>
+<a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>num::integer::Roots;
 <span class="kw">use </span>std::{
     cmp::Ordering,
@@ -497,10 +503,16 @@
     rational::{NonZero, Rational},
 };
 
-<span class="attr">#[derive(Debug, Clone, Hash, PartialEq, PartialOrd, Eq, Copy)]
+<span class="attr">#[derive(Debug, Clone, Hash, PartialEq, Eq, Copy)]
 </span><span class="kw">pub enum </span>Sign {
     Positive,
     Negative,
+}
+
+<span class="kw">impl </span>PartialOrd <span class="kw">for </span>Sign {
+    <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Ordering&gt; {
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.cmp(other))
+    }
 }
 
 <span class="kw">impl </span>Ord <span class="kw">for </span>Sign {
@@ -793,7 +805,7 @@
         <span class="kw">match </span>(<span class="self">self</span>, n) {
             (N::Undefined(<span class="kw">_</span>), <span class="kw">_</span>) | (<span class="kw">_</span>, N::Undefined(<span class="kw">_</span>)) =&gt; Undefined.into(),
             (N::Infinity(inf), n) | (n, N::Infinity(inf)) =&gt; inf.add_num(n),
-            (N::Rational(r1), N::Rational(r2)) =&gt; r1.add_ratio(r2).into(),
+            (N::Rational(r1), N::Rational(r2)) =&gt; r1.add(r2).into(),
         }
     }
 
@@ -803,7 +815,7 @@
             (N::Undefined(<span class="kw">_</span>), <span class="kw">_</span>) | (<span class="kw">_</span>, N::Undefined(<span class="kw">_</span>)) =&gt; Undefined.into(),
             (N::Infinity(inf), n) =&gt; inf.sub_num(n),
             (n, N::Infinity(inf)) =&gt; n.sub_inf(inf),
-            (N::Rational(r1), N::Rational(r2)) =&gt; r1.sub_ratio(r2).into(),
+            (N::Rational(r1), N::Rational(r2)) =&gt; r1.sub(r2).into(),
         }
     }
 
@@ -812,7 +824,7 @@
         <span class="kw">match </span>(<span class="self">self</span>, n) {
             (N::Undefined(<span class="kw">_</span>), <span class="kw">_</span>) | (<span class="kw">_</span>, N::Undefined(<span class="kw">_</span>)) =&gt; Undefined.into(),
             (N::Infinity(inf), n) | (n, N::Infinity(inf)) =&gt; inf.mul_num(n),
-            (N::Rational(r1), N::Rational(r2)) =&gt; r1.mul_ratio(r2).into(),
+            (N::Rational(r1), N::Rational(r2)) =&gt; r1.mul(r2).into(),
         }
     }
 
@@ -823,7 +835,7 @@
             (N::Infinity(inf), n) =&gt; inf.div_num(n),
             (n, N::Infinity(inf)) =&gt; n.div_inf(inf),
 
-            (N::Rational(r1), N::Rational(r2)) =&gt; r1.div_ratio(r2).into(),
+            (N::Rational(r1), N::Rational(r2)) =&gt; r1.div(r2).into(),
         }
     }
 

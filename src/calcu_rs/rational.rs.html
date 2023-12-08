@@ -613,6 +613,29 @@
 <a href="#613" id="613">613</a>
 <a href="#614" id="614">614</a>
 <a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::{
     cmp,
     fmt::{<span class="self">self</span>, Display},
@@ -627,126 +650,199 @@
     numeric::{Numeric, Sign},
 };
 
+<span class="kw">pub type </span>RatioTyp = u64;
+
 <span class="doccomment">/// Nonzero integer value
 ///
 /// will panic if set to 0
 </span><span class="attr">#[repr(transparent)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>NonZero&lt;T&gt; {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) non_zero_val: T,
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>NonZero {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) non_zero_val: RatioTyp,
 }
 
-<span class="kw">impl</span>&lt;T: Integer + Copy&gt; NonZero&lt;T&gt; {
+<span class="kw">impl </span>NonZero {
     <span class="doccomment">/// panics if arg is 0
     </span><span class="attr">#[inline(always)]
-    </span><span class="kw">pub fn </span>new(n: T) -&gt; <span class="self">Self </span>{
-        <span class="macro">debug_assert!</span>(n != T::zero());
+    </span><span class="kw">pub const fn </span>new(n: RatioTyp) -&gt; <span class="self">Self </span>{
+        <span class="macro">debug_assert!</span>(n != <span class="number">0</span>);
         NonZero { non_zero_val: n }
     }
 
     <span class="doccomment">/// panics if arg is 0
     </span><span class="attr">#[inline(always)]
-    </span><span class="kw">pub fn </span>set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: T) {
-        <span class="macro">debug_assert!</span>(n != T::zero());
+    </span><span class="kw">pub fn </span>set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: RatioTyp) {
+        <span class="macro">debug_assert!</span>(n != <span class="number">0</span>);
         <span class="self">self</span>.non_zero_val = n;
     }
 
     <span class="attr">#[inline(always)]
-    </span><span class="kw">pub const fn </span>val(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; T {
+    </span><span class="kw">pub const fn </span>val(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RatioTyp {
         <span class="self">self</span>.non_zero_val
     }
 
     <span class="attr">#[inline(always)]
-    </span><span class="kw">pub fn </span>is_one(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="kw">return </span><span class="self">self</span>.non_zero_val == T::one();
-    }
+    </span><span class="kw">pub const fn </span>is_one(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.non_zero_val == <span class="number">1
+    </span>}
 }
 
-<span class="kw">impl</span>&lt;T: Integer + Copy&gt; From&lt;T&gt; <span class="kw">for </span>NonZero&lt;T&gt; {
-    <span class="kw">fn </span>from(value: T) -&gt; <span class="self">Self </span>{
+<span class="kw">impl </span>From&lt;RatioTyp&gt; <span class="kw">for </span>NonZero {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>from(value: RatioTyp) -&gt; <span class="self">Self </span>{
         NonZero::new(value)
     }
 }
 
-<span class="kw">impl</span>&lt;T: Integer + Copy&gt; ops::Mul <span class="kw">for </span>NonZero&lt;T&gt; {
-    <span class="kw">type </span>Output = NonZero&lt;T&gt;;
+<span class="kw">impl </span>ops::Mul <span class="kw">for </span>NonZero {
+    <span class="kw">type </span>Output = NonZero;
 
     <span class="kw">fn </span>mul(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
         (<span class="self">self</span>.val().mul(rhs.val())).into()
     }
 }
 
-<span class="kw">impl</span>&lt;T: Integer + Copy + ops::MulAssign&gt; ops::MulAssign <span class="kw">for </span>NonZero&lt;T&gt; {
+<span class="kw">impl </span>ops::MulAssign <span class="kw">for </span>NonZero {
     <span class="kw">fn </span>mul_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: <span class="self">Self</span>) {
         <span class="self">self</span>.non_zero_val <span class="kw-2">*</span>= rhs.val();
     }
 }
 
-<span class="kw">impl</span>&lt;T: Integer + Copy&gt; ops::Div <span class="kw">for </span>NonZero&lt;T&gt; {
-    <span class="kw">type </span>Output = NonZero&lt;T&gt;;
+<span class="kw">impl </span>ops::Div <span class="kw">for </span>NonZero {
+    <span class="kw">type </span>Output = NonZero;
 
     <span class="kw">fn </span>div(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
         (<span class="self">self</span>.val().div(rhs.val())).into()
     }
 }
 
-<span class="kw">impl</span>&lt;T: Integer + Copy + ops::DivAssign&gt; ops::DivAssign <span class="kw">for </span>NonZero&lt;T&gt; {
+<span class="kw">impl </span>ops::DivAssign <span class="kw">for </span>NonZero {
     <span class="kw">fn </span>div_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: <span class="self">Self</span>) {
         <span class="self">self</span>.non_zero_val /= rhs.val();
     }
 }
 
-<span class="kw">impl</span>&lt;T: Integer + Copy&gt; ops::Mul&lt;T&gt; <span class="kw">for </span>NonZero&lt;T&gt; {
-    <span class="kw">type </span>Output = NonZero&lt;T&gt;;
+<span class="kw">impl </span>ops::Mul&lt;RatioTyp&gt; <span class="kw">for </span>NonZero {
+    <span class="kw">type </span>Output = NonZero;
 
-    <span class="kw">fn </span>mul(<span class="self">self</span>, rhs: T) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>mul(<span class="self">self</span>, rhs: RatioTyp) -&gt; <span class="self">Self</span>::Output {
         (<span class="self">self</span>.val().mul(rhs)).into()
     }
 }
 
-<span class="kw">impl</span>&lt;T: Integer + Copy + ops::MulAssign&gt; ops::MulAssign&lt;T&gt; <span class="kw">for </span>NonZero&lt;T&gt; {
-    <span class="kw">fn </span>mul_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: T) {
+<span class="kw">impl </span>ops::MulAssign&lt;RatioTyp&gt; <span class="kw">for </span>NonZero {
+    <span class="kw">fn </span>mul_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: RatioTyp) {
         <span class="self">self</span>.non_zero_val <span class="kw-2">*</span>= rhs;
     }
 }
 
-<span class="kw">impl</span>&lt;T: Integer + Copy&gt; ops::Div&lt;T&gt; <span class="kw">for </span>NonZero&lt;T&gt; {
-    <span class="kw">type </span>Output = NonZero&lt;T&gt;;
+<span class="kw">impl </span>ops::Div&lt;RatioTyp&gt; <span class="kw">for </span>NonZero {
+    <span class="kw">type </span>Output = NonZero;
 
-    <span class="kw">fn </span>div(<span class="self">self</span>, rhs: T) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>div(<span class="self">self</span>, rhs: RatioTyp) -&gt; <span class="self">Self</span>::Output {
         (<span class="self">self</span>.val().div(rhs)).into()
     }
 }
 
-<span class="kw">impl</span>&lt;T: Integer + Copy + ops::DivAssign&gt; ops::DivAssign&lt;T&gt; <span class="kw">for </span>NonZero&lt;T&gt; {
-    <span class="kw">fn </span>div_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: T) {
+<span class="kw">impl </span>ops::DivAssign&lt;RatioTyp&gt; <span class="kw">for </span>NonZero {
+    <span class="kw">fn </span>div_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: RatioTyp) {
         <span class="self">self</span>.non_zero_val /= rhs;
     }
 }
 
-<span class="kw">impl</span>&lt;T: Display + Integer + Copy&gt; Display <span class="kw">for </span>NonZero&lt;T&gt; {
+<span class="kw">impl </span>Display <span class="kw">for </span>NonZero {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
         <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.val())
     }
 }
 
-<span class="kw">type </span>UInt = u64;
+<span class="doccomment">/// helper struct for [Rational], simple fraction without any reformatting
+</span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Copy, Hash)]
+</span><span class="kw">struct </span>Fraction {
+    numer: RatioTyp,
+    denom: RatioTyp,
+}
+
+<span class="kw">impl </span>From&lt;(RatioTyp, RatioTyp)&gt; <span class="kw">for </span>Fraction {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>from(value: (RatioTyp, RatioTyp)) -&gt; <span class="self">Self </span>{
+        Fraction {
+            numer: value.<span class="number">0</span>,
+            denom: value.<span class="number">1</span>,
+        }
+    }
+}
+
+<span class="kw">impl </span>From&lt;Fraction&gt; <span class="kw">for </span>Rational {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>from(value: Fraction) -&gt; <span class="self">Self </span>{
+        (value.numer, value.denom).into()
+    }
+}
+
+<span class="kw">impl </span>ops::Add <span class="kw">for </span>Fraction {
+    <span class="kw">type </span>Output = Fraction;
+
+    <span class="doccomment">/// assume self.denom != 0 and rhs.denom != 0
+    </span><span class="attr">#[inline]
+    </span><span class="kw">fn </span>add(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">if </span><span class="self">self</span>.denom == rhs.denom {
+            <span class="kw">let </span>denom = <span class="self">self</span>.denom;
+            <span class="kw">let </span>numer = <span class="self">self</span>.numer + rhs.numer;
+            <span class="kw">return </span><span class="self">Self </span>{ numer, denom };
+        }
+
+        <span class="kw">let </span>lcm = <span class="self">self</span>.denom.lcm(<span class="kw-2">&amp;</span>rhs.denom);
+        <span class="kw">let </span>lhs_numer = <span class="self">self</span>.numer * lcm / <span class="self">self</span>.denom;
+        <span class="kw">let </span>rhs_numer = rhs.numer * lcm / rhs.denom;
+
+        <span class="self">Self </span>{
+            numer: lhs_numer + rhs_numer,
+            denom: lcm,
+        }
+    }
+}
+
+<span class="kw">impl </span>ops::Sub <span class="kw">for </span>Fraction {
+    <span class="kw">type </span>Output = Fraction;
+
+    <span class="doccomment">/// assume self.denom != 0 and rhs.denom != 0 and self &gt;= rhs
+    </span><span class="attr">#[inline]
+    </span><span class="kw">fn </span>sub(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">if </span><span class="self">self</span>.denom == rhs.denom {
+            <span class="kw">let </span>denom = <span class="self">self</span>.denom;
+            <span class="kw">let </span>numer = <span class="self">self</span>.numer - rhs.numer;
+            <span class="kw">return </span><span class="self">Self </span>{ numer, denom };
+        }
+
+        <span class="kw">let </span>lcm = <span class="self">self</span>.denom.lcm(<span class="kw-2">&amp;</span>rhs.denom);
+        <span class="kw">let </span>lhs_numer = <span class="self">self</span>.numer * lcm / <span class="self">self</span>.denom;
+        <span class="kw">let </span>rhs_numer = rhs.numer * lcm / rhs.denom;
+
+        <span class="self">Self </span>{
+            numer: lhs_numer - rhs_numer,
+            denom: lcm,
+        }
+    }
+}
 
 <span class="doccomment">/// Represents a rational number
 ///
-/// implemented with two [UInt]: numer and a denom, where denom is of type [NonZeroUInt] \
-/// the sign is given by [Sign]
-/// and the exponent is defined by a [i32]
-</span><span class="attr">#[derive(Debug, Clone, Eq, Copy, Hash)]
+/// DISCLAIMER: a rational numer should have a unique representation
+///
+/// sign * numer / denom * 10^(expon): \
+/// (numer / denom) should always be between 1 and 0.1
+</span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Copy, Hash)]
 </span><span class="kw">pub struct </span>Rational {
     <span class="kw">pub</span>(<span class="kw">crate</span>) sign: Sign,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) numer: UInt,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) denom: NonZero&lt;UInt&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) numer: RatioTyp,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) denom: NonZero,
     <span class="kw">pub</span>(<span class="kw">crate</span>) expon: i32, <span class="comment">// * 10^e
 </span>}
 
-<span class="kw">impl </span>From&lt;UInt&gt; <span class="kw">for </span>Rational {
-    <span class="kw">fn </span>from(numer: UInt) -&gt; <span class="self">Self </span>{
+<span class="kw">impl </span>From&lt;RatioTyp&gt; <span class="kw">for </span>Rational {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>from(numer: RatioTyp) -&gt; <span class="self">Self </span>{
         <span class="kw">if </span>numer == <span class="number">0 </span>{
             <span class="kw">return </span><span class="self">Self</span>::zero();
         }
@@ -755,13 +851,14 @@
 }
 
 <span class="kw">impl </span>From&lt;i32&gt; <span class="kw">for </span>Rational {
-    <span class="kw">fn </span>from(numer: i32) -&gt; <span class="self">Self </span>{
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>from(numer: i32) -&gt; <span class="self">Self </span>{
         <span class="kw">if </span>numer == <span class="number">0 </span>{
             <span class="kw">return </span><span class="self">Self</span>::zero();
         }
         Rational::reduced(
             Sign::from(numer),
-            numer.unsigned_abs() <span class="kw">as </span>UInt,
+            numer.unsigned_abs() <span class="kw">as </span>RatioTyp,
             NonZero::new(<span class="number">1</span>),
             <span class="number">0</span>,
         )
@@ -782,8 +879,8 @@
                 <span class="bool-val">true </span>=&gt; Sign::Negative,
             };
 
-            <span class="kw">let </span>numer = num.unsigned_abs() <span class="kw">as </span>UInt;
-            <span class="kw">let </span>denom = NonZero::from(den.unsigned_abs() <span class="kw">as </span>UInt);
+            <span class="kw">let </span>numer = num.unsigned_abs() <span class="kw">as </span>RatioTyp;
+            <span class="kw">let </span>denom = NonZero::from(den.unsigned_abs() <span class="kw">as </span>RatioTyp);
             <span class="kw">let </span>expon = <span class="number">0</span>;
 
             Rational {
@@ -797,18 +894,13 @@
     }
 }
 
-<span class="kw">impl </span>PartialEq <span class="kw">for </span>Rational {
-    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
-        <span class="kw">if </span><span class="self">self</span>.numer == <span class="number">0 </span>&amp;&amp; other.numer == <span class="number">0 </span>{
-            <span class="bool-val">true
-        </span>} <span class="kw">else </span>{
-            <span class="self">self</span>.sign == other.sign
-                &amp;&amp; <span class="self">self</span>.numer == other.numer
-                &amp;&amp; <span class="self">self</span>.denom == other.denom
-                &amp;&amp; <span class="self">self</span>.expon == other.expon
-        }
+<span class="kw">impl </span>From&lt;(RatioTyp, RatioTyp)&gt; <span class="kw">for </span>Rational {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>from(value: (RatioTyp, RatioTyp)) -&gt; <span class="self">Self </span>{
+        Rational::reduced(Sign::Positive, value.<span class="number">0</span>, value.<span class="number">1</span>.into(), <span class="number">0</span>)
     }
 }
+
 <span class="kw">impl </span>CalcursType <span class="kw">for </span>Rational {
     <span class="attr">#[inline(always)]
     </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
@@ -854,8 +946,8 @@
             <span class="bool-val">true </span>=&gt; Sign::Negative,
         };
 
-        <span class="kw">let </span>numer = num.unsigned_abs() <span class="kw">as </span>UInt;
-        <span class="kw">let </span>denom = NonZero::new(den.unsigned_abs() <span class="kw">as </span>UInt);
+        <span class="kw">let </span>numer = num.unsigned_abs() <span class="kw">as </span>RatioTyp;
+        <span class="kw">let </span>denom = NonZero::new(den.unsigned_abs() <span class="kw">as </span>RatioTyp);
         <span class="kw">let </span>expon = <span class="number">0</span>;
 
         <span class="self">Self </span>{
@@ -867,7 +959,7 @@
         .reduce()
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>reduced(sign: Sign, numer: UInt, denom: NonZero&lt;UInt&gt;, expon: i32) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>reduced(sign: Sign, numer: RatioTyp, denom: NonZero, expon: i32) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             sign,
             numer,
@@ -882,12 +974,12 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub const fn </span>numer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; UInt {
+    </span><span class="kw">pub const fn </span>numer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RatioTyp {
         <span class="self">self</span>.numer
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub const fn </span>denom(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; UInt {
+    </span><span class="kw">pub const fn </span>denom(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RatioTyp {
         <span class="self">self</span>.denom.non_zero_val
     }
 
@@ -900,7 +992,7 @@
     </span>}
 
     <span class="kw">pub fn </span>is_int(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="kw">return </span><span class="self">self</span>.denom.is_one();
+        <span class="self">self</span>.denom.is_one()
     }
 
     <span class="comment">// reduces only the fraction part
@@ -955,79 +1047,19 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// tuple acts as a fraction, e.g 1 / 3 =&gt; (1, 3)
-    ///
-    /// assume f1.1 != 0 and f2.1 != 0
-    </span><span class="attr">#[inline]
-    </span><span class="kw">fn </span>unsigned_add(f1: (UInt, UInt), f2: (UInt, UInt)) -&gt; Rational {
-        <span class="kw">if </span>f1.<span class="number">1 </span>== f2.<span class="number">1 </span>{
-            <span class="kw">return </span>Rational::reduced(Sign::Positive, f1.<span class="number">0 </span>+ f2.<span class="number">0</span>, f1.<span class="number">1</span>.into(), <span class="number">0</span>);
-        }
-        <span class="kw">let </span>lcm = f1.<span class="number">1</span>.lcm(<span class="kw-2">&amp;</span>f2.<span class="number">1</span>);
-        <span class="kw">let </span>lhs_numer = f1.<span class="number">0 </span>* lcm / f1.<span class="number">1</span>;
-        <span class="kw">let </span>rhs_numer = f2.<span class="number">0 </span>* lcm / f2.<span class="number">1</span>;
-        Rational::reduced(Sign::Positive, lhs_numer + rhs_numer, lcm.into(), <span class="number">0</span>)
-    }
-
-    <span class="doccomment">/// tuple acts as a fraction, e.g 1 / 3 =&gt; (1, 3)
-    ///
-    /// assume f1.1 != 0 and f2.1 != 0 and f1 &gt;= f2
-    </span><span class="attr">#[inline]
-    </span><span class="kw">fn </span>unsigned_sub(f1: (UInt, UInt), f2: (UInt, UInt)) -&gt; Rational {
-        <span class="kw">if </span>f1.<span class="number">1 </span>== f2.<span class="number">1 </span>{
-            <span class="kw">return </span>Rational::reduced(Sign::Positive, f1.<span class="number">0 </span>- f2.<span class="number">0</span>, f1.<span class="number">1</span>.into(), <span class="number">0</span>);
-        }
-        <span class="kw">let </span>lcm = f1.<span class="number">1</span>.lcm(<span class="kw-2">&amp;</span>f2.<span class="number">1</span>);
-        <span class="kw">let </span>lhs_numer = f1.<span class="number">0 </span>* lcm / f1.<span class="number">1</span>;
-        <span class="kw">let </span>rhs_numer = f2.<span class="number">0 </span>* lcm / f2.<span class="number">1</span>;
-        Rational::reduced(Sign::Positive, lhs_numer - rhs_numer, lcm.into(), <span class="number">0</span>)
-    }
-
     <span class="kw">pub fn </span>abs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>res = <span class="kw-2">*</span><span class="self">self</span>;
         res.sign = Sign::Positive;
         res
     }
 
-    <span class="kw">pub fn </span>div_ratio(<span class="self">self</span>, other: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>(<span class="kw-2">mut </span>lhs, rhs) = (<span class="self">self</span>, other);
-        lhs.sign <span class="kw-2">*</span>= rhs.sign;
-        <span class="kw">let </span>gcd_ac = lhs.numer.gcd(<span class="kw-2">&amp;</span>rhs.numer);
-        <span class="kw">let </span>gcd_bd = lhs.denom().gcd(<span class="kw-2">&amp;</span>rhs.denom());
-        lhs.numer /= gcd_ac;
-        lhs.numer = lhs.numer * rhs.denom() / gcd_bd;
-        lhs.denom /= gcd_bd;
-        lhs.denom <span class="kw-2">*</span>= rhs.numer / gcd_ac;
-        lhs.expon -= rhs.expon;
-        lhs.reduce()
-    }
-
-    <span class="kw">pub fn </span>mul_ratio(<span class="self">self</span>, other: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>(<span class="kw-2">mut </span>lhs, rhs) = (<span class="self">self</span>, other);
-        lhs.sign <span class="kw-2">*</span>= rhs.sign;
-        <span class="kw">let </span>gcd_ad = lhs.numer.gcd(<span class="kw-2">&amp;</span>rhs.denom());
-        <span class="kw">let </span>gcd_bc = lhs.denom().gcd(<span class="kw-2">&amp;</span>rhs.numer);
-        lhs.numer /= gcd_ad;
-        lhs.numer = lhs.numer * rhs.numer / gcd_bc;
-        lhs.denom /= gcd_bc;
-        lhs.denom <span class="kw-2">*</span>= rhs.denom() / gcd_ad;
-        lhs.expon += rhs.expon;
-        lhs.reduce()
-    }
-
-    <span class="kw">pub fn </span>sub_ratio(<span class="self">self</span>, other: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span><span class="kw-2">mut </span>rhs = other;
-        rhs.sign <span class="kw-2">*</span>= Sign::Negative;
-        <span class="self">self</span>.add_ratio(rhs)
-    }
-
     <span class="doccomment">/// helper function, will not reduce the resulting fraction
     </span><span class="attr">#[inline]
     </span><span class="kw">fn </span>apply_expon(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">if </span><span class="self">self</span>.expon &gt; <span class="number">0 </span>{
-            <span class="self">self</span>.numer <span class="kw-2">*</span>= <span class="number">10u32</span>.pow(<span class="self">self</span>.expon.unsigned_abs()) <span class="kw">as </span>UInt;
+            <span class="self">self</span>.numer <span class="kw-2">*</span>= <span class="number">10u32</span>.pow(<span class="self">self</span>.expon.unsigned_abs()) <span class="kw">as </span>RatioTyp;
         } <span class="kw">else </span>{
-            <span class="self">self</span>.denom <span class="kw-2">*</span>= <span class="number">10u32</span>.pow(<span class="self">self</span>.expon.unsigned_abs()) <span class="kw">as </span>UInt;
+            <span class="self">self</span>.denom <span class="kw-2">*</span>= <span class="number">10u32</span>.pow(<span class="self">self</span>.expon.unsigned_abs()) <span class="kw">as </span>RatioTyp;
         }
         <span class="self">self</span>.expon = <span class="number">0</span>;
     }
@@ -1051,34 +1083,6 @@
         lhs.apply_expon();
         rhs.apply_expon();
         (lhs, rhs, factor)
-    }
-
-    <span class="kw">pub fn </span>add_ratio(<span class="self">self</span>, other: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>(lhs, rhs, factor) = <span class="self">Self</span>::factor_and_apply_expon(<span class="self">self</span>, other);
-
-        <span class="kw">let </span>lhs_f = (lhs.numer(), lhs.denom());
-        <span class="kw">let </span>rhs_f = (rhs.numer(), rhs.denom());
-
-        <span class="kw">let </span><span class="kw-2">mut </span>res;
-        <span class="kw">if </span>lhs.sign == rhs.sign {
-            res = <span class="self">Self</span>::unsigned_add(lhs_f, rhs_f);
-            res.sign = lhs.sign;
-            res.expon += factor;
-            <span class="kw">return </span>res;
-        }
-
-        <span class="comment">// lhs.sign != rhs.sign
-        // -(lhs - rhs) or rhs - lhs
-        </span><span class="kw">if </span>lhs.abs() &gt;= rhs.abs() {
-            res = <span class="self">Self</span>::unsigned_sub(lhs_f, rhs_f);
-            res.sign = lhs.sign;
-        } <span class="kw">else </span>{
-            <span class="comment">// -(lhs + rhs) or rhs - lhs
-            </span>res = <span class="self">Self</span>::unsigned_sub(rhs_f, lhs_f);
-            res.sign = rhs.sign;
-        }
-        res.expon += factor;
-        res.reduce()
     }
 }
 
@@ -1165,7 +1169,31 @@
     <span class="kw">type </span>Output = Rational;
 
     <span class="kw">fn </span>add(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
-        <span class="self">self</span>.add_ratio(rhs)
+        <span class="kw">let </span>(lhs, rhs, factor) = Rational::factor_and_apply_expon(<span class="self">self</span>, rhs);
+
+        <span class="kw">let </span>lhs_f = Fraction::from((lhs.numer(), lhs.denom()));
+        <span class="kw">let </span>rhs_f = Fraction::from((rhs.numer(), rhs.denom()));
+
+        <span class="kw">let </span><span class="kw-2">mut </span>res;
+        <span class="kw">if </span>lhs.sign == rhs.sign {
+            res = <span class="self">Self</span>::from(lhs_f + rhs_f);
+            res.sign = lhs.sign;
+            res.expon += factor;
+            <span class="kw">return </span>res;
+        }
+
+        <span class="comment">// lhs.sign != rhs.sign
+        // -(lhs - rhs) or rhs - lhs
+        </span><span class="kw">if </span>lhs.abs() &gt;= rhs.abs() {
+            res = <span class="self">Self</span>::from(lhs_f - rhs_f);
+            res.sign = lhs.sign;
+        } <span class="kw">else </span>{
+            <span class="comment">// -(lhs + rhs) or rhs - lhs
+            </span>res = <span class="self">Self</span>::from(rhs_f - lhs_f);
+            res.sign = rhs.sign;
+        }
+        res.expon += factor;
+        res.reduce()
     }
 }
 
@@ -1173,23 +1201,41 @@
     <span class="kw">type </span>Output = Rational;
 
     <span class="kw">fn </span>sub(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
-        <span class="self">self</span>.sub_ratio(rhs)
+        <span class="kw">let </span><span class="kw-2">mut </span>rhs = rhs;
+        rhs.sign <span class="kw-2">*</span>= Sign::Negative;
+        <span class="self">self </span>+ rhs
     }
 }
 
 <span class="kw">impl </span>ops::Mul <span class="kw">for </span>Rational {
     <span class="kw">type </span>Output = Rational;
 
-    <span class="kw">fn </span>mul(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
-        <span class="self">self</span>.mul_ratio(rhs)
+    <span class="kw">fn </span>mul(<span class="kw-2">mut </span><span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
+        <span class="self">self</span>.sign <span class="kw-2">*</span>= rhs.sign;
+        <span class="kw">let </span>gcd_ad = <span class="self">self</span>.numer.gcd(<span class="kw-2">&amp;</span>rhs.denom());
+        <span class="kw">let </span>gcd_bc = <span class="self">self</span>.denom().gcd(<span class="kw-2">&amp;</span>rhs.numer);
+        <span class="self">self</span>.numer /= gcd_ad;
+        <span class="self">self</span>.numer = <span class="self">self</span>.numer * rhs.numer / gcd_bc;
+        <span class="self">self</span>.denom /= gcd_bc;
+        <span class="self">self</span>.denom <span class="kw-2">*</span>= rhs.denom() / gcd_ad;
+        <span class="self">self</span>.expon += rhs.expon;
+        <span class="self">self</span>.reduce()
     }
 }
 
 <span class="kw">impl </span>ops::Div <span class="kw">for </span>Rational {
     <span class="kw">type </span>Output = Rational;
 
-    <span class="kw">fn </span>div(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
-        <span class="self">self</span>.div_ratio(rhs)
+    <span class="kw">fn </span>div(<span class="kw-2">mut </span><span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
+        <span class="self">self</span>.sign <span class="kw-2">*</span>= rhs.sign;
+        <span class="kw">let </span>gcd_ac = <span class="self">self</span>.numer.gcd(<span class="kw-2">&amp;</span>rhs.numer);
+        <span class="kw">let </span>gcd_bd = <span class="self">self</span>.denom().gcd(<span class="kw-2">&amp;</span>rhs.denom());
+        <span class="self">self</span>.numer /= gcd_ac;
+        <span class="self">self</span>.numer = <span class="self">self</span>.numer * rhs.denom() / gcd_bd;
+        <span class="self">self</span>.denom /= gcd_bd;
+        <span class="self">self</span>.denom <span class="kw-2">*</span>= rhs.numer / gcd_ac;
+        <span class="self">self</span>.expon -= rhs.expon;
+        <span class="self">self</span>.reduce()
     }
 }
 

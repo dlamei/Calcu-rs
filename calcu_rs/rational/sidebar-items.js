@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["NonZero","Rational"],"type":["UInt"]};
+window.SIDEBAR_ITEMS = {"struct":["Fraction","NonZero","Rational"],"type":["RatioTyp"]};
