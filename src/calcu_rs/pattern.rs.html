@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/pattern.rs`."><title>pattern.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="calcu_rs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../calcu_rs/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/pattern.rs`."><title>pattern.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="calcu_rs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.0 (79e9716c9 2023-11-13)" data-channel="1.74.0" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../calcu_rs/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -105,139 +105,111 @@
 <a href="#105" id="105">105</a>
 <a href="#106" id="106">106</a>
 <a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
-</pre></div><pre class="rust"><code><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>__ {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>p {
-        <span class="attr">#[allow(unused_imports)]
-        </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use crate</span>::{
-            base::Base,
-            numeric::{Infinity, Number, Sign, Undefined},
-            pattern::num_pat,
-            rational::{NonZeroUInt, Rational},
-        };
-    }
-}
+</pre></div><pre class="rust"><code><span class="macro">macro_rules! </span>itm {
 
-<span class="macro">macro_rules! </span>num_pat {
-    (base: $(<span class="macro-nonterminal">$n</span>: tt)<span class="kw-2">*</span>) =&gt; {
-        p::Base::Number(<span class="macro">p::num_pat!</span>($(<span class="macro-nonterminal">$n</span>)<span class="kw-2">*</span>))
-    };
+    <span class="comment">// Rational patterns
 
-    (<span class="number">0</span>) =&gt; {
-        p::Number::Rational(p::Rational { numer: <span class="number">0</span>, .. })
-    };
-
-    (<span class="number">1</span>) =&gt; {
-        p::Number::Rational(p::Rational {
+    </span>(ratio: <span class="number">1</span>) =&gt; {
+        <span class="macro">itm!</span>(rational: Rational {
             numer: <span class="number">1</span>,
-            denom: p::NonZeroUInt { non_zero_val: <span class="number">1 </span>},
-            sign: p::Sign::Positive,
-        })
+            denom: <span class="macro">itm!</span>(rational: NonZero { non_zero_val: <span class="number">1 </span>}),
+            sign: <span class="macro">itm!</span>(numeric: Sign::Positive),
+            expon: <span class="number">0
+        </span>})
     };
 
-    (-<span class="number">1</span>) =&gt; {
-        p::Number::Rational(p::Rational {
+    (ratio: -<span class="number">1</span>) =&gt; {
+        <span class="macro">itm!</span>(rational: Rational {
             numer: <span class="number">1</span>,
-            denom: p::NonZeroUInt { non_zero_val: <span class="number">1 </span>},
-            sign: p::Sign::Negative,
-        })
+            denom: <span class="macro">itm!</span>(rational: NonZero { non_zero_val: <span class="number">1 </span>}),
+            sign: <span class="macro">itm!</span>(numeric: Sign::Negative),
+            expon: <span class="number">0
+        </span>})
     };
 
-    (undef) =&gt; {
-        p::Number::Undefined(<span class="kw">_</span>)
+    (ratio: <span class="number">0</span>) =&gt; {
+        <span class="macro">itm!</span>(rational: Rational {
+            numer: <span class="number">0</span>,
+            denom: <span class="macro">itm!</span>(rational: NonZero { non_zero_val: <span class="number">1 </span>}),
+            sign: <span class="macro">itm!</span>(numeric: Sign::Positive),
+            expon: <span class="number">0
+        </span>})
     };
 
-    <span class="comment">//TODO: +oo?
-    </span>(+) =&gt; {
-        Number::Rational(p::Rational {
-            sign: p::Sign::Positive,
+    (ratio: +) =&gt; {
+        <span class="macro">itm!</span>(rational: Rational {
+            sign: <span class="macro">itm!</span>(numeric: Sign::Positive),
             ..
         })
     };
 
-    (-) =&gt; {
-        Number::Rational(p::Rational {
-            sign: p::Sign::Negative,
+    (ratio: -) =&gt; {
+        <span class="macro">itm!</span>(rational: Rational {
+            sign: <span class="macro">itm!</span>(numeric: Sign::Negative),
             ..
         })
     };
 
-    (<span class="macro-nonterminal">$n</span>: ident) =&gt; {
-        p::Base::Number(<span class="macro-nonterminal">$n</span>)
+    <span class="comment">// Numeric patterns:
+
+    // Numeric::Rational(_)
+    </span>(num: Rational: $(<span class="macro-nonterminal">$n</span>:tt)+) =&gt; { <span class="macro">itm!</span>(numeric: Numeric::Rational($(<span class="macro-nonterminal">$n</span>)+))};
+
+   <span class="comment">// Numeric::Infinity(_)
+   </span>(num: Infinity: $(<span class="macro-nonterminal">$n</span>:tt)+) =&gt; {<span class="macro">itm!</span>(numeric: Numeric::Infinity($(<span class="macro-nonterminal">$n</span>)+))};
+
+    (num: <span class="number">0</span>) =&gt; { <span class="macro">itm!</span>(num::ratio: <span class="number">0</span>) };
+    (num: <span class="number">1</span>) =&gt; { <span class="macro">itm!</span>(num::ratio: <span class="number">1</span>) };
+    (num: -<span class="number">1</span>) =&gt; { <span class="macro">itm!</span>(num::ratio: -<span class="number">1</span>) };
+    (num: +oo) =&gt; { <span class="macro">itm!</span>(numeric: Numeric::Infinity(<span class="macro">itm!</span>(numeric: Infinity { sign: <span class="macro">itm!</span>(numeric: Sign::Positive) }))) };
+    (num: -oo) =&gt; { <span class="macro">itm!</span>(numeric: Numeric::Infinity(<span class="macro">itm!</span>(numeric: Infinity { sign: <span class="macro">itm!</span>(numeric: Sign::Negative) }))) };
+
+    (num: oo) =&gt; { <span class="macro">itm!</span>(num: Infinity { .. }) };
+    (num: undef) =&gt; { <span class="macro">itm!</span>(numeric: Numeric::Undefined(<span class="kw">_</span>) )};
+    (num: +) =&gt; { <span class="macro">itm!</span>(num::ratio: +) };
+    (num: -) =&gt; { <span class="macro">itm!</span>(num::ratio: -) };
+
+    <span class="comment">// Base patterns:
+
+    </span>(Rational: $(<span class="macro-nonterminal">$n</span>:tt)+) =&gt; { <span class="macro">itm!</span>(base::num: Rational: $(<span class="macro-nonterminal">$n</span>)+ )};
+    (Numeric: $(<span class="macro-nonterminal">$n</span>:tt)+) =&gt; {<span class="kw">crate</span>::base::Base::Numeric($(<span class="macro-nonterminal">$n</span>)+)};
+
+    (<span class="number">0</span>) =&gt; { <span class="macro">itm!</span>(base::num: <span class="number">0</span>) };
+    (<span class="number">1</span>) =&gt; { <span class="macro">itm!</span>(base::num: <span class="number">1</span>) };
+    (-<span class="number">1</span>) =&gt; { <span class="macro">itm!</span>(base::num: -<span class="number">1</span>) };
+    (+) =&gt; { <span class="macro">itm!</span>(base::num: +) };
+    (-) =&gt; { <span class="macro">itm!</span>(base::num: -) };
+    (+oo) =&gt; { <span class="macro">itm!</span>(base::num: +oo) };
+    (-oo) =&gt; { <span class="macro">itm!</span>(base::num: -oo) };
+
+    (oo) =&gt; { <span class="macro">itm!</span>(base: num: oo) };
+    (undef) =&gt; {<span class="macro">itm!</span>(base::num: undef) };
+
+
+
+    (rational: $(<span class="macro-nonterminal">$n</span>: tt)+) =&gt; {
+        <span class="kw">crate</span>::rational::$(<span class="macro-nonterminal">$n</span>)+
     };
 
-    () =&gt; {
-        p::Base::Number(<span class="kw">_</span>)
+    (num::ratio: $(<span class="macro-nonterminal">$n</span>: tt)+) =&gt; {
+        <span class="kw">crate</span>::numeric::Numeric::Rational(<span class="macro">itm!</span>(ratio: $(<span class="macro-nonterminal">$n</span>)+))
     };
 
-    (Rational: <span class="macro-nonterminal">$r</span>: ident) =&gt; {
-        p::Number::Rational(<span class="macro-nonterminal">$r</span>)
-    }
-}
-
-<span class="macro">macro_rules! </span>pat {
-    (<span class="kw">use</span>) =&gt; {
-        <span class="kw">use </span><span class="kw">crate</span>::pattern::__::p;
+    <span class="comment">// numeric -&gt; module crate::numeric
+    // num -&gt; enum Numeric
+    </span>(numeric: $(<span class="macro-nonterminal">$n</span>: tt)+) =&gt; {
+        <span class="kw">crate</span>::numeric::$(<span class="macro-nonterminal">$n</span>)+
     };
 
-    <span class="comment">// --- types ---
-
-    </span>(Symbol: <span class="macro-nonterminal">$s</span>: ident) =&gt; {
-        p::Base::Symbol(<span class="macro-nonterminal">$s</span>)
+    (base::num: $(<span class="macro-nonterminal">$n</span>: tt)+) =&gt; {
+        <span class="kw">crate</span>::base::Base::Numeric(<span class="macro">itm!</span>(num: $(<span class="macro-nonterminal">$n</span>)+))
     };
 
-    (Number) =&gt; {
-        <span class="macro">p::num_pat!</span>()
-    };
+    <span class="comment">//(base: $($n: tt)+) =&gt; {
+    //    crate::base::$($n)+
+    //};
 
-    (Number: $(<span class="macro-nonterminal">$n</span>: tt)+) =&gt; {
-        <span class="macro">p::num_pat!</span>($(<span class="macro-nonterminal">$n</span>)+)
-    };
+</span>}
 
-    (Rational: <span class="macro-nonterminal">$r</span>: ident) =&gt; {
-        <span class="macro">p::num_pat!</span>(base: Rational: <span class="macro-nonterminal">$r</span>)
-    };
-
-    <span class="comment">// --- values ---
-
-    </span>(<span class="number">0</span>) =&gt; {
-        <span class="macro">p::num_pat!</span>(base: <span class="number">0</span>)
-    };
-
-    (<span class="number">1</span>) =&gt; {
-        <span class="macro">p::num_pat!</span>(base: <span class="number">1</span>)
-    };
-
-    (-<span class="number">1</span>) =&gt; {
-        <span class="macro">p::num_pat!</span>(base: -<span class="number">1</span>)
-    };
-
-    (undef) =&gt; {
-        <span class="macro">p::num_pat!</span>(base: undef)
-    };
-
-    (+) =&gt; {
-        <span class="macro">p::num_pat!</span>(base: +)
-    };
-
-    (-) =&gt; {
-        <span class="macro">p::num_pat!</span>(base: -)
-    };
-}
-
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>num_pat;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>pat;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>itm;
 </code></pre></div></section></main></body></html>

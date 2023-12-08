@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/derivative.rs`."><title>derivative.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="calcu_rs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../calcu_rs/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/derivative.rs`."><title>derivative.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="calcu_rs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.0 (79e9716c9 2023-11-13)" data-channel="1.74.0" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../calcu_rs/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -128,11 +128,19 @@
 <a href="#128" id="128">128</a>
 <a href="#129" id="129">129</a>
 <a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{
     base::{Base, CalcursType, Symbol, PTR},
-    numeric::constants::{ONE, ZERO},
     operator::{Add, Mul, Pow, Sub},
-    pattern::pat,
+    pattern::itm,
+    rational::Rational,
 };
 
 <span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -156,11 +164,16 @@
 
         <span class="kw">match </span>f {
             <span class="comment">// d(n) / d(x) =&gt; 0
-            </span>B::Number(<span class="kw">_</span>) =&gt; ZERO.base(),
+            </span>B::Numeric(<span class="kw">_</span>) =&gt; Rational::one().base(),
 
             <span class="comment">// d(x) / d(x) =&gt; 1
             // d(y) / d(x) =&gt; 0
-            </span>B::Symbol(<span class="kw-2">ref </span>sym) =&gt; <span class="kw">if </span>sym == x { ONE } <span class="kw">else </span>{ ZERO }.base(),
+            </span>B::Symbol(<span class="kw-2">ref </span>sym) =&gt; <span class="kw">if </span>sym == x {
+                Rational::one()
+            } <span class="kw">else </span>{
+                Rational::zero()
+            }
+            .base(),
 
             <span class="comment">// sum rule
             </span>B::Add(add) =&gt; <span class="self">Self</span>::apply_sum(add, x),
@@ -185,11 +198,16 @@
         }
     }
 
+    <span class="kw">pub fn </span>subs(<span class="self">self</span>, _dict: <span class="kw-2">&amp;</span><span class="kw">crate</span>::base::SubsDict) -&gt; Base {
+        <span class="comment">//TODO: subs in derivative?
+        </span><span class="self">self</span>.base()
+    }
+
     <span class="doccomment">/// d(f + g) / d(x) =&gt; d(f) / d(x) + d(g) / d(x)
     ///
     /// apply summation rule
-    </span><span class="kw">pub fn </span>apply_sum(add: Add, x: <span class="kw-2">&amp;</span>Symbol) -&gt; Base {
-        <span class="kw">let </span><span class="kw-2">mut </span>sum = ZERO.base();
+    </span><span class="kw">fn </span>apply_sum(add: Add, x: <span class="kw-2">&amp;</span>Symbol) -&gt; Base {
+        <span class="kw">let </span><span class="kw-2">mut </span>sum = Rational::zero().base();
         <span class="kw">for </span>mul <span class="kw">in </span>add.args.into_mul_iter() {
             sum += Derivative::apply_chain(mul, x);
         }
@@ -199,7 +217,7 @@
     <span class="doccomment">/// d(f * g) / d(x) =&gt; g * d(f) / d(x) + f * d(g) / d(x)
     ///
     /// apply chain rule
-    </span><span class="kw">pub fn </span>apply_chain(mul: Mul, x: <span class="kw-2">&amp;</span>Symbol) -&gt; Base {
+    </span><span class="kw">fn </span>apply_chain(mul: Mul, x: <span class="kw-2">&amp;</span>Symbol) -&gt; Base {
         <span class="comment">// d(n * f) / d(x) =&gt; n * d(f) / d(x)
         </span><span class="kw">let </span>coeff = mul.coeff;
         <span class="kw">let </span>args: Vec&lt;<span class="kw">_</span>&gt; = mul.args.into_pow_iter().collect();
@@ -211,7 +229,7 @@
             derivs.push(deriv);
         }
 
-        <span class="kw">let </span><span class="kw-2">mut </span>sum = ZERO.base();
+        <span class="kw">let </span><span class="kw-2">mut </span>sum = Rational::zero().base();
 
         <span class="comment">// (f * g * h * ...)&#39; =&gt; f&#39; * g * h * ... + f * g&#39; * h * ... + ...
         </span><span class="kw">for </span>(i, deriv) <span class="kw">in </span>derivs.into_iter().enumerate() {
@@ -233,16 +251,14 @@
     <span class="comment">// d(f^g) / d(x)
     //
     // apply power rule
-    </span><span class="kw">pub fn </span>apply_pow(p: Pow, x: <span class="kw-2">&amp;</span>Symbol) -&gt; Base {
-        <span class="macro">pat!</span>(<span class="kw">use</span>);
-
+    </span><span class="kw">fn </span>apply_pow(p: Pow, x: <span class="kw-2">&amp;</span>Symbol) -&gt; Base {
         <span class="kw">match </span>(p.base, p.exp) {
             <span class="comment">// n^m =&gt; 0
-            </span>(<span class="macro">pat!</span>(Number), <span class="macro">pat!</span>(Number)) =&gt; ZERO.base(),
+            </span>(<span class="macro">itm!</span>(Numeric: <span class="kw">_</span>), <span class="macro">itm!</span>(Numeric: <span class="kw">_</span>)) =&gt; Rational::zero().base(),
 
             <span class="comment">// f^n =&gt; n * f^(n - 1)
-            </span>(f, <span class="macro">pat!</span>(Rational: n)) <span class="kw">if </span>!n.is_zero() =&gt; {
-                Mul::mul(n, Pow::pow(f, Sub::sub(n, ONE))).base()
+            </span>(f, <span class="macro">itm!</span>(Rational: n)) <span class="kw">if </span>!n.is_zero() =&gt; {
+                Mul::mul(n, Pow::pow(f, Sub::sub(n, Rational::one()))).base()
             }
 
             <span class="comment">// TODO: 1 / f

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["NonZeroUInt","Rational"],"type":["UInt"]};
+window.SIDEBAR_ITEMS = {"struct":["NonZero","Rational"],"type":["UInt"]};
