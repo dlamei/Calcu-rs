@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Numeric","Sign"],"macro":["for_each_number"],"struct":["Infinity","Undefined"]};
+window.SIDEBAR_ITEMS = {"enum":["Numeric","Sign"],"struct":["Infinity","Undefined"]};

@@ -136,10 +136,11 @@
 <a href="#136" id="136">136</a>
 <a href="#137" id="137">137</a>
 <a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{
     base::{Base, CalcursType, Symbol, PTR},
     operator::{Add, Mul, Pow, Sub},
-    pattern::itm,
+    pattern::{get_itm, Item},
     rational::Rational,
 };
 
@@ -252,25 +253,26 @@
     //
     // apply power rule
     </span><span class="kw">fn </span>apply_pow(p: Pow, x: <span class="kw-2">&amp;</span>Symbol) -&gt; Base {
-        <span class="kw">match </span>(p.base, p.exp) {
+        <span class="kw">let </span>base = p.base.desc();
+        <span class="kw">let </span>exp = p.exp.desc();
+
+        <span class="comment">// TODO: 1 / f
+        // TODO: (f / g)&#39; =&gt; (g*f&#39; - f*g&#39;) / g^2
+
+        </span><span class="kw">if </span>base.is(Item::Numeric) &amp;&amp; exp.is(Item::Numeric) {
             <span class="comment">// n^m =&gt; 0
-            </span>(<span class="macro">itm!</span>(Numeric: <span class="kw">_</span>), <span class="macro">itm!</span>(Numeric: <span class="kw">_</span>)) =&gt; Rational::zero().base(),
-
+            </span>Rational::zero().base()
+        } <span class="kw">else if </span>exp.is(Item::Rational) &amp;&amp; !exp.is(Item::Zero) {
             <span class="comment">// f^n =&gt; n * f^(n - 1)
-            </span>(f, <span class="macro">itm!</span>(Rational: n)) <span class="kw">if </span>!n.is_zero() =&gt; {
-                Mul::mul(n, Pow::pow(f, Sub::sub(n, Rational::one()))).base()
-            }
-
-            <span class="comment">// TODO: 1 / f
-            // TODO: (f / g)&#39; =&gt; (g*f&#39; - f*g&#39;) / g^2
-
-            //  no further rules...
-            </span>(base, exp) =&gt; Derivative {
-                deriv: Pow { base, exp }.base().into(),
+            </span><span class="kw">let </span>n = <span class="macro">get_itm!</span>(Rational: p.exp);
+            Mul::mul(n, Pow::pow(p.base, Sub::sub(n, Rational::one()))).base()
+        } <span class="kw">else </span>{
+            Derivative {
+                deriv: p.base().into(),
                 indep: x.clone(),
                 degree: <span class="number">1</span>,
             }
-            .base(),
+            .base()
         }
     }
 }

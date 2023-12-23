@@ -443,65 +443,33 @@
 <a href="#443" id="443">443</a>
 <a href="#444" id="444">444</a>
 <a href="#445" id="445">445</a>
-<a href="#446" id="446">446</a>
-<a href="#447" id="447">447</a>
-<a href="#448" id="448">448</a>
-<a href="#449" id="449">449</a>
-<a href="#450" id="450">450</a>
-<a href="#451" id="451">451</a>
-<a href="#452" id="452">452</a>
-<a href="#453" id="453">453</a>
-<a href="#454" id="454">454</a>
-<a href="#455" id="455">455</a>
-<a href="#456" id="456">456</a>
-<a href="#457" id="457">457</a>
-<a href="#458" id="458">458</a>
-<a href="#459" id="459">459</a>
-<a href="#460" id="460">460</a>
-<a href="#461" id="461">461</a>
-<a href="#462" id="462">462</a>
-<a href="#463" id="463">463</a>
-<a href="#464" id="464">464</a>
-<a href="#465" id="465">465</a>
-<a href="#466" id="466">466</a>
-<a href="#467" id="467">467</a>
-<a href="#468" id="468">468</a>
-<a href="#469" id="469">469</a>
-<a href="#470" id="470">470</a>
-<a href="#471" id="471">471</a>
-<a href="#472" id="472">472</a>
-<a href="#473" id="473">473</a>
-<a href="#474" id="474">474</a>
-<a href="#475" id="475">475</a>
-<a href="#476" id="476">476</a>
-<a href="#477" id="477">477</a>
-<a href="#478" id="478">478</a>
-<a href="#479" id="479">479</a>
-<a href="#480" id="480">480</a>
-<a href="#481" id="481">481</a>
-<a href="#482" id="482">482</a>
-<a href="#483" id="483">483</a>
-<a href="#484" id="484">484</a>
-<a href="#485" id="485">485</a>
-<a href="#486" id="486">486</a>
-<a href="#487" id="487">487</a>
-<a href="#488" id="488">488</a>
-<a href="#489" id="489">489</a>
-<a href="#490" id="490">490</a>
-<a href="#491" id="491">491</a>
-<a href="#492" id="492">492</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>num::integer::Roots;
-<span class="kw">use </span>std::{
-    cmp::Ordering,
-    fmt::{<span class="self">self</span>, Display},
-    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
-};
+<span class="kw">use </span>std::{cmp::Ordering, fmt, ops};
 
 <span class="kw">use crate</span>::{
     base::{Base, CalcursType, SubsDict},
-    pattern::itm,
+    pattern::{<span class="self">self</span>, Item},
     rational::{NonZero, Rational},
 };
+
+<span class="doccomment">/// defines all numeric types
+</span><span class="attr">#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>Numeric {
+    Rational(Rational),
+    Infinity(Infinity),
+    Undefined(Undefined),
+}
+
+<span class="doccomment">/// only used if the result is provenly undefined, e.g 0 / 0
+///
+/// not the same as [f64::NAN]
+</span><span class="attr">#[derive(Debug, Clone, Hash, PartialOrd, Ord, PartialEq, Eq, Copy)]
+</span><span class="kw">pub struct </span>Undefined;
+
+<span class="attr">#[derive(Debug, Clone, Copy, Hash, PartialOrd, Ord, PartialEq, Eq)]
+</span><span class="kw">pub struct </span>Infinity {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) sign: Sign,
+}
 
 <span class="attr">#[derive(Debug, Clone, Hash, PartialEq, Eq, Copy)]
 </span><span class="kw">pub enum </span>Sign {
@@ -509,104 +477,114 @@
     Negative,
 }
 
-<span class="kw">impl </span>PartialOrd <span class="kw">for </span>Sign {
-    <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Ordering&gt; {
-        <span class="prelude-val">Some</span>(<span class="self">self</span>.cmp(other))
-    }
-}
-
-<span class="kw">impl </span>Ord <span class="kw">for </span>Sign {
-    <span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; Ordering {
-        <span class="kw">match </span>(<span class="self">self</span>, other) {
-            (Sign::Positive, Sign::Negative) =&gt; Ordering::Greater,
-            (Sign::Negative, Sign::Positive) =&gt; Ordering::Less,
-            (Sign::Negative, Sign::Negative) | (Sign::Positive, Sign::Positive) =&gt; Ordering::Equal,
-        }
-    }
-}
-
-<span class="kw">impl </span>Display <span class="kw">for </span>Sign {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="kw">use </span>Sign <span class="kw">as </span>S;
-        <span class="kw">let </span>s = <span class="kw">match </span><span class="self">self </span>{
-            S::Positive =&gt; <span class="string">&quot;&quot;</span>,
-            S::Negative =&gt; <span class="string">&quot;-&quot;</span>,
-        };
-        <span class="macro">write!</span>(f, <span class="string">&quot;{s}&quot;</span>)
-    }
-}
-
-<span class="kw">impl</span>&lt;I: num::Integer&gt; From&lt;I&gt; <span class="kw">for </span>Sign {
-    <span class="comment">// Positive for value &gt;= 0
-    </span><span class="kw">fn </span>from(value: I) -&gt; <span class="self">Self </span>{
-        <span class="kw">if </span>value &gt;= I::zero() {
-            Sign::Positive
-        } <span class="kw">else </span>{
-            Sign::Negative
-        }
-    }
-}
-
-<span class="kw">impl </span>Sign {
-    <span class="kw">pub fn </span>neg(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <span class="kw">use </span>Sign <span class="kw">as </span>S;
-        <span class="kw">match </span><span class="self">self </span>{
-            S::Positive =&gt; S::Negative,
-            S::Negative =&gt; S::Positive,
-        }
-    }
-
-    <span class="attr">#[inline]
-    </span><span class="kw">pub const fn </span>is_pos(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="macro">matches!</span>(<span class="self">self</span>, Sign::Positive)
-    }
-
-    <span class="attr">#[inline]
-    </span><span class="kw">pub const fn </span>is_neg(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="macro">matches!</span>(<span class="self">self</span>, Sign::Negative)
-    }
-
-    <span class="kw">pub fn </span>mul_opt(<span class="kw-2">mut </span><span class="self">self</span>, other: <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt;) -&gt; <span class="self">Self </span>{
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(other) = other {
-            <span class="self">self </span><span class="kw-2">*</span>= other
-        }
+<span class="kw">impl </span>Numeric {
+    <span class="kw">pub fn </span>subs(<span class="self">self</span>, _dict: <span class="kw-2">&amp;</span>SubsDict) -&gt; <span class="self">Self </span>{
         <span class="self">self
     </span>}
-}
 
-<span class="kw">impl </span>Mul <span class="kw">for </span>Sign {
-    <span class="kw">type </span>Output = Sign;
-
-    <span class="kw">fn </span>mul(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
-        <span class="kw">if </span>rhs.is_neg() {
-            <span class="self">self</span>.neg()
-        } <span class="kw">else </span>{
-            <span class="self">self
-        </span>}
+    <span class="kw">pub const fn </span>desc(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; pattern::Pattern {
+        pattern::Pattern::Itm(<span class="kw">match </span><span class="self">self </span>{
+            Numeric::Rational(r) =&gt; r.desc().to_item(),
+            Numeric::Infinity(Infinity { sign }) =&gt; sign.desc().union(Item::Inf),
+            Numeric::Undefined(<span class="kw">_</span>) =&gt; Item::Undef,
+        })
     }
-}
-
-<span class="kw">impl </span>MulAssign <span class="kw">for </span>Sign {
-    <span class="kw">fn </span>mul_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: <span class="self">Self</span>) {
-        <span class="kw-2">*</span><span class="self">self </span>= <span class="kw-2">*</span><span class="self">self </span>* rhs;
+    <span class="kw">pub fn </span>add_num(<span class="self">self</span>, n: Numeric) -&gt; Numeric {
+        <span class="kw">use </span>Numeric <span class="kw">as </span>N;
+        <span class="kw">match </span>(<span class="self">self</span>, n) {
+            (N::Undefined(<span class="kw">_</span>), <span class="kw">_</span>) | (<span class="kw">_</span>, N::Undefined(<span class="kw">_</span>)) =&gt; Undefined.into(),
+            (N::Infinity(inf), n) | (n, N::Infinity(inf)) =&gt; inf.add_num(n),
+            (N::Rational(r1), N::Rational(r2)) =&gt; (r1 + r2).into(),
+        }
     }
-}
 
-<span class="attr">#[derive(Debug, Clone, Copy, Hash, PartialOrd, Ord, PartialEq, Eq)]
-</span><span class="kw">pub struct </span>Infinity {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) sign: Sign,
-}
-
-<span class="kw">impl </span>Display <span class="kw">for </span>Infinity {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}oo&quot;</span>, <span class="self">self</span>.sign)
+    <span class="kw">pub fn </span>sub_num(<span class="self">self</span>, n: Numeric) -&gt; Numeric {
+        <span class="kw">use </span>Numeric <span class="kw">as </span>N;
+        <span class="kw">match </span>(<span class="self">self</span>, n) {
+            (N::Undefined(<span class="kw">_</span>), <span class="kw">_</span>) | (<span class="kw">_</span>, N::Undefined(<span class="kw">_</span>)) =&gt; Undefined.into(),
+            (N::Infinity(inf), n) =&gt; inf.sub_num(n),
+            (n, N::Infinity(inf)) =&gt; n.sub_inf(inf),
+            (N::Rational(r1), N::Rational(r2)) =&gt; (r1 - r2).into(),
+        }
     }
-}
 
-<span class="kw">impl </span>CalcursType <span class="kw">for </span>Infinity {
-    <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
-        Numeric::Infinity(<span class="self">self</span>).base()
+    <span class="kw">pub fn </span>mul_num(<span class="self">self</span>, n: Numeric) -&gt; Numeric {
+        <span class="kw">use </span>Numeric <span class="kw">as </span>N;
+        <span class="kw">match </span>(<span class="self">self</span>, n) {
+            (N::Undefined(<span class="kw">_</span>), <span class="kw">_</span>) | (<span class="kw">_</span>, N::Undefined(<span class="kw">_</span>)) =&gt; Undefined.into(),
+            (N::Infinity(inf), n) | (n, N::Infinity(inf)) =&gt; inf.mul_num(n),
+            (N::Rational(r1), N::Rational(r2)) =&gt; (r1 * r2).into(),
+        }
+    }
+
+    <span class="kw">pub fn </span>div_num(<span class="self">self</span>, n: Numeric) -&gt; Numeric {
+        <span class="kw">use </span>Numeric <span class="kw">as </span>N;
+        <span class="kw">match </span>(<span class="self">self</span>, n) {
+            (N::Undefined(<span class="kw">_</span>), <span class="kw">_</span>) | (<span class="kw">_</span>, N::Undefined(<span class="kw">_</span>)) =&gt; Undefined.into(),
+            (N::Infinity(inf), n) =&gt; inf.div_num(n),
+            (n, N::Infinity(inf)) =&gt; n.div_inf(inf),
+
+            (N::Rational(r1), N::Rational(r2)) =&gt; (r1 / r2).into(),
+        }
+    }
+
+    <span class="kw">pub fn </span>checked_pow_num(<span class="self">self</span>, n: Numeric) -&gt; <span class="prelude-ty">Option</span>&lt;Numeric&gt; {
+        <span class="kw">match </span>(<span class="self">self</span>, n) {
+            (Numeric::Rational(r1), Numeric::Rational(r2)) =&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>exp = r2.try_apply_expon()<span class="question-mark">?</span>;
+                <span class="kw">let </span><span class="kw-2">mut </span>base = r1.try_apply_expon()<span class="question-mark">?</span>;
+                exp.reduce_frac();
+                base.reduce_frac();
+
+                <span class="kw">let </span><span class="kw-2">mut </span>root = base.numer;
+                <span class="kw">if </span>exp.denom() != <span class="number">1 </span>{
+                    root = base.numer.nth_root(exp.denom().try_into().ok()<span class="question-mark">?</span>);
+                    <span class="kw">if </span>root * root != base.numer {
+                        <span class="kw">return </span><span class="prelude-val">None</span>;
+                    };
+                }
+                <span class="kw">let </span>numer = root.pow(exp.numer.try_into().ok()<span class="question-mark">?</span>);
+
+                <span class="kw">let </span><span class="kw-2">mut </span>root = base.denom();
+                <span class="kw">if </span>exp.denom() != <span class="number">1 </span>{
+                    root = base.denom().nth_root(exp.denom().try_into().ok()<span class="question-mark">?</span>);
+                    <span class="kw">if </span>root * root != base.denom() {
+                        <span class="kw">return </span><span class="prelude-val">None</span>;
+                    };
+                }
+                <span class="kw">let </span>denom = root.pow(exp.numer.try_into().ok()<span class="question-mark">?</span>);
+
+                <span class="kw">let </span>sign = <span class="kw">if </span>exp.numer() % <span class="number">2 </span>== <span class="number">0 </span>{
+                    Sign::Positive
+                } <span class="kw">else </span>{
+                    base.sign
+                };
+
+                <span class="prelude-val">Some</span>(Rational::reduced(sign, numer, NonZero::new(denom), <span class="number">0</span>).num())
+            }
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+        }
+    }
+
+    <span class="kw">fn </span>sub_inf(<span class="self">self</span>, inf: Infinity) -&gt; Numeric {
+        <span class="kw">use </span>Numeric <span class="kw">as </span>N;
+        <span class="kw">match </span><span class="self">self </span>{
+            N::Rational(<span class="kw">_</span>) =&gt; inf.into(),
+            N::Infinity(i) =&gt; i.sub_num(inf.into()),
+            N::Undefined(<span class="kw">_</span>) =&gt; <span class="self">self</span>,
+        }
+    }
+
+    <span class="kw">fn </span>div_inf(<span class="self">self</span>, <span class="kw-2">mut </span>inf: Infinity) -&gt; Numeric {
+        <span class="kw">use </span>Numeric <span class="kw">as </span>N;
+        <span class="kw">match </span><span class="self">self </span>{
+            N::Rational(r) =&gt; {
+                inf.sign <span class="kw-2">*</span>= r.sign;
+                inf.into()
+            }
+            N::Infinity(i) =&gt; i.div_num(inf.into()),
+            N::Undefined(<span class="kw">_</span>) =&gt; <span class="self">self</span>,
+        }
     }
 }
 
@@ -620,11 +598,6 @@
     </span><span class="kw">pub fn </span>num(<span class="self">self</span>) -&gt; Numeric {
         <span class="self">self</span>.into()
     }
-
-    <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>is_zero(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="bool-val">false
-    </span>}
 
     <span class="attr">#[inline]
     </span><span class="kw">pub fn </span>pos() -&gt; <span class="self">Self </span>{
@@ -674,8 +647,39 @@
     }
 }
 
-<span class="attr">#[derive(Debug, Clone, Hash, PartialOrd, Ord, PartialEq, Eq, Copy)]
-</span><span class="kw">pub struct </span>Undefined;
+<span class="kw">impl </span>Sign {
+    <span class="kw">pub fn </span>neg(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="kw">use </span>Sign <span class="kw">as </span>S;
+        <span class="kw">match </span><span class="self">self </span>{
+            S::Positive =&gt; S::Negative,
+            S::Negative =&gt; S::Positive,
+        }
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">pub const fn </span>is_pos(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(<span class="self">self</span>, Sign::Positive)
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">pub const fn </span>is_neg(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(<span class="self">self</span>, Sign::Negative)
+    }
+
+    <span class="kw">pub const fn </span>desc(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; pattern::Item {
+        <span class="kw">match </span><span class="self">self </span>{
+            Sign::Positive =&gt; Item::Pos,
+            Sign::Negative =&gt; Item::Neg,
+        }
+    }
+
+    <span class="kw">pub fn </span>mul_opt(<span class="kw-2">mut </span><span class="self">self</span>, other: <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(other) = other {
+            <span class="self">self </span><span class="kw-2">*</span>= other
+        }
+        <span class="self">self
+    </span>}
+}
 
 <span class="kw">impl </span>Undefined {
     <span class="kw">pub fn </span>num(<span class="self">self</span>) -&gt; Numeric {
@@ -683,45 +687,99 @@
     }
 }
 
-<span class="kw">impl </span>Display <span class="kw">for </span>Undefined {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;Undefined&quot;</span>)
+<span class="kw">impl </span>ops::Add <span class="kw">for </span>Numeric {
+    <span class="kw">type </span>Output = Numeric;
+
+    <span class="kw">fn </span>add(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
+        <span class="self">self</span>.add_num(rhs)
     }
 }
 
-<span class="kw">impl </span>CalcursType <span class="kw">for </span>Undefined {
-    <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
-        Numeric::Undefined(<span class="self">self</span>).base()
+<span class="kw">impl </span>ops::AddAssign <span class="kw">for </span>Numeric {
+    <span class="kw">fn </span>add_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: <span class="self">Self</span>) {
+        <span class="kw-2">*</span><span class="self">self </span>= <span class="self">self</span>.add_num(rhs);
     }
 }
 
-<span class="doccomment">/// defines all numeric types
-</span><span class="attr">#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
-</span><span class="kw">pub enum </span>Numeric {
-    Rational(Rational),
+<span class="kw">impl </span>ops::Sub <span class="kw">for </span>Numeric {
+    <span class="kw">type </span>Output = Numeric;
 
-    Infinity(Infinity),
+    <span class="kw">fn </span>sub(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
+        <span class="self">self</span>.sub_num(rhs)
+    }
+}
 
-    <span class="doccomment">/// only used if the calculation itself is undefined, e.g 0 / 0
-    /// not the same as [f64::NAN]
-    </span>Undefined(Undefined),
+<span class="kw">impl </span>ops::SubAssign <span class="kw">for </span>Numeric {
+    <span class="kw">fn </span>sub_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: <span class="self">Self</span>) {
+        <span class="kw-2">*</span><span class="self">self </span>= <span class="self">self</span>.sub_num(rhs);
+    }
+}
+
+<span class="kw">impl </span>ops::Mul <span class="kw">for </span>Numeric {
+    <span class="kw">type </span>Output = Numeric;
+
+    <span class="kw">fn </span>mul(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
+        <span class="self">self</span>.mul_num(rhs)
+    }
+}
+
+<span class="kw">impl </span>ops::MulAssign <span class="kw">for </span>Numeric {
+    <span class="kw">fn </span>mul_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: <span class="self">Self</span>) {
+        <span class="kw-2">*</span><span class="self">self </span>= <span class="self">self</span>.mul_num(rhs);
+    }
+}
+
+<span class="kw">impl </span>ops::Div <span class="kw">for </span>Numeric {
+    <span class="kw">type </span>Output = Numeric;
+
+    <span class="kw">fn </span>div(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
+        <span class="self">self</span>.div_num(rhs)
+    }
+}
+
+<span class="kw">impl </span>ops::DivAssign <span class="kw">for </span>Numeric {
+    <span class="kw">fn </span>div_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: <span class="self">Self</span>) {
+        <span class="kw-2">*</span><span class="self">self </span>= <span class="self">self</span>.div_num(rhs);
+    }
+}
+
+<span class="kw">impl </span>ops::Mul <span class="kw">for </span>Sign {
+    <span class="kw">type </span>Output = Sign;
+
+    <span class="kw">fn </span>mul(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">if </span>rhs.is_neg() {
+            <span class="self">self</span>.neg()
+        } <span class="kw">else </span>{
+            <span class="self">self
+        </span>}
+    }
+}
+
+<span class="kw">impl </span>ops::MulAssign <span class="kw">for </span>Sign {
+    <span class="kw">fn </span>mul_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: <span class="self">Self</span>) {
+        <span class="kw-2">*</span><span class="self">self </span>= <span class="kw-2">*</span><span class="self">self </span>* rhs;
+    }
 }
 
 <span class="kw">impl </span>Ord <span class="kw">for </span>Numeric {
     <span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; Ordering {
+        <span class="kw">use </span>Numeric <span class="kw">as </span>N;
         <span class="kw">match </span>(<span class="self">self</span>, other) {
-            (<span class="macro">itm!</span>(num: Rational: r1), <span class="macro">itm!</span>(num: Rational: r2)) =&gt; r1.cmp(r2),
-            (<span class="macro">itm!</span>(num: Infinity: i1), <span class="macro">itm!</span>(num: Infinity: i2)) =&gt; i1.cmp(i2),
-            (<span class="macro">itm!</span>(num: undef), <span class="macro">itm!</span>(num: undef)) =&gt; Ordering::Equal,
+            (N::Rational(r1), N::Rational(r2)) =&gt; r1.cmp(r2),
+            (N::Infinity(i1), N::Infinity(i2)) =&gt; i1.cmp(i2),
+            (N::Undefined(<span class="kw">_</span>), N::Undefined(<span class="kw">_</span>)) =&gt; Ordering::Equal,
 
-            (<span class="kw">_</span>, <span class="macro">itm!</span>(num: undef)) =&gt; Ordering::Greater,
-            (<span class="macro">itm!</span>(num: undef), <span class="kw">_</span>) =&gt; Ordering::Less,
+            (N::Rational(<span class="kw">_</span>), N::Infinity(inf)) =&gt; <span class="kw">match </span>inf.sign {
+                Sign::Positive =&gt; Ordering::Less,
+                Sign::Negative =&gt; Ordering::Greater,
+            },
+            (N::Infinity(inf), N::Rational(<span class="kw">_</span>)) =&gt; <span class="kw">match </span>inf.sign {
+                Sign::Positive =&gt; Ordering::Greater,
+                Sign::Negative =&gt; Ordering::Less,
+            },
 
-            (<span class="macro">itm!</span>(num: Rational: <span class="kw">_</span>), <span class="macro">itm!</span>(num: +oo)) =&gt; Ordering::Less,
-            (<span class="macro">itm!</span>(num: +oo), <span class="macro">itm!</span>(num: Rational: <span class="kw">_</span>)) =&gt; Ordering::Greater,
-            (<span class="macro">itm!</span>(num: Rational: <span class="kw">_</span>), <span class="macro">itm!</span>(num: -oo)) =&gt; Ordering::Greater,
-            (<span class="macro">itm!</span>(num: -oo), <span class="macro">itm!</span>(num: Rational: <span class="kw">_</span>)) =&gt; Ordering::Less,
+            (<span class="kw">_</span>, N::Undefined(<span class="kw">_</span>)) =&gt; Ordering::Greater,
+            (N::Undefined(<span class="kw">_</span>), <span class="kw">_</span>) =&gt; Ordering::Less,
         }
     }
 }
@@ -732,40 +790,41 @@
     }
 }
 
-<span class="macro">macro_rules! </span>for_each_number {
-    (<span class="macro-nonterminal">$self</span>: ident, <span class="macro-nonterminal">$v</span>:ident =&gt; <span class="macro-nonterminal">$bod</span>: tt) =&gt; {
-        <span class="kw">match </span><span class="macro-nonterminal">$self </span>{
-            Numeric::Rational(<span class="macro-nonterminal">$v</span>) =&gt; <span class="macro-nonterminal">$bod</span>,
-            Numeric::Infinity(<span class="macro-nonterminal">$v</span>) =&gt; <span class="macro-nonterminal">$bod</span>,
-            Numeric::Undefined(<span class="macro-nonterminal">$v</span>) =&gt; <span class="macro-nonterminal">$bod</span>,
-        }
-    };
+<span class="kw">impl </span>PartialOrd <span class="kw">for </span>Sign {
+    <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Ordering&gt; {
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.cmp(other))
+    }
 }
 
-<span class="kw">impl </span>Numeric {
-    <span class="kw">pub const fn </span>is_zero(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="macro">itm!</span>(num: <span class="number">0</span>))
+<span class="kw">impl </span>Ord <span class="kw">for </span>Sign {
+    <span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; Ordering {
+        <span class="kw">match </span>(<span class="self">self</span>, other) {
+            (Sign::Positive, Sign::Negative) =&gt; Ordering::Greater,
+            (Sign::Negative, Sign::Positive) =&gt; Ordering::Less,
+            (Sign::Negative, Sign::Negative) | (Sign::Positive, Sign::Positive) =&gt; Ordering::Equal,
+        }
     }
+}
 
-    <span class="kw">pub const fn </span>is_one(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="macro">itm!</span>(num: <span class="number">1</span>))
+<span class="kw">impl </span>CalcursType <span class="kw">for </span>Numeric {
+    <span class="attr">#[inline(always)]
+    </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
+        Base::Numeric(<span class="self">self</span>)
     }
+}
 
-    <span class="kw">pub const fn </span>is_minus_one(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="macro">itm!</span>(num: -<span class="number">1</span>))
+<span class="kw">impl </span>CalcursType <span class="kw">for </span>Infinity {
+    <span class="attr">#[inline(always)]
+    </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
+        Numeric::Infinity(<span class="self">self</span>).base()
     }
+}
 
-    <span class="kw">pub const fn </span>is_negative(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="macro">itm!</span>(num: -))
+<span class="kw">impl </span>CalcursType <span class="kw">for </span>Undefined {
+    <span class="attr">#[inline(always)]
+    </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
+        Numeric::Undefined(<span class="self">self</span>).base()
     }
-
-    <span class="kw">pub const fn </span>is_positive(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="macro">itm!</span>(num: +))
-    }
-
-    <span class="kw">pub fn </span>subs(<span class="self">self</span>, _dict: <span class="kw-2">&amp;</span>SubsDict) -&gt; <span class="self">Self </span>{
-        <span class="self">self
-    </span>}
 }
 
 <span class="kw">impl </span>From&lt;Rational&gt; <span class="kw">for </span>Numeric {
@@ -786,200 +845,47 @@
     }
 }
 
-<span class="kw">impl </span>Display <span class="kw">for </span>Numeric {
+<span class="kw">impl</span>&lt;I: num::Integer&gt; From&lt;I&gt; <span class="kw">for </span>Sign {
+    <span class="comment">// Positive for value &gt;= 0
+    </span><span class="kw">fn </span>from(value: I) -&gt; <span class="self">Self </span>{
+        <span class="kw">if </span>value &gt;= I::zero() {
+            Sign::Positive
+        } <span class="kw">else </span>{
+            Sign::Negative
+        }
+    }
+}
+
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Numeric {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">for_each_number!</span>(<span class="self">self</span>, v =&gt; { <span class="macro">write!</span>(f, <span class="string">&quot;{v}&quot;</span>)})
-    }
-}
-
-<span class="kw">impl </span>CalcursType <span class="kw">for </span>Numeric {
-    <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
-        Base::Numeric(<span class="self">self</span>)
-    }
-}
-
-<span class="kw">impl </span>Numeric {
-    <span class="kw">pub fn </span>add_num(<span class="self">self</span>, n: Numeric) -&gt; Numeric {
-        <span class="kw">use </span>Numeric <span class="kw">as </span>N;
-        <span class="kw">match </span>(<span class="self">self</span>, n) {
-            (N::Undefined(<span class="kw">_</span>), <span class="kw">_</span>) | (<span class="kw">_</span>, N::Undefined(<span class="kw">_</span>)) =&gt; Undefined.into(),
-            (N::Infinity(inf), n) | (n, N::Infinity(inf)) =&gt; inf.add_num(n),
-            (N::Rational(r1), N::Rational(r2)) =&gt; r1.add(r2).into(),
-        }
-    }
-
-    <span class="kw">pub fn </span>sub_num(<span class="self">self</span>, n: Numeric) -&gt; Numeric {
-        <span class="kw">use </span>Numeric <span class="kw">as </span>N;
-        <span class="kw">match </span>(<span class="self">self</span>, n) {
-            (N::Undefined(<span class="kw">_</span>), <span class="kw">_</span>) | (<span class="kw">_</span>, N::Undefined(<span class="kw">_</span>)) =&gt; Undefined.into(),
-            (N::Infinity(inf), n) =&gt; inf.sub_num(n),
-            (n, N::Infinity(inf)) =&gt; n.sub_inf(inf),
-            (N::Rational(r1), N::Rational(r2)) =&gt; r1.sub(r2).into(),
-        }
-    }
-
-    <span class="kw">pub fn </span>mul_num(<span class="self">self</span>, n: Numeric) -&gt; Numeric {
-        <span class="kw">use </span>Numeric <span class="kw">as </span>N;
-        <span class="kw">match </span>(<span class="self">self</span>, n) {
-            (N::Undefined(<span class="kw">_</span>), <span class="kw">_</span>) | (<span class="kw">_</span>, N::Undefined(<span class="kw">_</span>)) =&gt; Undefined.into(),
-            (N::Infinity(inf), n) | (n, N::Infinity(inf)) =&gt; inf.mul_num(n),
-            (N::Rational(r1), N::Rational(r2)) =&gt; r1.mul(r2).into(),
-        }
-    }
-
-    <span class="kw">pub fn </span>div_num(<span class="self">self</span>, n: Numeric) -&gt; Numeric {
-        <span class="kw">use </span>Numeric <span class="kw">as </span>N;
-        <span class="kw">match </span>(<span class="self">self</span>, n) {
-            (N::Undefined(<span class="kw">_</span>), <span class="kw">_</span>) | (<span class="kw">_</span>, N::Undefined(<span class="kw">_</span>)) =&gt; Undefined.into(),
-            (N::Infinity(inf), n) =&gt; inf.div_num(n),
-            (n, N::Infinity(inf)) =&gt; n.div_inf(inf),
-
-            (N::Rational(r1), N::Rational(r2)) =&gt; r1.div(r2).into(),
-        }
-    }
-
-    <span class="kw">pub fn </span>checked_pow_num(<span class="self">self</span>, n: Numeric) -&gt; <span class="prelude-ty">Option</span>&lt;Numeric&gt; {
-        <span class="comment">//let test: itm!(num: Undefined) = Undefined;
-        </span><span class="prelude-val">Some</span>(<span class="kw">match </span>(<span class="self">self</span>, n) {
-            (<span class="kw">_</span>, <span class="macro">itm!</span>(num: undef)) | (<span class="macro">itm!</span>(num: undef), <span class="kw">_</span>) =&gt; Undefined.num(),
-
-            <span class="comment">// 0^0 = undefined
-            </span>(<span class="macro">itm!</span>(num: <span class="number">0</span>), <span class="macro">itm!</span>(num: <span class="number">0</span>)) =&gt; Undefined.num(),
-
-            <span class="comment">// x^(-oo) = 0
-            </span>(<span class="macro">itm!</span>(num: Rational: <span class="kw">_</span>), <span class="macro">itm!</span>(num: -oo)) =&gt; Rational::zero().num(),
-
-            <span class="comment">// x^(+oo) = +oo
-            </span>(<span class="macro">itm!</span>(num: Rational: <span class="kw">_</span>), <span class="macro">itm!</span>(num: +oo)) =&gt; Infinity::pos().num(),
-
-            <span class="comment">// 1^x = 1
-            </span>(<span class="macro">itm!</span>(num: <span class="number">1</span>), <span class="kw">_</span>) =&gt; Rational::one().num(),
-
-            <span class="comment">// x^0 = 1 | x != 0
-            </span>(n, <span class="macro">itm!</span>(num: <span class="number">0</span>)) <span class="kw">if </span>!n.is_zero() =&gt; Rational::one().num(),
-
-            <span class="comment">// 0^x = undefined | x &lt; 0
-            </span>(<span class="macro">itm!</span>(num: <span class="number">0</span>), <span class="macro">itm!</span>(num: -)) =&gt; Undefined.num(),
-
-            <span class="comment">// 0^x = 0 | x &gt; 0
-            </span>(<span class="macro">itm!</span>(num: <span class="number">0</span>), <span class="macro">itm!</span>(num: +)) =&gt; Rational::zero().num(),
-
-            <span class="comment">// n^-1 = 1/n | n != 0
-            </span>(<span class="macro">itm!</span>(num: Rational: r), <span class="macro">itm!</span>(num: -<span class="number">1</span>)) =&gt; (Rational::one() / r).num(),
-
-            (<span class="macro">itm!</span>(num: Rational: r1), <span class="macro">itm!</span>(num: Rational: r2)) =&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>exp = r2.try_apply_expon()<span class="question-mark">?</span>;
-                <span class="kw">let </span><span class="kw-2">mut </span>base = r1.try_apply_expon()<span class="question-mark">?</span>;
-                exp.reduce_frac();
-                base.reduce_frac();
-
-                <span class="kw">let </span><span class="kw-2">mut </span>root = base.numer;
-                <span class="kw">if </span>exp.denom() != <span class="number">1 </span>{
-                    root = base.numer.nth_root(exp.denom().try_into().ok()<span class="question-mark">?</span>);
-                    <span class="kw">if </span>root * root != base.numer {
-                        <span class="kw">return </span><span class="prelude-val">None</span>;
-                    };
-                }
-                <span class="kw">let </span>numer = root.pow(exp.numer.try_into().ok()<span class="question-mark">?</span>);
-
-                <span class="kw">let </span><span class="kw-2">mut </span>root = base.denom();
-                <span class="kw">if </span>exp.denom() != <span class="number">1 </span>{
-                    root = base.denom().nth_root(exp.denom().try_into().ok()<span class="question-mark">?</span>);
-                    <span class="kw">if </span>root * root != base.denom() {
-                        <span class="kw">return </span><span class="prelude-val">None</span>;
-                    };
-                }
-                <span class="kw">let </span>denom = root.pow(exp.numer.try_into().ok()<span class="question-mark">?</span>);
-
-                <span class="kw">let </span>sign = <span class="kw">if </span>exp.numer() % <span class="number">2 </span>== <span class="number">0 </span>{
-                    Sign::Positive
-                } <span class="kw">else </span>{
-                    base.sign
-                };
-
-                Rational::reduced(sign, numer, NonZero::new(denom), <span class="number">0</span>).num()
-            }
-
-            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
-        })
-    }
-
-    <span class="kw">fn </span>sub_inf(<span class="self">self</span>, inf: Infinity) -&gt; Numeric {
-        <span class="kw">use </span>Numeric <span class="kw">as </span>N;
         <span class="kw">match </span><span class="self">self </span>{
-            N::Rational(<span class="kw">_</span>) =&gt; inf.into(),
-            N::Infinity(i) =&gt; i.sub_num(inf.into()),
-            N::Undefined(<span class="kw">_</span>) =&gt; <span class="self">self</span>,
-        }
-    }
-
-    <span class="kw">fn </span>div_inf(<span class="self">self</span>, <span class="kw-2">mut </span>inf: Infinity) -&gt; Numeric {
-        <span class="kw">use </span>Numeric <span class="kw">as </span>N;
-        <span class="kw">match </span><span class="self">self </span>{
-            N::Rational(r) =&gt; {
-                inf.sign <span class="kw-2">*</span>= r.sign;
-                inf.into()
-            }
-            N::Infinity(i) =&gt; i.div_num(inf.into()),
-            N::Undefined(<span class="kw">_</span>) =&gt; <span class="self">self</span>,
+            Numeric::Rational(v) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{v}&quot;</span>),
+            Numeric::Infinity(v) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{v}&quot;</span>),
+            Numeric::Undefined(v) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{v}&quot;</span>),
         }
     }
 }
 
-<span class="kw">impl </span>Add <span class="kw">for </span>Numeric {
-    <span class="kw">type </span>Output = Numeric;
-
-    <span class="kw">fn </span>add(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
-        <span class="self">self</span>.add_num(rhs)
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Undefined {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;Undefined&quot;</span>)
     }
 }
 
-<span class="kw">impl </span>AddAssign <span class="kw">for </span>Numeric {
-    <span class="kw">fn </span>add_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: <span class="self">Self</span>) {
-        <span class="kw-2">*</span><span class="self">self </span>= <span class="self">self</span>.add_num(rhs);
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Infinity {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}oo&quot;</span>, <span class="self">self</span>.sign)
     }
 }
 
-<span class="kw">impl </span>Sub <span class="kw">for </span>Numeric {
-    <span class="kw">type </span>Output = Numeric;
-
-    <span class="kw">fn </span>sub(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
-        <span class="self">self</span>.sub_num(rhs)
-    }
-}
-
-<span class="kw">impl </span>SubAssign <span class="kw">for </span>Numeric {
-    <span class="kw">fn </span>sub_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: <span class="self">Self</span>) {
-        <span class="kw-2">*</span><span class="self">self </span>= <span class="self">self</span>.sub_num(rhs);
-    }
-}
-
-<span class="kw">impl </span>Mul <span class="kw">for </span>Numeric {
-    <span class="kw">type </span>Output = Numeric;
-
-    <span class="kw">fn </span>mul(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
-        <span class="self">self</span>.mul_num(rhs)
-    }
-}
-
-<span class="kw">impl </span>MulAssign <span class="kw">for </span>Numeric {
-    <span class="kw">fn </span>mul_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: <span class="self">Self</span>) {
-        <span class="kw-2">*</span><span class="self">self </span>= <span class="self">self</span>.mul_num(rhs);
-    }
-}
-
-<span class="kw">impl </span>Div <span class="kw">for </span>Numeric {
-    <span class="kw">type </span>Output = Numeric;
-
-    <span class="kw">fn </span>div(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
-        <span class="self">self</span>.div_num(rhs)
-    }
-}
-
-<span class="kw">impl </span>DivAssign <span class="kw">for </span>Numeric {
-    <span class="kw">fn </span>div_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: <span class="self">Self</span>) {
-        <span class="kw-2">*</span><span class="self">self </span>= <span class="self">self</span>.div_num(rhs);
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Sign {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">use </span>Sign <span class="kw">as </span>S;
+        <span class="kw">let </span>s = <span class="kw">match </span><span class="self">self </span>{
+            S::Positive =&gt; <span class="string">&quot;&quot;</span>,
+            S::Negative =&gt; <span class="string">&quot;-&quot;</span>,
+        };
+        <span class="macro">write!</span>(f, <span class="string">&quot;{s}&quot;</span>)
     }
 }
 </code></pre></div></section></main></body></html>

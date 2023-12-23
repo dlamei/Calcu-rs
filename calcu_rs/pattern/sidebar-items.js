@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":["itm"]};
+window.SIDEBAR_ITEMS = {"enum":["Pattern"],"macro":["bit","get_itm"],"struct":["Item"]};

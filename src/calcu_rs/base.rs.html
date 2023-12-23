@@ -226,14 +226,7 @@
 <a href="#226" id="226">226</a>
 <a href="#227" id="227">227</a>
 <a href="#228" id="228">228</a>
-<a href="#229" id="229">229</a>
-<a href="#230" id="230">230</a>
-<a href="#231" id="231">231</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{
-    collections::HashMap,
-    fmt::{Debug, Display},
-    ops,
-};
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::{collections::HashMap, fmt, ops};
 
 <span class="kw">use crate</span>::{
     derivative::Derivative,
@@ -241,49 +234,10 @@
     operator::{Add, Div, Mul, Pow, Sub},
 };
 
-<span class="doccomment">/// implemented by every symbolic math type
-</span><span class="kw">pub trait </span>CalcursType: Clone + Debug {
-    <span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base;
-}
+<span class="kw">use </span><span class="kw">crate</span>::pattern <span class="kw">as </span>pat;
 
 <span class="kw">pub type </span>PTR&lt;T&gt; = Box&lt;T&gt;;
 <span class="kw">pub type </span>SubsDict&lt;<span class="lifetime">&#39;a</span>&gt; = HashMap&lt;String, Base&gt;;
-
-<span class="attr">#[derive(Debug, Clone, PartialEq, PartialOrd, Ord, Eq, Hash)]
-</span><span class="kw">pub struct </span>Symbol {
-    <span class="kw">pub </span>name: String,
-}
-
-<span class="kw">impl </span>Symbol {
-    <span class="kw">pub fn </span>new&lt;I: Into&lt;String&gt;&gt;(name: I) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ name: name.into() }
-    }
-
-    <span class="kw">pub fn </span>is_zero(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="bool-val">false
-    </span>}
-
-    <span class="kw">pub fn </span>subs(<span class="kw-2">&amp;</span><span class="self">self</span>, dict: <span class="kw-2">&amp;</span>SubsDict) -&gt; Base {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(key) = dict.get(<span class="kw-2">&amp;</span><span class="self">self</span>.name) {
-            key.clone()
-        } <span class="kw">else </span>{
-            <span class="self">self</span>.clone().base()
-        }
-    }
-}
-
-<span class="kw">impl </span>Display <span class="kw">for </span>Symbol {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.name)
-    }
-}
-
-<span class="kw">impl </span>CalcursType <span class="kw">for </span>Symbol {
-    <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
-        Base::Symbol(<span class="self">self</span>).base()
-    }
-}
 
 <span class="attr">#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 </span><span class="kw">pub enum </span>Base {
@@ -295,6 +249,78 @@
     Pow(PTR&lt;Pow&gt;),
 
     Derivative(Derivative),
+}
+
+<span class="attr">#[derive(Debug, Clone, PartialEq, PartialOrd, Ord, Eq, Hash)]
+</span><span class="kw">pub struct </span>Symbol {
+    <span class="kw">pub </span>name: String,
+}
+
+<span class="kw">impl </span>Base {
+    <span class="kw">pub fn </span>subs(<span class="self">self</span>, dict: <span class="kw-2">&amp;</span>SubsDict) -&gt; Base {
+        <span class="kw">match </span><span class="self">self </span>{
+            Base::Symbol(s) =&gt; s.subs(dict),
+            Base::Numeric(n) =&gt; n.subs(dict).base(),
+            Base::Add(a) =&gt; a.subs(dict),
+            Base::Mul(m) =&gt; m.subs(dict),
+            Base::Pow(p) =&gt; p.subs(dict),
+            Base::Derivative(d) =&gt; d.subs(dict),
+        }
+    }
+
+    <span class="kw">pub fn </span>pow(<span class="self">self</span>, other: <span class="self">Self</span>) -&gt; Base {
+        Pow::pow(<span class="self">self</span>, other).base()
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>desc(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; pat::Pattern {
+        <span class="kw">use </span>Base <span class="kw">as </span>B;
+        <span class="kw">match </span><span class="self">self </span>{
+            B::Symbol(s) =&gt; s.desc().into(),
+            B::Numeric(n) =&gt; n.desc().into(),
+            B::Add(add) =&gt; add.desc(),
+            B::Mul(mul) =&gt; mul.desc(),
+            B::Pow(pow) =&gt; pow.desc(),
+            B::Derivative(<span class="kw">_</span>) =&gt; <span class="macro">todo!</span>(),
+        }
+    }
+}
+
+<span class="kw">impl </span>Symbol {
+    <span class="kw">pub fn </span>new&lt;I: Into&lt;String&gt;&gt;(name: I) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ name: name.into() }
+    }
+
+    <span class="kw">pub fn </span>subs(<span class="kw-2">&amp;</span><span class="self">self</span>, dict: <span class="kw-2">&amp;</span>SubsDict) -&gt; Base {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(key) = dict.get(<span class="kw-2">&amp;</span><span class="self">self</span>.name) {
+            key.clone()
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.clone().base()
+        }
+    }
+
+    <span class="kw">pub const fn </span>desc(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; pat::Pattern {
+        pat::Pattern::Itm(pat::Item::Symbol)
+    }
+}
+
+<span class="doccomment">/// implemented by every symbolic math type
+</span><span class="kw">pub trait </span>CalcursType: Clone + fmt::Debug {
+    <span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base;
+}
+
+<span class="kw">impl </span>CalcursType <span class="kw">for </span>Base {
+    <span class="attr">#[inline(always)]
+    </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self
+    </span>}
+}
+
+<span class="kw">impl </span>CalcursType <span class="kw">for </span>Symbol {
+    <span class="attr">#[inline(always)]
+    </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
+        Base::Symbol(<span class="self">self</span>).base()
+    }
 }
 
 <span class="attr">#[macro_export]
@@ -326,51 +352,6 @@
     (v: <span class="macro-nonterminal">$var</span>: ident) =&gt; {
         Symbol::new(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$var</span>)).base()
     };
-}
-
-<span class="kw">impl </span>Display <span class="kw">for </span>Base {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
-        <span class="kw">use </span>Base <span class="kw">as </span>B;
-        <span class="kw">match </span><span class="self">self </span>{
-            B::Symbol(v) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{v}&quot;</span>),
-            B::Numeric(n) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{n}&quot;</span>),
-
-            B::Add(a) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{a}&quot;</span>),
-            B::Mul(m) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{m}&quot;</span>),
-            B::Pow(p) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{p}&quot;</span>),
-            B::Derivative(d) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:?}&quot;</span>, d),
-        }
-    }
-}
-
-<span class="kw">impl </span>CalcursType <span class="kw">for </span>Base {
-    <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <span class="self">self
-    </span>}
-}
-
-<span class="kw">impl </span>Base {
-    <span class="kw">pub fn </span>subs(<span class="self">self</span>, dict: <span class="kw-2">&amp;</span>SubsDict) -&gt; Base {
-        <span class="kw">match </span><span class="self">self </span>{
-            Base::Symbol(s) =&gt; s.subs(dict),
-            Base::Numeric(n) =&gt; n.subs(dict).base(),
-            Base::Add(a) =&gt; a.subs(dict),
-            Base::Mul(m) =&gt; m.subs(dict),
-            Base::Pow(p) =&gt; p.subs(dict),
-            Base::Derivative(d) =&gt; d.subs(dict),
-        }
-    }
-
-    <span class="kw">pub fn </span>pow(<span class="self">self</span>, other: <span class="self">Self</span>) -&gt; Base {
-        Pow::pow(<span class="self">self</span>, other).base()
-    }
-}
-
-<span class="kw">impl</span>&lt;T: Into&lt;String&gt;&gt; From&lt;T&gt; <span class="kw">for </span>Symbol {
-    <span class="kw">fn </span>from(value: T) -&gt; <span class="self">Self </span>{
-        Symbol { name: value.into() }
-    }
 }
 
 <span class="kw">impl </span>ops::Add <span class="kw">for </span>Base {
@@ -431,21 +412,34 @@
     }
 }
 
-<span class="comment">// impl ops::BitXor for Base {
-//     type Output = Base;
+<span class="kw">impl</span>&lt;T: Into&lt;String&gt;&gt; From&lt;T&gt; <span class="kw">for </span>Symbol {
+    <span class="kw">fn </span>from(value: T) -&gt; <span class="self">Self </span>{
+        Symbol { name: value.into() }
+    }
+}
 
-//     fn bitxor(self, rhs: Self) -&gt; Self::Output {
-//         Pow::pow(self, rhs)
-//     }
-// }
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Base {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="kw">use </span>Base <span class="kw">as </span>B;
+        <span class="kw">match </span><span class="self">self </span>{
+            B::Symbol(v) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{v}&quot;</span>),
+            B::Numeric(n) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{n}&quot;</span>),
 
-// impl ops::BitXorAssign for Base {
-//     fn bitxor_assign(&amp;mut self, rhs: Self) {
-//         *self = Pow::pow(self.clone(), rhs);
-//     }
-// }
+            B::Add(a) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{a}&quot;</span>),
+            B::Mul(m) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{m}&quot;</span>),
+            B::Pow(p) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{p}&quot;</span>),
+            B::Derivative(d) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:?}&quot;</span>, d),
+        }
+    }
+}
 
-</span><span class="attr">#[cfg(test)]
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Symbol {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.name)
+    }
+}
+
+<span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>base_test {
 
     <span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;

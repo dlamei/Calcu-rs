@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"calcu_rs":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.74.1/core/iter/traits/collect/trait.FromIterator.html\" title=\"trait core::iter::traits::collect::FromIterator\">FromIterator</a>&lt;<a class=\"struct\" href=\"calcu_rs/pattern/struct.Item.html\" title=\"struct calcu_rs::pattern::Item\">Item</a>&gt; for <a class=\"struct\" href=\"calcu_rs/pattern/struct.Item.html\" title=\"struct calcu_rs::pattern::Item\">Item</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

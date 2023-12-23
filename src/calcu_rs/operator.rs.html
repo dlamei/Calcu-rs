@@ -563,95 +563,55 @@
 <a href="#563" id="563">563</a>
 <a href="#564" id="564">564</a>
 <a href="#565" id="565">565</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{
-    collections::BTreeMap,
-    fmt::{<span class="self">self</span>, Display},
-};
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::{collections::BTreeMap, fmt};
 
 <span class="kw">use crate</span>::{
     base::{Base, CalcursType},
-    numeric::{Numeric, Undefined},
-    pattern::itm,
+    numeric::{Infinity, Numeric, Undefined},
+    pattern::{get_itm, Item, Pattern},
     rational::Rational,
 };
-
-<span class="doccomment">/// helper container for [Add]
-///
-///  n1 * mul_1 + n2 * mul_2 + n3 * mul_3 + ... \
-/// &lt;=&gt; n1 * {pow_1_1 * pow_1_2 * ... } + n2 * { pow_2_1 * pow_2_2 * ...} + ...
-</span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>AddArgs {
-    <span class="comment">// TODO: maybe Vec&lt;(_, _)&gt;?
-    </span>__args: BTreeMap&lt;MulArgs, Numeric&gt;,
-}
-
-<span class="kw">impl </span>AddArgs {
-    <span class="kw">pub fn </span>insert_mul(<span class="kw-2">&amp;mut </span><span class="self">self</span>, mul: Mul) {
-        <span class="kw">if </span>mul.coeff.is_zero() {
-            <span class="kw">return</span>;
-        }
-
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(coeff) = <span class="self">self</span>.__args.get_mut(<span class="kw-2">&amp;</span>mul.args) {
-            <span class="comment">// 2x + 3x =&gt; 5x
-            </span><span class="kw-2">*</span>coeff += mul.coeff;
-
-            <span class="kw">if </span>coeff.is_zero() {
-                <span class="self">self</span>.__args.remove(<span class="kw-2">&amp;</span>mul.args);
-            }
-        } <span class="kw">else </span>{
-            <span class="self">self</span>.__args.insert(mul.args, mul.coeff);
-        }
-    }
-
-    <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>into_mul_iter(<span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = Mul&gt; {
-        <span class="self">self</span>.__args
-            .into_iter()
-            .map(|(args, coeff)| Mul { coeff, args })
-    }
-
-    <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="self">self</span>.__args.len()
-    }
-
-    <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.__args.is_empty()
-    }
-
-    <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>is_mul(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.len() == <span class="number">1
-    </span>}
-
-    <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>into_mul(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Mul&gt; {
-        <span class="kw">if </span><span class="self">self</span>.is_mul() {
-            <span class="kw">let </span>(args, coeff) = <span class="self">self</span>.__args.pop_first().unwrap();
-            <span class="prelude-val">Some</span>(Mul { args, coeff })
-        } <span class="kw">else </span>{
-            <span class="prelude-val">None
-        </span>}
-    }
-}
-
-<span class="kw">impl </span>Display <span class="kw">for </span>AddArgs {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.__args.iter().rev();
-
-        <span class="kw">if let </span><span class="prelude-val">Some</span>((args, coeff)) = iter.next() {
-            Mul::fmt_parts(args, coeff, f)<span class="question-mark">?</span>;
-        }
-
-        <span class="kw">for </span>(args, coeff) <span class="kw">in </span>iter {
-            <span class="macro">write!</span>(f, <span class="string">&quot; + &quot;</span>)<span class="question-mark">?</span>;
-            Mul::fmt_parts(args, coeff, f)<span class="question-mark">?</span>;
-        }
-
-        <span class="prelude-val">Ok</span>(())
-    }
-}
 
 <span class="doccomment">/// Represents addition in symbolic expressions
 ///
@@ -665,6 +625,44 @@
 
 <span class="kw">pub type </span>Sub = Add;
 
+<span class="doccomment">/// Represents multiplication in symbolic expressions
+///
+/// Implemented with a coefficient and a hashmap: \
+/// coeff * pow1 * pow2 * pow3...
+</span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+</span><span class="kw">pub struct </span>Mul {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) coeff: Numeric,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) args: MulArgs,
+}
+
+<span class="kw">pub type </span>Div = Mul;
+
+<span class="comment">// TODO: pow of number
+</span><span class="doccomment">/// base^exp
+</span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+</span><span class="kw">pub struct </span>Pow {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) base: Base,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) exp: Base,
+}
+
+<span class="doccomment">/// helper container for [Add]
+///
+///  n1 * mul_1 + n2 * mul_2 + n3 * mul_3 + ... \
+/// &lt;=&gt; n1 * {pow_1_1 * pow_1_2 * ... } + n2 * { pow_2_1 * pow_2_2 * ...} + ...
+</span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>AddArgs {
+    <span class="comment">// TODO: maybe Vec&lt;(_, _)&gt;?
+    </span>__args: BTreeMap&lt;MulArgs, Numeric&gt;,
+}
+
+<span class="doccomment">/// helper container for [Mul]
+///
+/// k1 ^ v1 * k2 ^ v2 * k3 ^ v3 * ...
+</span><span class="attr">#[derive(Debug, Default, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>MulArgs {
+    __args: BTreeMap&lt;Base, Base&gt;,
+}
+
 <span class="kw">impl </span>Add {
     <span class="doccomment">/// n1 + n2
     </span><span class="kw">pub fn </span>add(n1: <span class="kw">impl </span>CalcursType, n2: <span class="kw">impl </span>CalcursType) -&gt; Base {
@@ -675,6 +673,13 @@
         .arg(n1.base())
         .arg(n2.base())
         .reduce()
+    }
+
+    <span class="kw">pub fn </span>desc(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Pattern {
+        <span class="kw">let </span>op = Item::Add;
+        <span class="kw">let </span>lhs = <span class="self">self</span>.coeff.desc().to_item();
+        <span class="kw">let </span>rhs = <span class="self">self</span>.args.desc().to_item();
+        Pattern::Binary { lhs, op, rhs }
     }
 
     <span class="doccomment">/// n1 + (-1 * n2)
@@ -716,120 +721,17 @@
     </span>}
 
     <span class="kw">fn </span>reduce(<span class="self">self</span>) -&gt; Base {
-        <span class="kw">match </span>(<span class="self">self</span>.coeff, <span class="self">self</span>.args) {
-            <span class="comment">// x + {} =&gt; x
-            </span>(x, args) <span class="kw">if </span>args.is_empty() =&gt; x.base(),
-            <span class="comment">// 0 + x * y =&gt; x * y
-            </span>(<span class="macro">itm!</span>(num: <span class="number">0</span>), x) <span class="kw">if </span>x.is_mul() =&gt; x.into_mul().unwrap().base(),
+        <span class="kw">let </span>coeff = <span class="self">self</span>.coeff.desc();
 
-            (coeff, args) =&gt; <span class="self">Self </span>{ coeff, args }.base(),
-        }
-    }
-}
-
-<span class="kw">impl </span>CalcursType <span class="kw">for </span>Add {
-    <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
-        Base::Add(<span class="self">self</span>)
-    }
-}
-
-<span class="kw">impl </span>Display <span class="kw">for </span>Add {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.args)<span class="question-mark">?</span>;
-
-        <span class="kw">if </span>!<span class="self">self</span>.coeff.is_zero() {
-            <span class="macro">write!</span>(f, <span class="string">&quot; + {}&quot;</span>, <span class="self">self</span>.coeff)<span class="question-mark">?</span>;
-        }
-
-        <span class="prelude-val">Ok</span>(())
-    }
-}
-
-<span class="doccomment">/// helper container for [Mul]
-///
-/// k1 ^ v1 * k2 ^ v2 * k3 ^ v3 * ...
-</span><span class="attr">#[derive(Debug, Default, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>MulArgs {
-    __args: BTreeMap&lt;Base, Base&gt;,
-}
-
-<span class="kw">impl </span>MulArgs {
-    <span class="kw">pub fn </span>insert_pow(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>pow: Pow) {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(exp) = <span class="self">self</span>.__args.remove(<span class="kw-2">&amp;</span>pow.base) {
-            pow.exp = Add::add(exp, pow.exp);
-            <span class="self">self</span>.__args.insert(pow.base, pow.exp);
+        <span class="kw">if </span><span class="self">self</span>.args.is_empty() {
+            <span class="self">self</span>.coeff.base()
+        } <span class="kw">else if </span>coeff.is(Item::Zero) &amp;&amp; <span class="self">self</span>.args.is_mul() {
+            <span class="self">self</span>.args.into_mul().base()
         } <span class="kw">else </span>{
-            <span class="self">self</span>.__args.insert(pow.base, pow.exp);
+            <span class="self">self</span>.base()
         }
     }
-
-    <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>into_pow_iter(<span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = Pow&gt; {
-        <span class="self">self</span>.__args.into_iter().map(|(base, exp)| Pow { base, exp })
-    }
-
-    <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>is_pow(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.__args.len() == <span class="number">1
-    </span>}
-
-    <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="self">self</span>.__args.len()
-    }
-
-    <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>try_into_pow(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Pow&gt; {
-        <span class="kw">if </span><span class="self">self</span>.is_pow() {
-            <span class="kw">let </span>(base, exp) = <span class="self">self</span>.__args.pop_first().unwrap();
-            <span class="prelude-val">Some</span>(Pow { base, exp })
-        } <span class="kw">else </span>{
-            <span class="prelude-val">None
-        </span>}
-    }
-
-    <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.__args.is_empty()
-    }
-
-    <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>from_base(b: Base) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>pow = Pow::from_base(b);
-        <span class="kw">let </span>__args = BTreeMap::from([(pow.base, pow.exp)]);
-        <span class="self">Self </span>{ __args }
-    }
 }
-
-<span class="kw">impl </span>Display <span class="kw">for </span>MulArgs {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.__args.iter();
-
-        <span class="kw">if let </span><span class="prelude-val">Some</span>((base, exp)) = iter.next() {
-            Pow::fmt_parts(base, exp, f)<span class="question-mark">?</span>;
-        }
-
-        <span class="kw">for </span>(base, exp) <span class="kw">in </span>iter {
-            <span class="macro">write!</span>(f, <span class="string">&quot; * &quot;</span>)<span class="question-mark">?</span>;
-            Pow::fmt_parts(base, exp, f)<span class="question-mark">?</span>;
-        }
-
-        <span class="prelude-val">Ok</span>(())
-    }
-}
-
-<span class="doccomment">/// Represents multiplication in symbolic expressions
-///
-/// Implemented with a coefficient and a hashmap: \
-/// coeff * pow1 * pow2 * pow3...
-</span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-</span><span class="kw">pub struct </span>Mul {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) coeff: Numeric,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) args: MulArgs,
-}
-
-<span class="kw">pub type </span>Div = Mul;
 
 <span class="kw">impl </span>Mul {
     <span class="doccomment">/// n1 * n2
@@ -889,25 +791,24 @@
     </span>}
 
     <span class="kw">fn </span>reduce(<span class="self">self</span>) -&gt; Base {
-        <span class="kw">match </span>(<span class="self">self</span>.coeff, <span class="self">self</span>.args) {
-            (<span class="macro">itm!</span>(num: undef), <span class="kw">_</span>) =&gt; Undefined.base(),
+        <span class="kw">let </span>coeff = <span class="self">self</span>.coeff.desc();
 
-            <span class="comment">// 0 * x =&gt; 0
-            </span>(<span class="macro">itm!</span>(num: <span class="number">0</span>), <span class="kw">_</span>) =&gt; Rational::zero().base(),
-
-            <span class="comment">// 1 * x =&gt; x
-            </span>(<span class="macro">itm!</span>(num: <span class="number">1</span>), args) <span class="kw">if </span>args.is_pow() =&gt; args.try_into_pow().unwrap().base(),
-
-            <span class="comment">// x * {} =&gt; x
-            </span>(coeff, args) <span class="kw">if </span>args.is_empty() =&gt; coeff.base(),
-
-            (coeff, args) =&gt; <span class="self">Self </span>{ coeff, args }.base(),
+        <span class="kw">if </span><span class="self">self</span>.args.is_empty() {
+            <span class="self">self</span>.coeff.base()
+        } <span class="kw">else if </span>coeff.is(Item::Undef) {
+            Undefined.base()
+        } <span class="kw">else if </span>coeff.is(Item::Zero) {
+            Rational::zero().base()
+        } <span class="kw">else if </span>coeff.is(Item::One) &amp;&amp; <span class="self">self</span>.args.is_pow() {
+            <span class="self">self</span>.args.into_pow().base()
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.base()
         }
     }
 
     <span class="kw">fn </span>fmt_parts(args: <span class="kw-2">&amp;</span>MulArgs, coeff: <span class="kw-2">&amp;</span>Numeric, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">if </span>args.len() == <span class="number">1 </span>{
-            <span class="kw">if </span>coeff.is_one() {
+            <span class="kw">if </span>coeff.desc().is(Item::One) {
                 <span class="macro">write!</span>(f, <span class="string">&quot;{args}&quot;</span>)<span class="question-mark">?</span>;
             } <span class="kw">else </span>{
                 <span class="macro">write!</span>(f, <span class="string">&quot;{coeff}{args}&quot;</span>)<span class="question-mark">?</span>;
@@ -919,33 +820,20 @@
     }
 
     <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>desc(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Pattern {
+        <span class="kw">let </span>op = Item::Mul;
+        <span class="kw">let </span>lhs = <span class="self">self</span>.coeff.desc().to_item();
+        <span class="kw">let </span>rhs = <span class="self">self</span>.args.desc().to_item();
+        Pattern::Binary { lhs, op, rhs }
+    }
+
+    <span class="attr">#[inline]
     </span><span class="kw">fn </span>from_base(b: Base) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             coeff: Rational::one().num(),
             args: MulArgs::from_base(b),
         }
     }
-}
-
-<span class="kw">impl </span>CalcursType <span class="kw">for </span>Mul {
-    <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
-        Base::Mul(<span class="self">self</span>)
-    }
-}
-
-<span class="kw">impl </span>Display <span class="kw">for </span>Mul {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        Mul::fmt_parts(<span class="kw-2">&amp;</span><span class="self">self</span>.args, <span class="kw-2">&amp;</span><span class="self">self</span>.coeff, f)
-    }
-}
-
-<span class="comment">// TODO: pow of number
-</span><span class="doccomment">/// base^exp
-</span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-</span><span class="kw">pub struct </span>Pow {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) base: Base,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) exp: Base,
 }
 
 <span class="kw">impl </span>Pow {
@@ -964,42 +852,46 @@
     }
 
     <span class="kw">fn </span>reduce(<span class="self">self</span>) -&gt; Base {
-        <span class="kw">match </span>(<span class="self">self</span>.base, <span class="self">self</span>.exp) {
-            (<span class="macro">itm!</span>(undef), <span class="kw">_</span>) | (<span class="kw">_</span>, <span class="macro">itm!</span>(undef)) =&gt; Undefined.base(),
+        <span class="kw">let </span>b = <span class="self">self</span>.base.desc();
+        <span class="kw">let </span>e = <span class="self">self</span>.exp.desc();
 
-            <span class="comment">// 0^0 = undefined
-            </span>(<span class="macro">itm!</span>(<span class="number">0</span>), <span class="macro">itm!</span>(<span class="number">0</span>)) =&gt; Undefined.base(),
-
-            <span class="comment">// 1^x = 1
-            </span>(<span class="macro">itm!</span>(<span class="number">1</span>), <span class="kw">_</span>) =&gt; Rational::one().base(),
-
-            <span class="comment">// x^1 = x
-            </span>(x, <span class="macro">itm!</span>(<span class="number">1</span>)) =&gt; x,
-
-            <span class="comment">// x^0 = 1 | x != 0
-            </span>(<span class="macro">itm!</span>(Numeric: n), <span class="macro">itm!</span>(<span class="number">0</span>)) <span class="kw">if </span>!n.is_zero() =&gt; Rational::one().base(),
-
-            <span class="comment">// 0^x = undefined | x &lt; 0
-            </span>(<span class="macro">itm!</span>(<span class="number">0</span>), <span class="macro">itm!</span>(-)) =&gt; Undefined.base(),
-
-            <span class="comment">// 0^x = 0 | x &gt; 0
-            </span>(<span class="macro">itm!</span>(<span class="number">0</span>), <span class="macro">itm!</span>(+)) =&gt; Rational::zero().base(),
-
-            <span class="comment">// n^-1 = 1/n | n != 0
-            </span>(<span class="macro">itm!</span>(Rational: r), <span class="macro">itm!</span>(-<span class="number">1</span>)) =&gt; (Rational::one() / r).base(),
-
-            (<span class="macro">itm!</span>(Numeric: n1), <span class="macro">itm!</span>(Numeric: n2)) =&gt; {
-                n1.checked_pow_num(n2).map(|n| n.base()).unwrap_or(
-                    <span class="self">Self </span>{
-                        base: n1.base(),
-                        exp: n2.base(),
-                    }
-                    .base(),
-                )
-            }
-
-            <span class="comment">// (x^y)^z = x^(y*z)
-            </span>(base, exp) =&gt; <span class="self">Self </span>{ base, exp }.base(),
+        <span class="kw">if </span>(b.is(Item::Undef) || e.is(Item::Undef))
+            || (b.is(Item::Zero) &amp;&amp; e.is(Item::Zero))
+            || (b.is(Item::Zero) &amp;&amp; e.is(Item::Neg))
+        {
+            <span class="comment">// 0^0 / 0^-n =&gt; undef
+            </span>Undefined.base()
+        } <span class="kw">else if </span>b.is(Item::One) {
+            <span class="comment">// 1^x =&gt; x
+            </span><span class="self">self</span>.base
+        } <span class="kw">else if </span>b.is(Item::Numeric) &amp;&amp; !b.is(Item::Zero) &amp;&amp; e.is(Item::Zero) {
+            <span class="comment">// x^0 if x != 0 =&gt; 1
+            </span>Rational::one().base()
+        } <span class="kw">else if </span>b.is(Item::Zero) &amp;&amp; e.is(Item::Pos) {
+            <span class="comment">// 0^x if x &gt; 0 =&gt; 0
+            </span>Rational::zero().base()
+        } <span class="kw">else if </span>b.is(Item::Numeric) &amp;&amp; e.is(Item::PosInf) {
+            <span class="comment">// x^(+oo) = +oo
+            </span>Infinity::pos().base()
+        } <span class="kw">else if </span>b.is(Item::Numeric) &amp;&amp; e.is(Item::NegInf) {
+            <span class="comment">// x^(-oo) = 0
+            </span>Rational::zero().base()
+        } <span class="kw">else if </span>b.is(Item::Rational) &amp;&amp; e.is(Item::MinusOne) {
+            <span class="comment">// n^-1 =&gt; 1 / n
+            </span><span class="kw">let </span>r = <span class="macro">get_itm!</span>(Rational: <span class="self">self</span>.base);
+            (Rational::one() / r).base()
+        } <span class="kw">else if </span>b.is(Item::Numeric) &amp;&amp; e.is(Item::Numeric) {
+            <span class="kw">let </span>n1 = <span class="macro">get_itm!</span>(Numeric: <span class="self">self</span>.base);
+            <span class="kw">let </span>n2 = <span class="macro">get_itm!</span>(Numeric: <span class="self">self</span>.exp);
+            n1.checked_pow_num(n2).map(|n| n.base()).unwrap_or(
+                Pow {
+                    base: n1.base(),
+                    exp: n2.base(),
+                }
+                .base(),
+            )
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.base()
         }
     }
 
@@ -1015,8 +907,16 @@
         }
     }
 
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>desc(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Pattern {
+        <span class="kw">let </span>op = Item::Pow;
+        <span class="kw">let </span>lhs = <span class="self">self</span>.base.desc().to_item();
+        <span class="kw">let </span>rhs = <span class="self">self</span>.exp.desc().to_item();
+        Pattern::Binary { lhs, op, rhs }
+    }
+
     <span class="kw">fn </span>fmt_parts(base: <span class="kw-2">&amp;</span>Base, exp: <span class="kw-2">&amp;</span>Base, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="kw">if let </span><span class="macro">itm!</span>(<span class="number">1</span>) = exp {
+        <span class="kw">if </span>exp.desc().is(Item::One) {
             <span class="kw">return </span><span class="macro">write!</span>(f, <span class="string">&quot;{base}&quot;</span>);
         }
 
@@ -1033,6 +933,136 @@
     }
 }
 
+<span class="kw">impl </span>AddArgs {
+    <span class="kw">pub fn </span>insert_mul(<span class="kw-2">&amp;mut </span><span class="self">self</span>, mul: Mul) {
+        <span class="kw">if </span>mul.coeff.desc().is(Item::Zero) {
+            <span class="kw">return</span>;
+        }
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(coeff) = <span class="self">self</span>.__args.get_mut(<span class="kw-2">&amp;</span>mul.args) {
+            <span class="comment">// 2x + 3x =&gt; 5x
+            </span><span class="kw-2">*</span>coeff += mul.coeff;
+
+            <span class="kw">if </span>coeff.desc().is(Item::Zero) {
+                <span class="self">self</span>.__args.remove(<span class="kw-2">&amp;</span>mul.args);
+            }
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.__args.insert(mul.args, mul.coeff);
+        }
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>into_mul_iter(<span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = Mul&gt; {
+        <span class="self">self</span>.__args
+            .into_iter()
+            .map(|(args, coeff)| Mul { coeff, args })
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.__args.len()
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.__args.is_empty()
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>is_mul(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.len() == <span class="number">1
+    </span>}
+
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>into_mul(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; Mul {
+        <span class="kw">if </span><span class="self">self</span>.is_mul() {
+            <span class="kw">let </span>(args, coeff) = <span class="self">self</span>.__args.pop_first().unwrap();
+            Mul { args, coeff }
+        } <span class="kw">else </span>{
+            <span class="macro">panic!</span>(<span class="string">&quot;AddArgs::into_mul: not possible&quot;</span>)
+        }
+    }
+
+    <span class="kw">pub fn </span>desc(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Pattern {
+        <span class="kw">if </span><span class="self">self</span>.__args.len() == <span class="number">1 </span>{
+            <span class="kw">let </span>(args, coeff) = <span class="self">self</span>.__args.first_key_value().unwrap();
+            <span class="kw">let </span>op = Item::Mul;
+            <span class="kw">let </span>lhs = coeff.desc().to_item();
+            <span class="kw">let </span>rhs = args.desc().to_item();
+            Pattern::Binary { lhs, op, rhs }
+        } <span class="kw">else </span>{
+            Pattern::Itm(Item::Add)
+        }
+    }
+}
+
+<span class="kw">impl </span>MulArgs {
+    <span class="kw">pub fn </span>insert_pow(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>pow: Pow) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(exp) = <span class="self">self</span>.__args.remove(<span class="kw-2">&amp;</span>pow.base) {
+            pow.exp = Add::add(exp, pow.exp);
+            <span class="self">self</span>.__args.insert(pow.base, pow.exp);
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.__args.insert(pow.base, pow.exp);
+        }
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>into_pow_iter(<span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = Pow&gt; {
+        <span class="self">self</span>.__args.into_iter().map(|(base, exp)| Pow { base, exp })
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>is_pow(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.__args.len() == <span class="number">1
+    </span>}
+
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.__args.len()
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>into_pow(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; Pow {
+        <span class="kw">if </span><span class="self">self</span>.is_pow() {
+            <span class="kw">let </span>(base, exp) = <span class="self">self</span>.__args.pop_first().unwrap();
+            Pow { base, exp }
+        } <span class="kw">else </span>{
+            <span class="macro">panic!</span>(<span class="string">&quot;MulArgs::into_pow: not possible&quot;</span>)
+        }
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.__args.is_empty()
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>from_base(b: Base) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>pow = Pow::from_base(b);
+        <span class="kw">let </span>__args = BTreeMap::from([(pow.base, pow.exp)]);
+        <span class="self">Self </span>{ __args }
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>desc(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Pattern {
+        Pattern::Itm(Item::Mul)
+    }
+}
+
+<span class="kw">impl </span>CalcursType <span class="kw">for </span>Add {
+    <span class="attr">#[inline(always)]
+    </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
+        Base::Add(<span class="self">self</span>)
+    }
+}
+
+<span class="kw">impl </span>CalcursType <span class="kw">for </span>Mul {
+    <span class="attr">#[inline(always)]
+    </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
+        Base::Mul(<span class="self">self</span>)
+    }
+}
+
 <span class="kw">impl </span>CalcursType <span class="kw">for </span>Pow {
     <span class="attr">#[inline(always)]
     </span><span class="kw">fn </span>base(<span class="self">self</span>) -&gt; Base {
@@ -1040,9 +1070,61 @@
     }
 }
 
-<span class="kw">impl </span>Display <span class="kw">for </span>Pow {
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Add {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.args)<span class="question-mark">?</span>;
+
+        <span class="kw">if </span>!<span class="self">self</span>.coeff.desc().is(Item::Zero) {
+            <span class="macro">write!</span>(f, <span class="string">&quot; + {}&quot;</span>, <span class="self">self</span>.coeff)<span class="question-mark">?</span>;
+        }
+
+        <span class="prelude-val">Ok</span>(())
+    }
+}
+
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Mul {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        Mul::fmt_parts(<span class="kw-2">&amp;</span><span class="self">self</span>.args, <span class="kw-2">&amp;</span><span class="self">self</span>.coeff, f)
+    }
+}
+
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Pow {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
         Pow::fmt_parts(<span class="kw-2">&amp;</span><span class="self">self</span>.base, <span class="kw-2">&amp;</span><span class="self">self</span>.exp, f)
+    }
+}
+
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>AddArgs {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.__args.iter().rev();
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((args, coeff)) = iter.next() {
+            Mul::fmt_parts(args, coeff, f)<span class="question-mark">?</span>;
+        }
+
+        <span class="kw">for </span>(args, coeff) <span class="kw">in </span>iter {
+            <span class="macro">write!</span>(f, <span class="string">&quot; + &quot;</span>)<span class="question-mark">?</span>;
+            Mul::fmt_parts(args, coeff, f)<span class="question-mark">?</span>;
+        }
+
+        <span class="prelude-val">Ok</span>(())
+    }
+}
+
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>MulArgs {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.__args.iter();
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((base, exp)) = iter.next() {
+            Pow::fmt_parts(base, exp, f)<span class="question-mark">?</span>;
+        }
+
+        <span class="kw">for </span>(base, exp) <span class="kw">in </span>iter {
+            <span class="macro">write!</span>(f, <span class="string">&quot; * &quot;</span>)<span class="question-mark">?</span>;
+            Pow::fmt_parts(base, exp, f)<span class="question-mark">?</span>;
+        }
+
+        <span class="prelude-val">Ok</span>(())
     }
 }
 

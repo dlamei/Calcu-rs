@@ -91,97 +91,109 @@
 <a href="#91" id="91">91</a>
 <a href="#92" id="92">92</a>
 <a href="#93" id="93">93</a>
-</pre></div><pre class="rust"><code><span class="macro">macro_rules! </span>itm {
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>bitflags::bitflags;
 
-    <span class="comment">// Rational patterns
-
-    </span>(ratio: <span class="number">1</span>) =&gt; {
-        <span class="kw">crate</span>::rational::Rational {
-            numer: <span class="number">1</span>,
-            denom: <span class="kw">crate</span>::rational::NonZero { non_zero_val: <span class="number">1 </span>},
-            sign: <span class="kw">crate</span>::numeric::Sign::Positive,
-            expon: <span class="number">0
-        </span>}
-    };
-
-    (ratio: -<span class="number">1</span>) =&gt; {
-        <span class="kw">crate</span>::rational::Rational {
-            numer: <span class="number">1</span>,
-            denom: <span class="kw">crate</span>::rational::NonZero { non_zero_val: <span class="number">1 </span>},
-            sign: <span class="kw">crate</span>::numeric::Sign::Negative,
-            expon: <span class="number">0
-        </span>}
-    };
-
-    (ratio: <span class="number">0</span>) =&gt; {
-        <span class="kw">crate</span>::rational::Rational {
-            numer: <span class="number">0</span>,
-            denom: <span class="kw">crate</span>::rational::NonZero { non_zero_val: <span class="number">1 </span>},
-            sign: <span class="kw">crate</span>::numeric::Sign::Positive,
-            expon: <span class="number">0
-        </span>}
-    };
-
-    (ratio: +) =&gt; {
-        <span class="kw">crate</span>::rational::Rational {
-            sign: <span class="kw">crate</span>::numeric::Sign::Positive,
-            ..
-        }
-    };
-
-    (ratio: -) =&gt; {
-        <span class="kw">crate</span>::rational::Rational {
-            sign: <span class="kw">crate</span>::numeric::Sign::Negative,
-            ..
-        }
-    };
-
-    <span class="comment">// Numeric patterns:
-
-    // Numeric::Rational(_)
-    </span>(num: Rational: $(<span class="macro-nonterminal">$n</span>:tt)+) =&gt; { <span class="kw">crate</span>::numeric::Numeric::Rational($(<span class="macro-nonterminal">$n</span>)+)};
-
-    <span class="comment">// Numeric::Infinity(_)
-    </span>(num: Infinity: $(<span class="macro-nonterminal">$n</span>:tt)+) =&gt; {<span class="kw">crate</span>::numeric::Numeric::Infinity($(<span class="macro-nonterminal">$n</span>)+)};
-
-    (num: <span class="number">0</span>) =&gt; { <span class="macro">itm!</span>(num_ratio: <span class="number">0</span>) };
-    (num: <span class="number">1</span>) =&gt; { <span class="macro">itm!</span>(num_ratio: <span class="number">1</span>) };
-    (num: -<span class="number">1</span>) =&gt; { <span class="macro">itm!</span>(num_ratio: -<span class="number">1</span>) };
-    (num: +) =&gt; { <span class="macro">itm!</span>(num_ratio: +) };
-    (num: -) =&gt; { <span class="macro">itm!</span>(num_ratio: -) };
-
-    (num: +oo) =&gt; { <span class="kw">crate</span>::numeric::Numeric::Infinity(<span class="kw">crate</span>::numeric::Infinity { sign: <span class="kw">crate</span>::numeric::Sign::Positive }) };
-    (num: -oo) =&gt; { <span class="kw">crate</span>::numeric::Numeric::Infinity(<span class="kw">crate</span>::numeric::Infinity { sign: <span class="kw">crate</span>::numeric::Sign::Negative }) };
-    (num: oo) =&gt; { <span class="kw">crate</span>::numeric::Infinity { .. } };
-    (num: undef) =&gt; { <span class="kw">crate</span>::numeric::Numeric::Undefined(<span class="kw">_</span>) };
-
-    <span class="comment">// Base patterns:
-
-    </span>(Rational: $(<span class="macro-nonterminal">$n</span>:tt)+) =&gt; { <span class="macro">itm!</span>(base_num: Rational: $(<span class="macro-nonterminal">$n</span>)+ )};
-    (Numeric: $(<span class="macro-nonterminal">$n</span>:tt)+) =&gt; {<span class="kw">crate</span>::base::Base::Numeric($(<span class="macro-nonterminal">$n</span>)+)};
-
-    (<span class="number">0</span>) =&gt; { <span class="macro">itm!</span>(base_num: <span class="number">0</span>) };
-    (<span class="number">1</span>) =&gt; { <span class="macro">itm!</span>(base_num: <span class="number">1</span>) };
-    (-<span class="number">1</span>) =&gt; { <span class="macro">itm!</span>(base_num: -<span class="number">1</span>) };
-    (+) =&gt; { <span class="macro">itm!</span>(base_num: +) };
-    (-) =&gt; { <span class="macro">itm!</span>(base_num: -) };
-    (+oo) =&gt; { <span class="macro">itm!</span>(base_num: +oo) };
-    (-oo) =&gt; { <span class="macro">itm!</span>(base_num: -oo) };
-    (oo) =&gt; { <span class="macro">itm!</span>(base: num: oo) };
-    (undef) =&gt; {<span class="macro">itm!</span>(base_num: undef) };
-
-
-    <span class="comment">// switch namespace
-    </span>(num_ratio: $(<span class="macro-nonterminal">$n</span>: tt)+) =&gt; {
-        <span class="kw">crate</span>::numeric::Numeric::Rational(<span class="macro">itm!</span>(ratio: $(<span class="macro-nonterminal">$n</span>)+))
-    };
-
-
-    (base_num: $(<span class="macro-nonterminal">$n</span>: tt)+) =&gt; {
-        <span class="kw">crate</span>::base::Base::Numeric(<span class="macro">itm!</span>(num: $(<span class="macro-nonterminal">$n</span>)+))
-    };
-
+<span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd)]
+</span><span class="kw">pub enum </span>Pattern {
+    Itm(Item),
+    Binary { lhs: Item, op: Item, rhs: Item },
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>itm;
+<span class="macro">macro_rules! </span>bit {
+    (<span class="macro-nonterminal">$x</span>:literal) =&gt; {
+        <span class="number">1 </span>&lt;&lt; <span class="macro-nonterminal">$x
+    </span>};
+
+    (<span class="macro-nonterminal">$x</span>:ident) =&gt; {
+        <span class="kw">crate</span>::pattern::Item::<span class="macro-nonterminal">$x</span>.bits()
+    };
+}
+
+<span class="macro">bitflags! </span>{
+    <span class="doccomment">/// basic description of an item for pattern matching
+    </span><span class="attr">#[rustfmt::skip]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+    </span><span class="kw">pub struct </span>Item: u32 {
+        <span class="kw">const </span>Atom     = <span class="macro">bit!</span>(<span class="number">0</span>);
+        <span class="kw">const </span>Symbol   = <span class="macro">bit!</span>(<span class="number">1</span>)  | <span class="macro">bit!</span>(Atom);
+        <span class="kw">const </span>Numeric  = <span class="macro">bit!</span>(<span class="number">2</span>)  | <span class="macro">bit!</span>(Atom);
+
+        <span class="kw">const </span>Undef    = <span class="macro">bit!</span>(<span class="number">3</span>)  | <span class="macro">bit!</span>(Numeric);
+        <span class="kw">const </span>Inf      = <span class="macro">bit!</span>(<span class="number">4</span>)  | <span class="macro">bit!</span>(Numeric);
+        <span class="kw">const </span>Rational = <span class="macro">bit!</span>(<span class="number">5</span>)  | <span class="macro">bit!</span>(Numeric);
+
+        <span class="kw">const </span>Int      = <span class="macro">bit!</span>(<span class="number">6</span>)  | <span class="macro">bit!</span>(Rational);
+        <span class="kw">const </span>UOne     = <span class="macro">bit!</span>(<span class="number">7</span>)  | <span class="macro">bit!</span>(Int);
+
+        <span class="kw">const </span>Binary   = <span class="macro">bit!</span>(<span class="number">8</span>);
+        <span class="kw">const </span>Add      = <span class="macro">bit!</span>(<span class="number">9</span>)  | <span class="macro">bit!</span>(Binary);
+        <span class="kw">const </span>Mul      = <span class="macro">bit!</span>(<span class="number">10</span>) | <span class="macro">bit!</span>(Binary);
+        <span class="kw">const </span>Pow      = <span class="macro">bit!</span>(<span class="number">11</span>) | <span class="macro">bit!</span>(Binary);
+
+        <span class="kw">const </span>Zero     = <span class="macro">bit!</span>(<span class="number">12</span>);
+        <span class="kw">const </span>Pos      = <span class="macro">bit!</span>(<span class="number">13</span>);
+        <span class="kw">const </span>Neg      = <span class="macro">bit!</span>(<span class="number">14</span>);
+
+        <span class="comment">//const AtomicBinary = bit!(Atom) | bit!(Binary);
+        //const AtomicAdd    = bit!(Add)  | bit!(AtomicBinary);
+
+        // compositions
+
+        </span><span class="kw">const </span>One          = <span class="macro">bit!</span>(Pos)  | <span class="macro">bit!</span>(UOne);
+        <span class="kw">const </span>PosInt       = <span class="macro">bit!</span>(Pos)  | <span class="macro">bit!</span>(Int);
+        <span class="kw">const </span>PosRatio     = <span class="macro">bit!</span>(Pos)  | <span class="macro">bit!</span>(Rational);
+        <span class="kw">const </span>PosInf       = <span class="macro">bit!</span>(Pos)  | <span class="macro">bit!</span>(Inf);
+
+        <span class="kw">const </span>MinusOne     = <span class="macro">bit!</span>(Neg)  | <span class="macro">bit!</span>(UOne);
+        <span class="kw">const </span>NegInt       = <span class="macro">bit!</span>(Neg)  | <span class="macro">bit!</span>(Int);
+        <span class="kw">const </span>NegRatio     = <span class="macro">bit!</span>(Neg)  | <span class="macro">bit!</span>(Rational);
+        <span class="kw">const </span>NegInf       = <span class="macro">bit!</span>(Neg)  | <span class="macro">bit!</span>(Inf);
+    }
+}
+
+<span class="kw">impl </span>From&lt;Item&gt; <span class="kw">for </span>Pattern {
+    <span class="kw">fn </span>from(value: Item) -&gt; <span class="self">Self </span>{
+        Pattern::Itm(value)
+    }
+}
+
+<span class="kw">impl </span>Pattern {
+    <span class="kw">pub const fn </span>to_item(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Item {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Itm(itm) =&gt; <span class="kw-2">*</span>itm,
+            <span class="self">Self</span>::Binary { op, .. } =&gt; <span class="kw-2">*</span>op,
+        }
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">pub const fn </span>is(<span class="kw-2">&amp;</span><span class="self">self</span>, itm: Item) -&gt; bool {
+        <span class="kw">let </span>b = itm.bits();
+        (<span class="self">self</span>.to_item().bits() &amp; b) == b
+    }
+}
+
+<span class="macro">macro_rules! </span>get_itm {
+    (Numeric: <span class="macro-nonterminal">$e</span>:expr) =&gt; {
+        <span class="kw">if let </span><span class="kw">crate</span>::base::Base::Numeric(n) = <span class="macro-nonterminal">$e </span>{
+            n
+        } <span class="kw">else </span>{
+            <span class="macro">panic!</span>(<span class="string">&quot;get_itm for Numeric failed&quot;</span>);
+        }
+    };
+
+    (Rational: <span class="macro-nonterminal">$e</span>:expr) =&gt; {
+        <span class="kw">if let </span><span class="kw">crate</span>::base::Base::Numeric(<span class="kw">crate</span>::numeric::Numeric::Rational(r)) = <span class="macro-nonterminal">$e </span>{
+            r
+        } <span class="kw">else </span>{
+            <span class="macro">panic!</span>(<span class="string">&quot;get_itm for Rational failed&quot;</span>);
+        }
+    };
+}
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>get_itm;
 </code></pre></div></section></main></body></html>
